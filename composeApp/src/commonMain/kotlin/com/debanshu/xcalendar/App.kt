@@ -96,8 +96,8 @@ import xcalendar.composeapp.generated.resources.compose_multiplatform
 @Preview
 fun App() {
     MaterialTheme {
-        val viewModel by koinViewModel<CalendarViewModel>()
-        CalendarApp(viewModel)
+//        val viewModel by koinViewModel<CalendarViewModel>()
+//        CalendarApp(viewModel)
     }
 }
 
@@ -698,7 +698,7 @@ fun DayCell(
                         modifier = Modifier
                             .size(6.dp)
                             .background(
-                                Color(event.color ?: 0xFFE91E63),
+                                Color((event.color ?: 0xFFE91E63) as Int),
                                 CircleShape
                             )
                             .padding(1.dp)
@@ -872,7 +872,7 @@ fun EventItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(4.dp))
-            .background(Color(event.color ?: 0xFFE91E63).copy(alpha = 0.1f))
+            .background(Color((event.color ?: 0xFFE91E63) as Int).copy(alpha = 0.1f))
             .clickable(onClick = onClick)
             .padding(8.dp)
     ) {
@@ -880,7 +880,7 @@ fun EventItem(
         Box(
             modifier = Modifier
                 .size(12.dp)
-                .background(Color(event.color ?: 0xFFE91E63), CircleShape)
+                .background(Color((event.color ?: 0xFFE91E63) as Int), CircleShape)
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -926,10 +926,10 @@ fun TimeEventItem(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(4.dp))
-            .background(Color(event.color ?: 0xFFE91E63).copy(alpha = 0.2f))
+            .background(Color((event.color ?: 0xFFE91E63) as Int).copy(alpha = 0.2f))
             .border(
                 width = 1.dp,
-                color = Color(event.color ?: 0xFFE91E63),
+                color = Color((event.color ?: 0xFFE91E63) as Int),
                 shape = RoundedCornerShape(4.dp)
             )
             .clickable(onClick = onClick)
@@ -940,7 +940,7 @@ fun TimeEventItem(
                 text = event.title,
                 style = MaterialTheme.typography.body2,
                 fontWeight = FontWeight.Medium,
-                color = Color(event.color ?: 0xFFE91E63).copy(alpha = 0.8f)
+                color = Color((event.color ?: 0xFFE91E63) as Int).copy(alpha = 0.8f)
             )
 
             Text(
@@ -1203,7 +1203,7 @@ fun EventDetailsDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .background(Color(event.color ?: 0xFFE91E63))
+                        .background(Color((event.color ?: 0xFFE91E63) as Int))
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

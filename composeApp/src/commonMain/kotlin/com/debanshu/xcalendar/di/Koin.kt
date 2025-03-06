@@ -17,11 +17,15 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.ksp.generated.module
 
+@Module
+class PlatformModule {
+    @Single
+    fun getLocalDatabase() = getDatabase()
+}
+
+expect fun getDatabase(): AppDatabase
 
 @Module
-expect class NativeModule()
-
-@Module(includes = [NativeModule::class])
 class DataModule {
 
     @Single
@@ -51,13 +55,13 @@ class DataModule {
 @ComponentScan("com.debanshu.xcalendar.ui")
 class ViewModelModule
 
-@Module(includes = [DataModule::class, ViewModelModule::class])
+@Module(includes = [PlatformModule::class, DataModule::class, ViewModelModule::class])
 class AppModule
 
 fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
         modules(
-            AppModule().module,
+           AppModule().module
         )
         config?.invoke(this)
     }

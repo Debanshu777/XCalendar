@@ -9,7 +9,6 @@ import com.debanshu.xcalendar.data.model.EventEntity
 import com.debanshu.xcalendar.data.model.EventReminderEntity
 import com.debanshu.xcalendar.data.model.HolidayEntity
 import com.debanshu.xcalendar.data.model.UserEntity
-import com.debanshu.xcalendar.platform.DatabaseFactory
 
 @Database(
     entities = [
