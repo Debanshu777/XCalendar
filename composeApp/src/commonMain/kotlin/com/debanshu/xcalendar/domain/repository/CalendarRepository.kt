@@ -8,10 +8,9 @@ import com.debanshu.xcalendar.data.remoteDataSource.Result
 import com.debanshu.xcalendar.domain.model.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Singleton
-import kotlin.collections.map
+import org.koin.core.annotation.Single
 
-@Singleton
+@Single
 class CalendarRepository(
     private val calendarDao: CalendarDao,
     private val apiService: RemoteCalendarApiService,
@@ -31,7 +30,8 @@ class CalendarRepository(
     }
 
     fun getCalendarsForUser(userId: String): Flow<List<Calendar>> =
-        calendarDao.getCalendarsByUserId(userId)
+        calendarDao
+            .getCalendarsByUserId(userId)
             .map { entities -> entities.map { it.asCalendar() } }
 
     suspend fun upsertCalendar(calendars: List<Calendar>) {

@@ -1,7 +1,9 @@
 package com.debanshu.xcalendar
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -125,6 +127,7 @@ fun CalendarApp(
         },
     ) {
         Scaffold(
+            contentWindowInsets = WindowInsets.safeDrawing,
             topBar = {
                 CalendarTopAppBar(
                     dateState = dataState,
@@ -177,7 +180,7 @@ fun CalendarApp(
                         }
 
                     MonthScreen(
-                        modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                         dateStateHolder = dateStateHolder,
                         events = eventsProvider,
                         holidays = holidaysProvider,
@@ -186,7 +189,7 @@ fun CalendarApp(
                 }
                 composable(route = CalendarView.Week.toString()) {
                     WeekScreen(
-                        modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                         dateStateHolder = dateStateHolder,
                         events = calendarUiState.events,
                         holidays = calendarUiState.holidays,
@@ -201,7 +204,7 @@ fun CalendarApp(
                 }
                 composable(route = CalendarView.Day.toString()) {
                     DayScreen(
-                        modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                         dateStateHolder = dateStateHolder,
                         events = calendarUiState.events,
                         holidays = calendarUiState.holidays,
@@ -213,7 +216,7 @@ fun CalendarApp(
                 }
                 composable(route = CalendarView.ThreeDay.toString()) {
                     ThreeDayScreen(
-                        modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                         dateStateHolder = dateStateHolder,
                         events = calendarUiState.events,
                         holidays = calendarUiState.holidays,
@@ -228,7 +231,7 @@ fun CalendarApp(
                 }
                 composable(route = CalendarView.Schedule.toString()) {
                     ScheduleScreen(
-                        modifier = Modifier.padding(paddingValues),
+                        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
                         dateStateHolder = dateStateHolder,
                         events = calendarUiState.events,
                         holidays = calendarUiState.holidays,

@@ -1,12 +1,13 @@
 [versions]
-agp = "8.12.1"
+agp = "8.12.2"
 android-compileSdk = "36"
-android-minSdk = "24"
+android-minSdk = "30"
 android-targetSdk = "36"
 androidx-activityCompose = "1.10.1"
-androidx-lifecycle = "2.9.2"
+androidx-lifecycle = "2.9.3"
 coil3 = "2.5.2"
 compose-multiplatform = "1.8.2"
+core = "1.0.0"
 kotlin = "2.2.20-RC"
 room_version = "2.7.2"
 ksp = "2.2.20-RC-2.0.2"
@@ -15,13 +16,16 @@ ktor-bom = "3.2.3"
 koin-bom = "4.1.0"
 koin-annotations-bom = "2.1.0"
 kotlinx-datetime = "0.7.1"
-navigation = "2.9.0-beta05"
+navigation = "2.9.0-rc01"
 composeIcons = "1.1.1"
 materialKolor = "3.0.1"
 config = "0.17.1"
 store = "5.1.0-alpha06"
+kotlinx-coroutines = "1.10.2"
+adaptive = "1.1.2"
 
 [libraries]
+androidx-core = { module = "androidx.window.extensions.core:core", version.ref = "core" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor = { module = "io.ktor:ktor-bom", version.ref = "ktor-bom" }
@@ -29,7 +33,9 @@ ktor-client-core = { module = "io.ktor:ktor-client-core" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }

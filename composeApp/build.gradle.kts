@@ -1,6 +1,8 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.util.Properties
 
 plugins {
@@ -20,6 +22,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_21)
         }
     }
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
 
     listOf(
         iosX64(),
@@ -31,8 +36,15 @@ kotlin {
             isStatic = true
         }
     }
+    jvm("desktop")
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 
     sourceSets {
+        val desktopMain by getting
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -71,6 +83,13 @@ kotlin {
             implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
+
+            implementation(libs.material3.adaptive)
+        }
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.okhttp)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -82,35 +101,39 @@ kotlin {
     }
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
 dependencies {
     debugImplementation(compose.uiTooling)
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
     listOf(
         "kspAndroid",
         "kspIosSimulatorArm64",
         "kspIosX64",
         "kspIosArm64",
+        "kspDesktop",
     ).forEach {
         add(it, libs.room.compiler)
         add(it, libs.koin.ksp.compiler)
     }
-    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
 }
 
 ksp {
     arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
     arg("KOIN_CONFIG_CHECK", "true")
+    arg("KOIN_LOG_TIMES", "true")
     arg("KOIN_DEFAULT_MODULE", "false")
 }
-//
-// project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
-//    if (name != "kspCommonMainKotlinMetadata") {
-//        dependsOn("kspCommonMainKotlinMetadata")
-//    }
-// }
+
+// Fix KSP task dependencies
+project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+
+// Explicitly declare KSP task dependencies
+tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
+    dependsOn("kspCommonMainKotlinMetadata")
+}
 
 android {
     namespace = "com.debanshu.xcalendar"
@@ -165,5 +188,17 @@ buildkonfig {
             "API_KEY",
             localProperties["API_KEY"]?.toString() ?: "",
         )
+    }
+}
+
+compose.desktop {
+    application {
+        mainClass = "com.debanshu.xcalendar.MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "com.debanshu.xcalendar"
+            packageVersion = "1.0.0"
+        }
     }
 }
