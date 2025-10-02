@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,11 +22,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
@@ -38,17 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.debanshu.xcalendar.common.customBorder
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
@@ -66,7 +66,7 @@ import kotlin.time.ExperimentalTime
 
 /**
  * A swipeable calendar view that can be used for day, three-day or week views.
- * 
+ *
  * Optimized with sliding window approach and pre-calculated event/holiday mappings:
  * - Pre-calculates events and holidays by date to avoid repeated filtering
  * - Maintains efficient sliding window for smooth swiping
@@ -87,6 +87,7 @@ import kotlin.time.ExperimentalTime
  */
 @Composable
 fun SwipeableCalendarView(
+    modifier: Modifier = Modifier,
     startDate: LocalDate,
     events: List<Event>,
     holidays: List<Holiday>,
@@ -98,7 +99,7 @@ fun SwipeableCalendarView(
     hourHeightDp: Float = 60f,
     scrollState: ScrollState,
     currentDate: LocalDate,
-    dynamicHeaderHeightState: MutableState<Int>
+    dynamicHeaderHeightState: MutableState<Int>,
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
@@ -107,19 +108,21 @@ fun SwipeableCalendarView(
     var offsetX by remember { mutableStateOf(0f) }
     var isAnimating by remember { mutableStateOf(false) }
     var targetOffsetX by remember { mutableStateOf(0f) }
-    
+
     // Pre-calculate events and holidays by date for efficient lookup
-    val eventsByDate = remember(events) {
-        events.groupBy { event ->
-            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val eventsByDate =
+        remember(events) {
+            events.groupBy { event ->
+                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            }
         }
-    }
-    
-    val holidaysByDate = remember(holidays) {
-        holidays.groupBy { holiday ->
-            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+    val holidaysByDate =
+        remember(holidays) {
+            holidays.groupBy { holiday ->
+                holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            }
         }
-    }
 
     // Optimized sliding window with persistent state
     val calendarWindow by remember {
@@ -127,8 +130,8 @@ fun SwipeableCalendarView(
             CalendarWindow(
                 previous = startDate.minus(DatePeriod(days = numDays)),
                 current = startDate,
-                next = startDate.plus(DatePeriod(days = numDays))
-            )
+                next = startDate.plus(DatePeriod(days = numDays)),
+            ),
         )
     }
 
@@ -155,49 +158,49 @@ fun SwipeableCalendarView(
                     onDateRangeChange(newStartDate)
                 }
                 offsetX = 0f
-                targetOffsetX = 0f
                 isAnimating = false
             }
-        }
+        },
     )
 
     val effectiveOffset = if (isAnimating) animatedOffset else offsetX
 
     Surface(
-        modifier = Modifier
-            .fillMaxHeight()
-            .onSizeChanged { size = it }
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        val threshold = screenWidth * 0.25f // More sensitive threshold
-                        if (abs(offsetX) > threshold) {
-                            isAnimating = true
-                            targetOffsetX = if (offsetX > 0) {
-                                screenWidth
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            val threshold = screenWidth * 0.25f // More sensitive threshold
+                            if (abs(offsetX) > threshold) {
+                                isAnimating = true
+                                targetOffsetX =
+                                    if (offsetX > 0) {
+                                        screenWidth
+                                    } else {
+                                        -screenWidth
+                                    }
                             } else {
-                                -screenWidth
+                                isAnimating = true
+                                targetOffsetX = 0f
                             }
-                        } else {
+                        },
+                        onDragCancel = {
                             isAnimating = true
                             targetOffsetX = 0f
-                        }
-                    },
-                    onDragCancel = {
-                        isAnimating = true
-                        targetOffsetX = 0f
-                    },
-                    onHorizontalDrag = { change, amount ->
-                        // Optimize drag handling to reduce state updates
-                        if (!isAnimating) {
-                            val newOffsetX = offsetX + amount
-                            offsetX = newOffsetX
-                            targetOffsetX = newOffsetX
-                            change.consume()
-                        }
-                    }
-                )
-            }
+                        },
+                        onHorizontalDrag = { change, amount ->
+                            // Optimize drag handling to reduce state updates
+                            if (!isAnimating) {
+                                val newOffsetX = offsetX + amount
+                                offsetX = newOffsetX
+                                targetOffsetX = newOffsetX
+                                change.consume()
+                            }
+                        },
+                    )
+                },
     ) {
         CalendarContent(
             startDate = calendarWindow.current,
@@ -210,12 +213,13 @@ fun SwipeableCalendarView(
             onEventClick = onEventClick,
             currentDate = currentDate,
             scrollState = scrollState,
-            modifier = Modifier
-                .fillMaxSize()
-                .offset {
-                    IntOffset(effectiveOffset.roundToInt(), 0)
-                },
-            dynamicHeaderHeightState = dynamicHeaderHeightState
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .offset {
+                        IntOffset(effectiveOffset.roundToInt(), 0)
+                    },
+            dynamicHeaderHeightState = dynamicHeaderHeightState,
         )
 
         CalendarContent(
@@ -229,15 +233,16 @@ fun SwipeableCalendarView(
             onEventClick = onEventClick,
             currentDate = currentDate,
             scrollState = scrollState,
-            modifier = Modifier
-                .fillMaxSize()
-                .offset {
-                    IntOffset(
-                        -screenWidth.roundToInt() + effectiveOffset.roundToInt(),
-                        0
-                    )
-                },
-            dynamicHeaderHeightState = null
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .offset {
+                        IntOffset(
+                            -screenWidth.roundToInt() + effectiveOffset.roundToInt(),
+                            0,
+                        )
+                    },
+            dynamicHeaderHeightState = null,
         )
 
         CalendarContent(
@@ -251,15 +256,16 @@ fun SwipeableCalendarView(
             onEventClick = onEventClick,
             currentDate = currentDate,
             scrollState = scrollState,
-            modifier = Modifier
-                .fillMaxSize()
-                .offset {
-                    IntOffset(
-                        screenWidth.roundToInt() + effectiveOffset.roundToInt(),
-                        0
-                    )
-                },
-            dynamicHeaderHeightState = null
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .offset {
+                        IntOffset(
+                            screenWidth.roundToInt() + effectiveOffset.roundToInt(),
+                            0,
+                        )
+                    },
+            dynamicHeaderHeightState = null,
         )
     }
 }
@@ -277,7 +283,7 @@ private fun CalendarContent(
     currentDate: LocalDate,
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
-    dynamicHeaderHeightState: MutableState<Int>?
+    dynamicHeaderHeightState: MutableState<Int>?,
 ) {
     Column(modifier) {
         DaysHeaderRow(
@@ -287,7 +293,7 @@ private fun CalendarContent(
             holidaysByDate = holidaysByDate,
             onDayClick = onDayClick,
             modifier = Modifier.fillMaxWidth(),
-            dynamicHeaderHeightState = dynamicHeaderHeightState
+            dynamicHeaderHeightState = dynamicHeaderHeightState,
         )
 
         CalendarEventsGrid(
@@ -298,11 +304,12 @@ private fun CalendarContent(
             hourHeightDp = hourHeightDp,
             onEventClick = onEventClick,
             currentDate = currentDate,
-            scrollState = scrollState
+            scrollState = scrollState,
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DaysHeaderRow(
     startDate: LocalDate,
@@ -311,26 +318,24 @@ private fun DaysHeaderRow(
     holidaysByDate: Map<LocalDate, List<Holiday>>,
     onDayClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    dynamicHeaderHeightState: MutableState<Int>?
+    dynamicHeaderHeightState: MutableState<Int>?,
 ) {
-    val dates = List(numDays) { index ->
-        startDate.plus(DatePeriod(days = index))
-    }
-    val dayNameLength = when {
-        numDays <= 3 -> 3
-        else -> 1
-    }
+    val dates =
+        List(numDays) { index ->
+            startDate.plus(DatePeriod(days = index))
+        }
 
     Row(
-        modifier = modifier
-            .background(XCalendarTheme.colorScheme.surfaceContainerHigh)
-            .height(IntrinsicSize.Min)
-            .heightIn(min = 60.dp)
-            .onGloballyPositioned {
-                if (dynamicHeaderHeightState != null) {
-                    dynamicHeaderHeightState.value = it.size.height
-                }
-            }
+        modifier =
+            modifier
+                .background(XCalendarTheme.colorScheme.surfaceContainerLow)
+                .height(IntrinsicSize.Min)
+                .heightIn(min = 60.dp)
+                .onGloballyPositioned {
+                    if (dynamicHeaderHeightState != null) {
+                        dynamicHeaderHeightState.value = it.size.height
+                    }
+                },
     ) {
         if (numDays > 1) {
             dates.forEach { date ->
@@ -338,62 +343,53 @@ private fun DaysHeaderRow(
                 val currentDayHolidays = holidaysByDate[date] ?: emptyList()
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .padding(top = 8.dp)
-                        .customBorder(
-                            end = true,
-                            bottom = true,
-                            start = true,
-                            startFraction = 0.85f,
-                            startLengthFraction = 1f,
-                            endFraction = 0.85f,
-                            endLengthFraction = 1f,
-                            bottomFraction = 0f,
-                            bottomLengthFraction = 1f,
-                            color = XCalendarTheme.colorScheme.surfaceVariant,
-                            width = 1.dp
-                        )
-                        .clickable { onDayClick(date) },
+                    modifier =
+                        Modifier
+                            .fillMaxHeight()
+                            .weight(1f)
+                            .padding(top = 8.dp)
+                            .clickable { onDayClick(date) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = date.dayOfWeek.name.take(dayNameLength),
-                        style = XCalendarTheme.typography.labelSmall
+                        text = date.dayOfWeek.name.take(3),
+                        style = XCalendarTheme.typography.labelSmall,
                     )
                     Box(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .size(28.dp)
-                            .background(
-                                when {
-                                    isToday -> XCalendarTheme.colorScheme.primary
-                                    else -> Color.Transparent
-                                },
-                                if (isToday) CircleShape else RectangleShape
-                            ),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .padding(vertical = XCalendarTheme.dimensions.spacing_4)
+                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .size(30.dp)
+                                .background(
+                                    when {
+                                        isToday -> XCalendarTheme.colorScheme.primary
+                                        else -> Color.Transparent
+                                    },
+                                ),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = date.day.toString(),
                             style = XCalendarTheme.typography.bodyMedium,
-                            color = when {
-                                isToday -> XCalendarTheme.colorScheme.inverseOnSurface
-                                else -> XCalendarTheme.colorScheme.onSurface
-                            }
+                            color =
+                                when {
+                                    isToday -> XCalendarTheme.colorScheme.inverseOnSurface
+                                    else -> XCalendarTheme.colorScheme.onSurface
+                                },
                         )
                     }
                     if (currentDayHolidays.isNotEmpty()) {
                         Column {
                             currentDayHolidays.take(2).forEach { holiday ->
                                 EventTag(
-                                    modifier = Modifier
-                                        .padding(start = 4.dp, end = 4.dp, bottom = 6.dp)
-                                        .fillMaxWidth(),
+                                    modifier =
+                                        Modifier
+                                            .padding(start = 4.dp, end = 4.dp, bottom = 6.dp)
+                                            .fillMaxWidth(),
                                     text = holiday.name,
                                     color = Color(0xFF007F73),
-                                    textColor = XCalendarTheme.colorScheme.inverseOnSurface
+                                    textColor = XCalendarTheme.colorScheme.inverseOnSurface,
                                 )
                             }
 
@@ -406,9 +402,10 @@ private fun DaysHeaderRow(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     color = XCalendarTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier
-                                        .padding(start = 4.dp, end = 4.dp, bottom = 6.dp)
-                                        .fillMaxWidth()
+                                    modifier =
+                                        Modifier
+                                            .padding(start = 4.dp, end = 4.dp, bottom = 6.dp)
+                                            .fillMaxWidth(),
                                 )
                             }
                         }
@@ -419,16 +416,18 @@ private fun DaysHeaderRow(
             val currentDayHolidays = holidaysByDate[dates.first()] ?: emptyList()
             var holidaysExpanded by remember { mutableStateOf(false) }
             Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
             ) {
                 if (currentDayHolidays.isNotEmpty()) {
-                    val displayHolidays = if (holidaysExpanded) {
-                        currentDayHolidays
-                    } else {
-                        currentDayHolidays.take(2)
-                    }
+                    val displayHolidays =
+                        if (holidaysExpanded) {
+                            currentDayHolidays
+                        } else {
+                            currentDayHolidays.take(2)
+                        }
                     displayHolidays.forEach { holiday ->
                         Text(
                             text = holiday.name,
@@ -437,11 +436,14 @@ private fun DaysHeaderRow(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = XCalendarTheme.colorScheme.inverseOnSurface,
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth()
-                                .background(Color(0xFF007F73), RoundedCornerShape(2.dp))
-                                .padding(8.dp)
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                                    .fillMaxWidth()
+                                    .background(
+                                        Color(0xFF007F73),
+                                        RoundedCornerShape(8.dp),
+                                    ).padding(8.dp),
                         )
                     }
 
@@ -454,10 +456,11 @@ private fun DaysHeaderRow(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = XCalendarTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                .fillMaxWidth()
-                                .clickable { holidaysExpanded = true }
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { holidaysExpanded = true },
                         )
                     } else if (holidaysExpanded && currentDayHolidays.size > 2) {
                         Text(
@@ -467,12 +470,14 @@ private fun DaysHeaderRow(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = XCalendarTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                .fillMaxWidth()
-                                .clickable { holidaysExpanded = false }
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { holidaysExpanded = false },
                         )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
         }
@@ -489,17 +494,19 @@ private fun CalendarEventsGrid(
     hourHeightDp: Float,
     onEventClick: (Event) -> Unit,
     currentDate: LocalDate,
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ) {
-    val dates = List(numDays) { index ->
-        startDate.plus(DatePeriod(days = index))
-    }
+    val dates =
+        List(numDays) { index ->
+            startDate.plus(DatePeriod(days = index))
+        }
 
     BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .background(XCalendarTheme.colorScheme.surfaceContainerLow)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .background(XCalendarTheme.colorScheme.surfaceContainerLow),
     ) {
         val dayColumnWidth = maxWidth / numDays
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -510,14 +517,19 @@ private fun CalendarEventsGrid(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .height(hourHeightDp.dp)
+                        .height(hourHeightDp.dp),
                 ) {
                     repeat(numDays) {
                         Box(
                             Modifier
                                 .weight(1f)
-                                .fillMaxHeight()
-                                .border(0.5.dp, XCalendarTheme.colorScheme.surfaceVariant)
+                                .border(
+                                    width = 2.dp,
+                                    color = XCalendarTheme.colorScheme.surfaceContainerLow,
+                                    shape = RoundedCornerShape(10.dp),
+                                ).fillMaxHeight()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
                         )
                     }
                 }
@@ -531,11 +543,12 @@ private fun CalendarEventsGrid(
                 val offsetY = (currentMinute / 60f * hourHeightDp).dp
 
                 Box(
-                    modifier = Modifier
-                        .offset(x = offsetX, y = offsetY)
-                        .width(dayColumnWidth)
-                        .height(2.dp)
-                        .background(XCalendarTheme.colorScheme.primary)
+                    modifier =
+                        Modifier
+                            .offset(x = offsetX, y = offsetY)
+                            .width(dayColumnWidth)
+                            .height(2.dp)
+                            .background(XCalendarTheme.colorScheme.primary),
                 )
             }
         }
@@ -545,9 +558,7 @@ private fun CalendarEventsGrid(
             val dayEvents = eventsByDate[date] ?: emptyList()
 
             // Group overlapping events with caching
-            val eventGroups = remember(dayEvents) {
-                groupOverlappingEvents(dayEvents)
-            }
+            val eventGroups = remember(dayEvents) { groupOverlappingEvents(dayEvents) }
 
             eventGroups.forEach { (_, group) ->
                 val totalOverlapping = group.size
@@ -556,16 +567,16 @@ private fun CalendarEventsGrid(
                     val eventStart =
                         event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
                     val eventEnd = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-
                     val hour = eventStart.hour
                     val minute = eventStart.minute
 
                     if (hour in timeRange) {
-                        val durationMinutes = if (eventStart.date == eventEnd.date) {
-                            (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
-                        } else {
-                            (24 - hour) * 60 - minute
-                        }
+                        val durationMinutes =
+                            if (eventStart.date == eventEnd.date) {
+                                (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
+                            } else {
+                                (24 - hour) * 60 - minute
+                            }
 
                         val topOffset =
                             (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
@@ -575,15 +586,15 @@ private fun CalendarEventsGrid(
                         EventItem(
                             event = event,
                             onClick = { onEventClick(event) },
-                            modifier = Modifier
-                                .offset(
-                                    x = dayColumnWidth * dayIndex,
-                                    y = topOffset.dp
-                                )
-                                .width(dayColumnWidth)
-                                .height(eventHeight.dp.coerceAtLeast(30.dp))
-                                .padding(1.dp),
-                            isOverlapping = totalOverlapping > 1
+                            modifier =
+                                Modifier
+                                    .offset(
+                                        x = dayColumnWidth * dayIndex,
+                                        y = topOffset.dp,
+                                    ).width(dayColumnWidth)
+                                    .height(eventHeight.dp.coerceAtLeast(30.dp))
+                                    .padding(1.dp),
+                            isOverlapping = totalOverlapping > 1,
                         )
                     }
                 }
@@ -606,12 +617,13 @@ private fun groupOverlappingEvents(events: List<Event>): Map<Int, List<Event>> {
         val eventEnd = event.endTime
 
         // Find a group where this event doesn't overlap with any event in the group
-        val existingGroup = groups.entries.firstOrNull { (_, groupEvents) ->
-            groupEvents.none {
-                // Check if events overlap
-                (eventStart < it.endTime && eventEnd > it.startTime)
+        val existingGroup =
+            groups.entries.firstOrNull { (_, groupEvents) ->
+                groupEvents.none {
+                    // Check if events overlap
+                    (eventStart < it.endTime && eventEnd > it.startTime)
+                }
             }
-        }
 
         if (existingGroup != null) {
             // Add to existing group
@@ -631,22 +643,23 @@ private fun EventItem(
     event: Event,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isOverlapping: Boolean = false
+    isOverlapping: Boolean = false,
 ) {
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .border(1.dp, color = Color(event.color))
-            .background(Color(event.color).copy(alpha = if (isOverlapping) 0.7f else 0.9f))
-            .clickable(onClick = onClick)
-            .padding(4.dp)
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(4.dp))
+                .border(1.dp, color = Color(event.color))
+                .background(Color(event.color).copy(alpha = if (isOverlapping) 0.7f else 0.9f))
+                .clickable(onClick = onClick)
+                .padding(4.dp),
     ) {
         Text(
             text = event.title,
             style = XCalendarTheme.typography.labelSmall,
             color = XCalendarTheme.colorScheme.inverseOnSurface,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -658,7 +671,7 @@ private fun EventItem(
 private class CalendarWindow(
     previous: LocalDate,
     current: LocalDate,
-    next: LocalDate
+    next: LocalDate,
 ) {
     var previous by mutableStateOf(previous)
     var current by mutableStateOf(current)
@@ -667,7 +680,10 @@ private class CalendarWindow(
     /**
      * Updates the window when swiping to the previous date range
      */
-    fun updateForPreviousDate(newCurrentDate: LocalDate, numDays: Int) {
+    fun updateForPreviousDate(
+        newCurrentDate: LocalDate,
+        numDays: Int,
+    ) {
         next = current
         current = previous
         previous = newCurrentDate.minus(DatePeriod(days = numDays))
@@ -676,7 +692,10 @@ private class CalendarWindow(
     /**
      * Updates the window when swiping to the next date range
      */
-    fun updateForNextDate(newCurrentDate: LocalDate, numDays: Int) {
+    fun updateForNextDate(
+        newCurrentDate: LocalDate,
+        numDays: Int,
+    ) {
         previous = current
         current = next
         next = newCurrentDate.plus(DatePeriod(days = numDays))
@@ -685,7 +704,10 @@ private class CalendarWindow(
     /**
      * Updates the window to a specific date (for external date changes)
      */
-    fun updateToDate(targetDate: LocalDate, numDays: Int) {
+    fun updateToDate(
+        targetDate: LocalDate,
+        numDays: Int,
+    ) {
         current = targetDate
         previous = targetDate.minus(DatePeriod(days = numDays))
         next = targetDate.plus(DatePeriod(days = numDays))

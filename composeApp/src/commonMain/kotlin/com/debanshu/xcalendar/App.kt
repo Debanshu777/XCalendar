@@ -93,7 +93,6 @@ fun CalendarApp(
                 drawerShape = RectangleShape,
                 drawerContainerColor = XCalendarTheme.colorScheme.surfaceContainerHigh,
             ) {
-                // Use stable route to avoid recomposition from navigation state changes
                 val stableRoute =
                     remember(currentRoute?.destination?.route) {
                         currentRoute?.destination?.route

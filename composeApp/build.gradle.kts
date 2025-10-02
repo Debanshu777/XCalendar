@@ -71,6 +71,9 @@ kotlin {
             implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
+            implementation(libs.androidx.adaptive)
+            implementation(libs.androidx.adaptive.layout)
+            implementation(libs.androidx.adaptive.navigation)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
