@@ -1,9 +1,15 @@
 package com.debanshu.xcalendar.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInCubic
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,18 +28,24 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -61,7 +73,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CalendarTopAppBar(
     dateState: DateState,
@@ -76,6 +88,15 @@ fun CalendarTopAppBar(
     val currentYear = dateState.currentDate.year
 
     val showYear = dateState.selectedInViewMonth.year != currentYear
+
+    val rotationAngle = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        rotationAngle.animateTo(
+            targetValue = 360f,
+            animationSpec = tween(durationMillis = 2000, easing = LinearEasing),
+        )
+    }
 
     val rotationDegree by animateFloatAsState(
         targetValue =
@@ -104,22 +125,23 @@ fun CalendarTopAppBar(
         modifier =
             Modifier
                 .background(
-                    color = XCalendarTheme.colorScheme.surfaceContainerHigh,
+                    color = XCalendarTheme.colorScheme.surfaceContainerLow,
                 ).animateContentSize(),
     ) {
         TopAppBar(
             colors =
                 TopAppBarColors(
-                    containerColor = XCalendarTheme.colorScheme.surfaceContainerHigh,
-                    scrolledContainerColor = XCalendarTheme.colorScheme.surfaceContainerHigh,
-                    navigationIconContentColor = XCalendarTheme.colorScheme.onSurface,
-                    titleContentColor = XCalendarTheme.colorScheme.onSurface,
-                    actionIconContentColor = XCalendarTheme.colorScheme.onSurface,
+                    containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
+                    scrolledContainerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
+                    navigationIconContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
+                    titleContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
+                    actionIconContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
+                    subtitleContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
                 ),
             navigationIcon = {
                 IconButton(onClick = onMenuClick) {
                     Icon(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(16.dp),
                         imageVector = FontAwesomeIcons.Solid.Bars,
                         contentDescription = "Menu",
                     )
@@ -139,13 +161,27 @@ fun CalendarTopAppBar(
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = monthTitle,
-                        style = XCalendarTheme.typography.bodyLarge,
-                        color = XCalendarTheme.colorScheme.onSurface,
-                    )
+                    AnimatedContent(
+                        targetState = monthTitle,
+                        transitionSpec = {
+                            slideInVertically(
+                                initialOffsetY = { -it },
+                                animationSpec = tween(durationMillis = 300),
+                            ) togetherWith
+                                slideOutVertically(
+                                    targetOffsetY = { it },
+                                    animationSpec = tween(durationMillis = 300),
+                                )
+                        },
+                        label = "monthTitleAnimation",
+                    ) { animatedMonthTitle ->
+                        Text(
+                            text = animatedMonthTitle,
+                            color = XCalendarTheme.colorScheme.onSurface,
+                        )
+                    }
                     Icon(
-                        modifier = Modifier.size(20.dp).rotate(rotationDegree),
+                        modifier = Modifier.size(16.dp).rotate(rotationDegree),
                         imageVector = FontAwesomeIcons.Solid.CaretDown,
                         contentDescription = "Toggle Month Dropdown",
                     )
@@ -154,25 +190,39 @@ fun CalendarTopAppBar(
             actions = {
                 IconButton(onClick = { /* Handle search */ }) {
                     Icon(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(16.dp),
                         imageVector = FontAwesomeIcons.Solid.Search,
                         contentDescription = "Search",
                     )
                 }
-                IconButton(onClick = { onSelectToday() }) {
-                    Text(
-                        text = dateState.currentDate.day.toString(),
-                        style = XCalendarTheme.typography.bodyMedium,
-                    )
+                IconButton(onClick = onSelectToday) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .graphicsLayer { rotationZ = rotationAngle.value }
+                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .size(24.dp)
+                                .background(XCalendarTheme.colorScheme.secondary),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = dateState.currentDate.day.toString(),
+                            style = XCalendarTheme.typography.bodySmall,
+                            color = XCalendarTheme.colorScheme.onSecondary,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.graphicsLayer { rotationZ = -rotationAngle.value },
+                        )
+                    }
                 }
                 CoilImage(
+                    modifier =
+                        Modifier
+                            .padding(8.dp)
+                            .size(32.dp)
+                            .clip(CircleShape),
                     imageModel = {
                         "https://t4.ftcdn.net/jpg/00/04/09/63/360_F_4096398_nMeewldssGd7guDmvmEDXqPJUmkDWyqA.jpg"
                     },
-                    modifier =
-                        Modifier
-                            .size(32.dp)
-                            .clip(CircleShape),
                 )
             },
         )

@@ -1,6 +1,7 @@
 package com.debanshu.xcalendar.ui.screen.monthScreen.components
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -16,6 +17,7 @@ import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -63,7 +65,9 @@ fun MonthView(
     BoxWithConstraints {
         val itemSize = DpSize(maxWidth / 7, maxHeight / 6)
         LazyVerticalGrid(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = XCalendarTheme.colorScheme.surfaceContainerLow),,
             state = gridState,
             columns = GridCells.Fixed(7),
             userScrollEnabled = false,
@@ -72,8 +76,8 @@ fun MonthView(
                 WeekdayHeader()
             }
             if (firstDayOfWeek > 0 && !skipPreviousPadding) {
-                items(key = { day -> "prev_$day" }, count = firstDayOfWeek) { day ->
-                    val ordinal = daysInPrevMonth - (firstDayOfWeek - day - 1)
+                items(key = { day -> "prev_$day" }, count = firstDayOfWeek) { index ->
+                    val ordinal = daysInPrevMonth - (firstDayOfWeek - index - 1)
                     val date = LocalDate(prevYear, prevMonth, ordinal)
                     DayCell(
                         modifier = Modifier,
@@ -83,35 +87,50 @@ fun MonthView(
                         isCurrentMonth = false,
                         onDayClick = onDayClick,
                         itemSize = itemSize,
+                        isTopLeft = index == 0,
+                        isTopRight = index == 6,
+                        isBottomLeft = index == 35,
+                        isBottomRight = index == 41,
                     )
                 }
             }
 
-            items(key = { day -> "current_$day" }, count = daysInMonth) { day ->
-                val date = LocalDate(month.year, month.month, day + 1)
-                DayCell(
-                    modifier = Modifier,
-                    date = date,
-                    events = eventsByDate[date] ?: emptyList(),
-                    holidays = holidaysByDate[date] ?: emptyList(),
-                    isCurrentMonth = true,
-                    onDayClick = onDayClick,
-                    itemSize = itemSize,
-                )
-            }
+        items(key = { day -> "current_$day" }, count = daysInMonth) { day ->
+            val date = LocalDate(month.year, month.month, day + 1)
+            val currentMonthStartIndex = if (skipPreviousPadding) 0 else firstDayOfWeek
+            val cellIndex = currentMonthStartIndex + day
+            DayCell(
+                modifier = Modifier,
+                date = date,
+                events = eventsByDate[date] ?: emptyList(),
+                holidays = holidaysByDate[date] ?: emptyList(),
+                isCurrentMonth = true,
+                onDayClick = onDayClick,
+                itemSize = itemSize,
+                isTopLeft = cellIndex == 0,
+                isTopRight = cellIndex == 6,
+                isBottomLeft = cellIndex == 35,
+                isBottomRight = cellIndex == 41,
+            )
+        }
 
-            items(key = { day -> "next_$day" }, count = remainingCells) { day ->
-                val date = LocalDate(nextYear, nextMonth, day + 1)
-                DayCell(
-                    modifier = Modifier,
-                    date = date,
-                    events = eventsByDate[date] ?: emptyList(),
-                    holidays = holidaysByDate[date] ?: emptyList(),
-                    isCurrentMonth = false,
-                    onDayClick = onDayClick,
-                    itemSize = itemSize,
-                )
-            }
+        items(key = { day -> "next_$day" }, count = remainingCells) { day ->
+            val date = LocalDate(nextYear, nextMonth, day + 1)
+            val cellIndex = totalDaysDisplayed + day
+
+            DayCell(
+                modifier = Modifier,
+                date = date,
+                events = eventsByDate[date] ?: emptyList(),
+                holidays = holidaysByDate[date] ?: emptyList(),
+                isCurrentMonth = false,
+                onDayClick = onDayClick,
+                itemSize = itemSize,
+                isTopLeft = cellIndex == 0,
+                isTopRight = cellIndex == 6,
+                isBottomLeft = cellIndex == 35,
+                isBottomRight = cellIndex == 41,
+            )
         }
     }
 }
