@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.screen.monthScreen.components.SwipeState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -103,11 +105,9 @@ fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    val screenWidth by derivedStateOf { size.width.toFloat() }
-    var offsetX by remember { mutableStateOf(0f) }
-    var isAnimating by remember { mutableStateOf(false) }
-    var targetOffsetX by remember { mutableStateOf(0f) }
+    var swipeState by remember { mutableStateOf(SwipeState()) }
+    var screenSize by remember { mutableStateOf(IntSize.Zero) }
+    val screenWidth by derivedStateOf { screenSize.width.toFloat() }
 
     // Pre-calculate events and holidays by date for efficient lookup
     val eventsByDate =
@@ -143,59 +143,65 @@ fun SwipeableCalendarView(
         }
     }
 
+    // Optimized animation with better state management
     val animatedOffset by animateFloatAsState(
-        targetValue = targetOffsetX,
+        targetValue = swipeState.targetOffsetX,
         animationSpec = tween(durationMillis = 250), // Slightly faster animation
-        finishedListener = {
-            if (isAnimating) {
-                if (targetOffsetX > 0) {
-                    val newStartDate = calendarWindow.previous
-                    calendarWindow.updateForPreviousDate(newStartDate, numDays)
-                    onDateRangeChange(newStartDate)
-                } else if (targetOffsetX < 0) {
-                    val newStartDate = calendarWindow.next
-                    calendarWindow.updateForNextDate(newStartDate, numDays)
-                    onDateRangeChange(newStartDate)
+        finishedListener = { finalValue ->
+            if (swipeState.isAnimating) {
+                when {
+                    finalValue > 0 -> {
+                        val newStartDate = calendarWindow.previous
+                        calendarWindow.updateForPreviousDate(newStartDate, numDays)
+                        onDateRangeChange(newStartDate)
+                    }
+                    finalValue < 0 -> {
+                        val newStartDate = calendarWindow.next
+                        calendarWindow.updateForNextDate(newStartDate, numDays)
+                        onDateRangeChange(newStartDate)
+                    }
                 }
-                offsetX = 0f
-                isAnimating = false
+                swipeState = SwipeState()
             }
         },
+        label = "calendar_swipe_animation",
     )
 
-    val effectiveOffset = if (isAnimating) animatedOffset else offsetX
+    val effectiveOffset = if (swipeState.isAnimating) animatedOffset else swipeState.offsetX
 
     Surface(
         modifier =
             modifier
                 .fillMaxHeight()
-                .pointerInput(Unit) {
+                .onSizeChanged { newSize ->
+                    if (screenSize != newSize) {
+                        screenSize = newSize
+                    }
+                }.pointerInput(screenWidth) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
-                            val threshold = screenWidth * 0.25f // More sensitive threshold
-                            if (abs(offsetX) > threshold) {
-                                isAnimating = true
-                                targetOffsetX =
-                                    if (offsetX > 0) {
-                                        screenWidth
-                                    } else {
-                                        -screenWidth
-                                    }
-                            } else {
-                                isAnimating = true
-                                targetOffsetX = 0f
-                            }
+                            val threshold = screenWidth * 0.25f // Slightly more sensitive
+                            swipeState =
+                                if (abs(swipeState.offsetX) > threshold) {
+                                    swipeState.copy(
+                                        isAnimating = true,
+                                        targetOffsetX = if (swipeState.offsetX > 0) screenWidth else -screenWidth,
+                                    )
+                                } else {
+                                    swipeState.copy(isAnimating = true, targetOffsetX = 0f)
+                                }
                         },
                         onDragCancel = {
-                            isAnimating = true
-                            targetOffsetX = 0f
+                            swipeState = swipeState.copy(isAnimating = true, targetOffsetX = 0f)
                         },
-                        onHorizontalDrag = { change, amount ->
-                            // Optimize drag handling to reduce state updates
-                            if (!isAnimating) {
-                                val newOffsetX = offsetX + amount
-                                offsetX = newOffsetX
-                                targetOffsetX = newOffsetX
+                        onHorizontalDrag = { change, dragAmount ->
+                            if (!swipeState.isAnimating) {
+                                val newOffsetX = swipeState.offsetX + dragAmount
+                                swipeState =
+                                    swipeState.copy(
+                                        offsetX = newOffsetX,
+                                        targetOffsetX = newOffsetX,
+                                    )
                                 change.consume()
                             }
                         },
