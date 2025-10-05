@@ -1,6 +1,7 @@
 [versions]
-adaptive = "1.1.0"
+adaptive = "1.2.0-alpha06"
 agp = "8.13.0"
+hotReload = "1.0.0-beta09"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -23,9 +24,9 @@ config = "0.17.1"
 store = "5.1.0-alpha07"
 
 [libraries]
-androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
-androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
-androidx-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptive" }
+androidx-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
+androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptive" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor = { module = "io.ktor:ktor-bom", version.ref = "ktor-bom" }
@@ -65,4 +66,5 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room_version" }
+hotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "hotReload" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "config" }

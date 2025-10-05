@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.hotReload)
 }
 
 kotlin {
@@ -65,7 +66,6 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.annotations)
-            implementation(libs.navigation.compose)
 
             implementation(libs.navigation.compose)
             implementation(libs.icons)
