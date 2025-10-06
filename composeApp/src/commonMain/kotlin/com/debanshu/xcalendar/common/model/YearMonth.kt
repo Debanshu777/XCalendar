@@ -9,11 +9,13 @@ import kotlinx.datetime.number
  * Represents a year-month combination without a day component
  */
 @Immutable
-data class YearMonth(val year: Int, val month: Month) {
-
+data class YearMonth(
+    val year: Int,
+    val month: Month,
+) {
     constructor(year: Int, monthNumber: Int) : this(
         year,
-        Month(monthNumber)
+        Month(monthNumber),
     )
 
     fun plusMonths(months: Int): YearMonth {
@@ -33,14 +35,25 @@ data class YearMonth(val year: Int, val month: Month) {
         return YearMonth(newYear, Month(newMonthNum))
     }
 
+    fun getLastDateOrdinal(): Int =
+        when (month) {
+            Month.JANUARY -> 31
+            Month.FEBRUARY -> if (year % 4 == 0) 29 else 28
+            Month.MARCH -> 31
+            Month.APRIL -> 30
+            Month.MAY -> 31
+            Month.JUNE -> 30
+            Month.JULY -> 31
+            Month.AUGUST -> 31
+            Month.SEPTEMBER -> 30
+            Month.OCTOBER -> 31
+            Month.NOVEMBER -> 30
+            Month.DECEMBER -> 31
+        }
 
-    override fun toString(): String {
-        return "$year-${month.number.toString().padStart(2, '0')}"
-    }
+    override fun toString(): String = "$year-${month.number.toString().padStart(2, '0')}"
 
     companion object {
-        fun from(date: LocalDate): YearMonth {
-            return YearMonth(date.year, date.month)
-        }
+        fun from(date: LocalDate): YearMonth = YearMonth(date.year, date.month)
     }
 }
