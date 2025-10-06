@@ -1,12 +1,9 @@
 package com.debanshu.xcalendar.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -26,13 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,42 +35,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.ui.screen.monthScreen.components.SwipeState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.abs
-import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 /**
  * A swipeable calendar view that can be used for day, three-day or week views.
  *
- * Optimized with sliding window approach and pre-calculated event/holiday mappings:
- * - Pre-calculates events and holidays by date to avoid repeated filtering
- * - Maintains efficient sliding window for smooth swiping
- * - Caches overlap detection results for better performance
+ * This component uses the generic [SwipeablePager] for paging logic and provides
+ * date-specific offset calculations and calendar content rendering.
  *
- * @param startDate The first date to display
- * @param events The list of events to display
- * @param holidays The list of holidays to display
+ * Uses a callback approach to ensure it always receives the current date state.
+ *
+ * @param modifier The modifier to apply to the component
+ * @param startDate Lambda providing the first date to display
+ * @param events Lambda providing the list of events to display
+ * @param holidays Lambda providing the list of holidays to display
  * @param onDayClick Callback for when a day is clicked
  * @param onEventClick Callback for when an event is clicked
  * @param onDateRangeChange Callback for when the date range changes due to swiping
@@ -90,9 +77,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun SwipeableCalendarView(
     modifier: Modifier = Modifier,
-    startDate: LocalDate,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    startDate: () -> LocalDate,
+    events: () -> List<Event>,
+    holidays: () -> List<Holiday>,
     onDayClick: (LocalDate) -> Unit,
     onEventClick: (Event) -> Unit,
     onDateRangeChange: (LocalDate) -> Unit,
@@ -105,111 +92,39 @@ fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
-    var swipeState by remember { mutableStateOf(SwipeState()) }
-    var screenSize by remember { mutableStateOf(IntSize.Zero) }
-    val screenWidth by derivedStateOf { screenSize.width.toFloat() }
+    // Get current values reactively
+    val currentEvents = events()
+    val currentHolidays = holidays()
 
-    // Pre-calculate events and holidays by date for efficient lookup
     val eventsByDate =
-        remember(events) {
-            events.groupBy { event ->
+        remember(currentEvents) {
+            currentEvents.groupBy { event ->
                 event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }
 
     val holidaysByDate =
-        remember(holidays) {
-            holidays.groupBy { holiday ->
+        remember(currentHolidays) {
+            currentHolidays.groupBy { holiday ->
                 holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }
 
-    // Optimized sliding window with persistent state
-    val calendarWindow by remember {
-        mutableStateOf(
-            CalendarWindow(
-                previous = startDate.minus(DatePeriod(days = numDays)),
-                current = startDate,
-                next = startDate.plus(DatePeriod(days = numDays)),
-            ),
-        )
-    }
-
-    // Update window only when startDate actually changes
-    val startDateKey = remember(startDate) { startDate.toString() }
-    remember(startDateKey) {
-        if (calendarWindow.current != startDate) {
-            calendarWindow.updateToDate(startDate, numDays)
-        }
-    }
-
-    // Optimized animation with better state management
-    val animatedOffset by animateFloatAsState(
-        targetValue = swipeState.targetOffsetX,
-        animationSpec = tween(durationMillis = 250), // Slightly faster animation
-        finishedListener = { finalValue ->
-            if (swipeState.isAnimating) {
-                when {
-                    finalValue > 0 -> {
-                        val newStartDate = calendarWindow.previous
-                        calendarWindow.updateForPreviousDate(newStartDate, numDays)
-                        onDateRangeChange(newStartDate)
-                    }
-                    finalValue < 0 -> {
-                        val newStartDate = calendarWindow.next
-                        calendarWindow.updateForNextDate(newStartDate, numDays)
-                        onDateRangeChange(newStartDate)
-                    }
-                }
-                swipeState = SwipeState()
-            }
+    SwipeablePager(
+        modifier = modifier.fillMaxHeight(),
+        currentReference = startDate,
+        calculateOffset = { current, base ->
+            val daysDiff = (current.toEpochDays() - base.toEpochDays()).toInt()
+            daysDiff / numDays
         },
-        label = "calendar_swipe_animation",
-    )
-
-    val effectiveOffset = if (swipeState.isAnimating) animatedOffset else swipeState.offsetX
-
-    Surface(
-        modifier =
-            modifier
-                .fillMaxHeight()
-                .onSizeChanged { newSize ->
-                    if (screenSize != newSize) {
-                        screenSize = newSize
-                    }
-                }.pointerInput(screenWidth) {
-                    detectHorizontalDragGestures(
-                        onDragEnd = {
-                            val threshold = screenWidth * 0.25f // Slightly more sensitive
-                            swipeState =
-                                if (abs(swipeState.offsetX) > threshold) {
-                                    swipeState.copy(
-                                        isAnimating = true,
-                                        targetOffsetX = if (swipeState.offsetX > 0) screenWidth else -screenWidth,
-                                    )
-                                } else {
-                                    swipeState.copy(isAnimating = true, targetOffsetX = 0f)
-                                }
-                        },
-                        onDragCancel = {
-                            swipeState = swipeState.copy(isAnimating = true, targetOffsetX = 0f)
-                        },
-                        onHorizontalDrag = { change, dragAmount ->
-                            if (!swipeState.isAnimating) {
-                                val newOffsetX = swipeState.offsetX + dragAmount
-                                swipeState =
-                                    swipeState.copy(
-                                        offsetX = newOffsetX,
-                                        targetOffsetX = newOffsetX,
-                                    )
-                                change.consume()
-                            }
-                        },
-                    )
-                },
-    ) {
+        pageToReference = { baseDate, initialPage, page ->
+            val offset = (page - initialPage) * numDays
+            baseDate.plus(DatePeriod(days = offset))
+        },
+        onReferenceChange = onDateRangeChange,
+    ) { pageStartDate ->
         CalendarContent(
-            startDate = calendarWindow.current,
+            startDate = pageStartDate,
             numDays = numDays,
             eventsByDate = eventsByDate,
             holidaysByDate = holidaysByDate,
@@ -219,59 +134,8 @@ fun SwipeableCalendarView(
             onEventClick = onEventClick,
             currentDate = currentDate,
             scrollState = scrollState,
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .offset {
-                        IntOffset(effectiveOffset.roundToInt(), 0)
-                    },
+            modifier = Modifier.fillMaxSize(),
             dynamicHeaderHeightState = dynamicHeaderHeightState,
-        )
-
-        CalendarContent(
-            startDate = calendarWindow.previous,
-            numDays = numDays,
-            eventsByDate = eventsByDate,
-            holidaysByDate = holidaysByDate,
-            timeRange = timeRange,
-            hourHeightDp = hourHeightDp,
-            onDayClick = onDayClick,
-            onEventClick = onEventClick,
-            currentDate = currentDate,
-            scrollState = scrollState,
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .offset {
-                        IntOffset(
-                            -screenWidth.roundToInt() + effectiveOffset.roundToInt(),
-                            0,
-                        )
-                    },
-            dynamicHeaderHeightState = null,
-        )
-
-        CalendarContent(
-            startDate = calendarWindow.next,
-            numDays = numDays,
-            eventsByDate = eventsByDate,
-            holidaysByDate = holidaysByDate,
-            timeRange = timeRange,
-            hourHeightDp = hourHeightDp,
-            onDayClick = onDayClick,
-            onEventClick = onEventClick,
-            currentDate = currentDate,
-            scrollState = scrollState,
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .offset {
-                        IntOffset(
-                            screenWidth.roundToInt() + effectiveOffset.roundToInt(),
-                            0,
-                        )
-                    },
-            dynamicHeaderHeightState = null,
         )
     }
 }
@@ -569,7 +433,7 @@ private fun CalendarEventsGrid(
             eventGroups.forEach { (_, group) ->
                 val totalOverlapping = group.size
 
-                group.forEachIndexed { eventIndex, event ->
+                group.forEachIndexed { _, event ->
                     val eventStart =
                         event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
                     val eventEnd = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
@@ -609,12 +473,8 @@ private fun CalendarEventsGrid(
     }
 }
 
-// Helper function to group overlapping events
 private fun groupOverlappingEvents(events: List<Event>): Map<Int, List<Event>> {
-    // Sort events by start time
     val sortedEvents = events.sortedBy { it.startTime }
-
-    // Group events that overlap in time
     val groups = mutableMapOf<Int, MutableList<Event>>()
     var groupId = 0
 
@@ -622,20 +482,16 @@ private fun groupOverlappingEvents(events: List<Event>): Map<Int, List<Event>> {
         val eventStart = event.startTime
         val eventEnd = event.endTime
 
-        // Find a group where this event doesn't overlap with any event in the group
         val existingGroup =
             groups.entries.firstOrNull { (_, groupEvents) ->
                 groupEvents.none {
-                    // Check if events overlap
                     (eventStart < it.endTime && eventEnd > it.startTime)
                 }
             }
 
         if (existingGroup != null) {
-            // Add to existing group
             existingGroup.value.add(event)
         } else {
-            // Create a new group
             groups[groupId] = mutableListOf(event)
             groupId++
         }
@@ -667,55 +523,5 @@ private fun EventItem(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-    }
-}
-
-/**
- * Optimized sliding window that maintains 3 date ranges for smooth swiping
- */
-@Stable
-private class CalendarWindow(
-    previous: LocalDate,
-    current: LocalDate,
-    next: LocalDate,
-) {
-    var previous by mutableStateOf(previous)
-    var current by mutableStateOf(current)
-    var next by mutableStateOf(next)
-
-    /**
-     * Updates the window when swiping to the previous date range
-     */
-    fun updateForPreviousDate(
-        newCurrentDate: LocalDate,
-        numDays: Int,
-    ) {
-        next = current
-        current = previous
-        previous = newCurrentDate.minus(DatePeriod(days = numDays))
-    }
-
-    /**
-     * Updates the window when swiping to the next date range
-     */
-    fun updateForNextDate(
-        newCurrentDate: LocalDate,
-        numDays: Int,
-    ) {
-        previous = current
-        current = next
-        next = newCurrentDate.plus(DatePeriod(days = numDays))
-    }
-
-    /**
-     * Updates the window to a specific date (for external date changes)
-     */
-    fun updateToDate(
-        targetDate: LocalDate,
-        numDays: Int,
-    ) {
-        current = targetDate
-        previous = targetDate.minus(DatePeriod(days = numDays))
-        next = targetDate.plus(DatePeriod(days = numDays))
     }
 }

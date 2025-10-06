@@ -62,8 +62,7 @@ fun BaseCalendarScreen(
     val timeColumnWidth = 60.dp
     val timeRange = 0..23
 
-    val startDate = dateState.selectedDate
-    val isToday = startDate == dateState.currentDate
+    val isToday = dateState.selectedDate == dateState.currentDate
 
     // Cache dynamic header height to avoid recalculation
     val dynamicHeightOfHeaderComposableWithHolidays = remember { mutableStateOf(0) }
@@ -93,7 +92,7 @@ fun BaseCalendarScreen(
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Text(
-                            text = startDate.dayOfWeek.name.take(3),
+                            text = dateState.selectedDate.dayOfWeek.name.take(3),
                             style = XCalendarTheme.typography.labelSmall,
                             color =
                                 when {
@@ -116,7 +115,7 @@ fun BaseCalendarScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = startDate.day.toString(),
+                                text = dateState.selectedDate.day.toString(),
                                 style = XCalendarTheme.typography.bodyLarge,
                                 color =
                                     when {
@@ -138,9 +137,9 @@ fun BaseCalendarScreen(
             )
         }
         SwipeableCalendarView(
-            startDate = startDate,
-            events = events,
-            holidays = holidays,
+            startDate = { dateState.selectedDate },
+            events = { events },
+            holidays = { holidays },
             onDayClick = { date ->
                 dateStateHolder.updateSelectedDateState(date)
                 onDateClickCallback()
