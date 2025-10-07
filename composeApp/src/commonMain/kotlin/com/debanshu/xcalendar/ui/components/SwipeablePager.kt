@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T> SwipeablePager(
+internal fun <T> SwipeablePager(
     modifier: Modifier = Modifier,
     currentReference: () -> T,
     calculateOffset: (current: T, base: T) -> Int,
@@ -40,10 +40,10 @@ fun <T> SwipeablePager(
 ) {
     val totalPages = 10000
     val initialPage = totalPages / 2
-    
+
     // Capture initial reference as stable base for offset calculations
     val baseReference = remember { currentReference() }
-    
+
     // Get current reference value reactively
     val currentRef = currentReference()
 
@@ -100,4 +100,3 @@ fun <T> SwipeablePager(
         }
     }
 }
-

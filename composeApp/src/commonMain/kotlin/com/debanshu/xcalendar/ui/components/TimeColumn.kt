@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.debanshu.xcalendar.common.customBorder
 import com.debanshu.xcalendar.common.formatHour
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 
@@ -27,7 +26,7 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
  * @param scrollState The scroll state to synchronize scrolling with other components
  */
 @Composable
-fun TimeColumn(
+internal fun TimeColumn(
     modifier: Modifier = Modifier,
     timeRange: IntRange = 0..23,
     hourHeightDp: Float = 60f,
