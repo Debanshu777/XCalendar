@@ -39,7 +39,7 @@ import compose.icons.fontawesomeicons.solid.CalendarDay
 import compose.icons.fontawesomeicons.solid.CalendarWeek
 
 @Composable
-fun CalendarDrawer(
+internal fun CalendarDrawer(
     selectedView: String,
     onViewSelect: (CalendarView) -> Unit,
     accounts: List<User>,
@@ -47,15 +47,16 @@ fun CalendarDrawer(
     onCalendarToggle: (Calendar) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState()),
     ) {
         Text(
             text = "Calendar",
             style = XCalendarTheme.typography.titleLarge,
             color = XCalendarTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
         )
         HorizontalDivider(
             modifier = Modifier.padding(bottom = 8.dp),
@@ -65,163 +66,180 @@ fun CalendarDrawer(
             name = "Schedule",
             selected = selectedView == CalendarView.Schedule.toString(),
             icon = FontAwesomeIcons.Regular.ListAlt,
-            onClick = { onViewSelect(CalendarView.Schedule) }
+            onClick = { onViewSelect(CalendarView.Schedule) },
         )
 
         CalendarViewOption(
             name = "Day",
             selected = selectedView == CalendarView.Day.toString(),
             icon = FontAwesomeIcons.Solid.CalendarDay,
-            onClick = { onViewSelect(CalendarView.Day) }
+            onClick = { onViewSelect(CalendarView.Day) },
         )
 
         CalendarViewOption(
             name = "3 Day",
             selected = selectedView == CalendarView.ThreeDay.toString(),
             icon = FontAwesomeIcons.Solid.CalendarAlt,
-            onClick = { onViewSelect(CalendarView.ThreeDay) }
+            onClick = { onViewSelect(CalendarView.ThreeDay) },
         )
 
         CalendarViewOption(
             name = "Week",
             selected = selectedView == CalendarView.Week.toString(),
             icon = FontAwesomeIcons.Solid.CalendarWeek,
-            onClick = { onViewSelect(CalendarView.Week) }
+            onClick = { onViewSelect(CalendarView.Week) },
         )
 
         CalendarViewOption(
             name = "Month",
             selected = selectedView == CalendarView.Month.toString(),
             icon = FontAwesomeIcons.Solid.CalendarAlt,
-            onClick = { onViewSelect(CalendarView.Month) }
+            onClick = { onViewSelect(CalendarView.Month) },
         )
 
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
-            color = XCalendarTheme.colorScheme.surfaceVariant
+            color = XCalendarTheme.colorScheme.surfaceVariant,
         )
 
         accounts.forEach { user ->
             AccountSection(
                 user = user,
                 calendars = calendars.filter { it.userId == user.id },
-                onCalendarToggle = onCalendarToggle
+                onCalendarToggle = onCalendarToggle,
             )
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(
-                top = 8.dp,
-                bottom = 8.dp,
-                start = 72.dp,
-                end = 16.dp
-            ),
-            color = XCalendarTheme.colorScheme.surfaceVariant
+            modifier =
+                Modifier.padding(
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    start = 72.dp,
+                    end = 16.dp,
+                ),
+            color = XCalendarTheme.colorScheme.surfaceVariant,
         )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { }
-                .padding(horizontal = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { }
+                    .padding(horizontal = 8.dp),
         ) {
             Checkbox(
                 checked = true,
                 onCheckedChange = {},
-                colors = CheckboxColors(
-                    checkedBoxColor = Color(0xFF8E24AA),
-                    uncheckedBoxColor = Color(0xFF8E24AA),
-                    checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                    uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                    disabledCheckedBoxColor = Color(0xFF8E24AA),
-                    disabledUncheckedBoxColor = Color(0xFF8E24AA),
-                    disabledIndeterminateBoxColor = Color(0xFF8E24AA),
-                    checkedBorderColor = Color(0xFF8E24AA),
-                    uncheckedBorderColor = Color(0xFF8E24AA),
-                    disabledBorderColor = Color(0xFF8E24AA),
-                    disabledUncheckedBorderColor = Color(0xFF8E24AA),
-                    disabledIndeterminateBorderColor = Color(0xFF8E24AA),
-                )
+                colors =
+                    CheckboxColors(
+                        checkedBoxColor = Color(0xFF8E24AA),
+                        uncheckedBoxColor = Color(0xFF8E24AA),
+                        checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                        uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                        disabledCheckedBoxColor = Color(0xFF8E24AA),
+                        disabledUncheckedBoxColor = Color(0xFF8E24AA),
+                        disabledIndeterminateBoxColor = Color(0xFF8E24AA),
+                        checkedBorderColor = Color(0xFF8E24AA),
+                        uncheckedBorderColor = Color(0xFF8E24AA),
+                        disabledBorderColor = Color(0xFF8E24AA),
+                        disabledUncheckedBorderColor = Color(0xFF8E24AA),
+                        disabledIndeterminateBorderColor = Color(0xFF8E24AA),
+                    ),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = "Birthdays",
-                style = XCalendarTheme.typography.bodySmall
+                style = XCalendarTheme.typography.bodySmall,
             )
         }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { }
-                .padding(horizontal = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { }
+                    .padding(horizontal = 8.dp),
         ) {
             Checkbox(
                 checked = true,
                 onCheckedChange = {},
-                colors = CheckboxColors(
-                    checkedBoxColor = Color(0xFF4285F4),
-                    uncheckedBoxColor = Color(0xFF4285F4),
-                    checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                    uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                    disabledCheckedBoxColor = Color(0xFF4285F4),
-                    disabledUncheckedBoxColor = Color(0xFF4285F4),
-                    disabledIndeterminateBoxColor = Color(0xFF4285F4),
-                    checkedBorderColor = Color(0xFF4285F4),
-                    uncheckedBorderColor = Color(0xFF4285F4),
-                    disabledBorderColor = Color(0xFF4285F4),
-                    disabledUncheckedBorderColor = Color(0xFF4285F4),
-                    disabledIndeterminateBorderColor = Color(0xFF4285F4),
-                )
+                colors =
+                    CheckboxColors(
+                        checkedBoxColor = Color(0xFF4285F4),
+                        uncheckedBoxColor = Color(0xFF4285F4),
+                        checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                        uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                        disabledCheckedBoxColor = Color(0xFF4285F4),
+                        disabledUncheckedBoxColor = Color(0xFF4285F4),
+                        disabledIndeterminateBoxColor = Color(0xFF4285F4),
+                        checkedBorderColor = Color(0xFF4285F4),
+                        uncheckedBorderColor = Color(0xFF4285F4),
+                        disabledBorderColor = Color(0xFF4285F4),
+                        disabledUncheckedBorderColor = Color(0xFF4285F4),
+                        disabledIndeterminateBorderColor = Color(0xFF4285F4),
+                    ),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = "Holidays",
-                style = XCalendarTheme.typography.bodySmall
+                style = XCalendarTheme.typography.bodySmall,
             )
         }
 
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
-            color = XCalendarTheme.colorScheme.surfaceVariant
+            color = XCalendarTheme.colorScheme.surfaceVariant,
         )
     }
 }
 
 @Composable
-fun CalendarViewOption(
+internal fun CalendarViewOption(
     name: String,
     selected: Boolean,
     icon: ImageVector,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                if (selected) XCalendarTheme.colorScheme.primaryContainer
-                else Color.Transparent,
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    if (selected) {
+                        XCalendarTheme.colorScheme.primaryContainer
+                    } else {
+                        Color.Transparent
+                    },
+                ).clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Icon(
-            modifier = Modifier
-                .size(20.dp),
+            modifier =
+                Modifier
+                    .size(20.dp),
             imageVector = icon,
-            tint = if (selected) XCalendarTheme.colorScheme.primary
-            else XCalendarTheme.colorScheme.onSurfaceVariant,
+            tint =
+                if (selected) {
+                    XCalendarTheme.colorScheme.primary
+                } else {
+                    XCalendarTheme.colorScheme.onSurfaceVariant
+                },
             contentDescription = null,
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = name,
             style = XCalendarTheme.typography.bodySmall,
-            color = if (selected) XCalendarTheme.colorScheme.primary
-            else XCalendarTheme.colorScheme.onSurfaceVariant
+            color =
+                if (selected) {
+                    XCalendarTheme.colorScheme.primary
+                } else {
+                    XCalendarTheme.colorScheme.onSurfaceVariant
+                },
         )
     }
 }
@@ -230,63 +248,66 @@ fun CalendarViewOption(
 fun AccountSection(
     user: User,
     calendars: List<Calendar>,
-    onCalendarToggle: (Calendar) -> Unit
+    onCalendarToggle: (Calendar) -> Unit,
 ) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
-
             CoilImage(
                 imageModel = { user.photoUrl },
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .clip(CircleShape),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = user.email,
                 style = XCalendarTheme.typography.bodyMedium,
-                color = XCalendarTheme.colorScheme.onSurfaceVariant
+                color = XCalendarTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         calendars.forEach { calendar ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onCalendarToggle(calendar) }
-                    .padding(horizontal = 8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onCalendarToggle(calendar) }
+                        .padding(horizontal = 8.dp),
             ) {
                 Checkbox(
                     checked = calendar.isVisible,
                     onCheckedChange = {
                         onCalendarToggle(calendar)
                     },
-                    colors = CheckboxColors(
-                        checkedBoxColor = Color(calendar.color),
-                        uncheckedBoxColor = Color(calendar.color),
-                        checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                        uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
-                        disabledCheckedBoxColor = Color(calendar.color),
-                        disabledUncheckedBoxColor = Color(calendar.color),
-                        disabledIndeterminateBoxColor = Color(calendar.color),
-                        checkedBorderColor = Color(calendar.color),
-                        uncheckedBorderColor = Color(calendar.color),
-                        disabledBorderColor = Color(calendar.color),
-                        disabledUncheckedBorderColor = Color(calendar.color),
-                        disabledIndeterminateBorderColor = Color(calendar.color),
-                    )
+                    colors =
+                        CheckboxColors(
+                            checkedBoxColor = Color(calendar.color),
+                            uncheckedBoxColor = Color(calendar.color),
+                            checkedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                            uncheckedCheckmarkColor = XCalendarTheme.colorScheme.onPrimary,
+                            disabledCheckedBoxColor = Color(calendar.color),
+                            disabledUncheckedBoxColor = Color(calendar.color),
+                            disabledIndeterminateBoxColor = Color(calendar.color),
+                            checkedBorderColor = Color(calendar.color),
+                            uncheckedBorderColor = Color(calendar.color),
+                            disabledBorderColor = Color(calendar.color),
+                            disabledUncheckedBorderColor = Color(calendar.color),
+                            disabledIndeterminateBorderColor = Color(calendar.color),
+                        ),
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = calendar.name,
                     style = XCalendarTheme.typography.bodySmall,
-                    color = XCalendarTheme.colorScheme.onSurfaceVariant
+                    color = XCalendarTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

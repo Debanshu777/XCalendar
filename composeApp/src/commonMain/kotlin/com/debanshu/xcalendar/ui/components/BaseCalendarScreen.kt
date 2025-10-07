@@ -48,7 +48,7 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun BaseCalendarScreen(
+internal fun BaseCalendarScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
     events: List<Event>,
@@ -92,7 +92,9 @@ fun BaseCalendarScreen(
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Text(
-                            text = dateState.selectedDate.dayOfWeek.name.take(3),
+                            text =
+                                dateState.selectedDate.dayOfWeek.name
+                                    .take(3),
                             style = XCalendarTheme.typography.labelSmall,
                             color =
                                 when {

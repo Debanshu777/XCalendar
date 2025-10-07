@@ -75,7 +75,7 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun CalendarTopAppBar(
+internal fun CalendarTopAppBar(
     dateState: DateState,
     monthDropdownState: TopBarCalendarView,
     onMenuClick: () -> Unit,

@@ -68,7 +68,7 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable
-fun AddEventDialog(
+internal fun AddEventDialog(
     user: User,
     calendars: List<Calendar>,
     selectedDate: LocalDate,

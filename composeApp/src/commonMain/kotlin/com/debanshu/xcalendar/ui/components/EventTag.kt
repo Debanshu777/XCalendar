@@ -17,7 +17,7 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun EventTag(
+internal fun EventTag(
     modifier: Modifier = Modifier,
     text: String,
     color: Color,
