@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.domain.model.Calendar
 import com.debanshu.xcalendar.domain.model.User
-import com.debanshu.xcalendar.ui.CalendarView
+import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
 import compose.icons.FontAwesomeIcons
@@ -41,7 +41,7 @@ import compose.icons.fontawesomeicons.solid.CalendarWeek
 @Composable
 internal fun CalendarDrawer(
     selectedView: String,
-    onViewSelect: (CalendarView) -> Unit,
+    onViewSelect: (NavigableScreen) -> Unit,
     accounts: List<User>,
     calendars: List<Calendar>,
     onCalendarToggle: (Calendar) -> Unit,
@@ -64,37 +64,37 @@ internal fun CalendarDrawer(
         )
         CalendarViewOption(
             name = "Schedule",
-            selected = selectedView == CalendarView.Schedule.toString(),
+            selected = selectedView == NavigableScreen.Schedule.toString(),
             icon = FontAwesomeIcons.Regular.ListAlt,
-            onClick = { onViewSelect(CalendarView.Schedule) },
+            onClick = { onViewSelect(NavigableScreen.Schedule) },
         )
 
         CalendarViewOption(
             name = "Day",
-            selected = selectedView == CalendarView.Day.toString(),
+            selected = selectedView == NavigableScreen.Day.toString(),
             icon = FontAwesomeIcons.Solid.CalendarDay,
-            onClick = { onViewSelect(CalendarView.Day) },
+            onClick = { onViewSelect(NavigableScreen.Day) },
         )
 
         CalendarViewOption(
             name = "3 Day",
-            selected = selectedView == CalendarView.ThreeDay.toString(),
+            selected = selectedView == NavigableScreen.ThreeDay.toString(),
             icon = FontAwesomeIcons.Solid.CalendarAlt,
-            onClick = { onViewSelect(CalendarView.ThreeDay) },
+            onClick = { onViewSelect(NavigableScreen.ThreeDay) },
         )
 
         CalendarViewOption(
             name = "Week",
-            selected = selectedView == CalendarView.Week.toString(),
+            selected = selectedView == NavigableScreen.Week.toString(),
             icon = FontAwesomeIcons.Solid.CalendarWeek,
-            onClick = { onViewSelect(CalendarView.Week) },
+            onClick = { onViewSelect(NavigableScreen.Week) },
         )
 
         CalendarViewOption(
             name = "Month",
-            selected = selectedView == CalendarView.Month.toString(),
+            selected = selectedView == NavigableScreen.Month.toString(),
             icon = FontAwesomeIcons.Solid.CalendarAlt,
-            onClick = { onViewSelect(CalendarView.Month) },
+            onClick = { onViewSelect(NavigableScreen.Month) },
         )
 
         HorizontalDivider(

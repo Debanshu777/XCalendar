@@ -33,8 +33,8 @@ import kotlinx.coroutines.launch
 fun ScheduleScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: () -> List<Event>,
+    holidays: () -> List<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -42,8 +42,8 @@ fun ScheduleScreen(
     val currentYearMonth = YearMonth.from(currentDate)
 
     // Optimized: Create ScheduleStateHolder with stable keys to prevent unnecessary recreations
-    val currentEvents = rememberUpdatedState(events)
-    val currentHolidays = rememberUpdatedState(holidays)
+    val currentEvents = rememberUpdatedState(events())
+    val currentHolidays = rememberUpdatedState(holidays())
 
     val scheduleStateHolder =
         remember(

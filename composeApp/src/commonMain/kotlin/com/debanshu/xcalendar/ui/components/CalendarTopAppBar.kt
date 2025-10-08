@@ -59,7 +59,6 @@ import com.debanshu.xcalendar.common.toSentenceCase
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateState
-import com.debanshu.xcalendar.ui.TopBarCalendarView
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
 import compose.icons.FontAwesomeIcons
@@ -82,8 +81,8 @@ internal fun CalendarTopAppBar(
     onSelectToday: () -> Unit,
     onToggleMonthDropdown: (TopBarCalendarView) -> Unit,
     onDayClick: (LocalDate) -> Unit,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: () -> List<Event>,
+    holidays: () -> List<Holiday>,
 ) {
     val currentYear = dateState.currentDate.year
 
@@ -236,8 +235,8 @@ internal fun CalendarTopAppBar(
                             dateState
                                 .selectedInViewMonth.month,
                         ),
-                    events = events,
-                    holidays = holidays,
+                    events = events(),
+                    holidays = holidays(),
                     onDayClick = onDayClick,
                 )
             }
@@ -404,4 +403,12 @@ private fun TopAppBarEmptyPagingDayCell() {
     Box(
         modifier = Modifier.padding(4.dp),
     )
+}
+
+sealed class TopBarCalendarView {
+    data object NoView : TopBarCalendarView()
+
+    data object Week : TopBarCalendarView()
+
+    data object Month : TopBarCalendarView()
 }
