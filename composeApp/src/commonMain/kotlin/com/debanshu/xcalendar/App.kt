@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,15 +26,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
 import com.debanshu.xcalendar.ui.CalendarViewModel
 import com.debanshu.xcalendar.ui.components.AddEventDialog
 import com.debanshu.xcalendar.ui.components.CalendarDrawer
 import com.debanshu.xcalendar.ui.components.CalendarTopAppBar
 import com.debanshu.xcalendar.ui.components.EventDetailsDialog
-import com.debanshu.xcalendar.ui.navigation.BaseNavigation
+import com.debanshu.xcalendar.ui.navigation.NavigableScreen
+import com.debanshu.xcalendar.ui.navigation.NavigationHost
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -63,13 +63,11 @@ fun CalendarApp(
     val dataState by dateStateHolder.currentDateState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val navController = rememberNavController()
-    val currentRoute by navController.currentBackStackEntryAsState()
+    val backStack = remember { mutableStateListOf<NavigableScreen>(NavigableScreen.Month) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showAddBottomSheet by remember { mutableStateOf(false) }
     var showDetailsBottomSheet by remember { mutableStateOf(false) }
 
-    // Extract drawer-specific state to prevent unnecessary recompositions
     val drawerAccounts = remember(calendarUiState.accounts) { calendarUiState.accounts }
     val drawerCalendars = remember(calendarUiState.calendars) { calendarUiState.calendars }
 
@@ -82,27 +80,20 @@ fun CalendarApp(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                val stableRoute =
-                    remember(currentRoute?.destination?.route) {
-                        currentRoute?.destination?.route
-                    }
-
-                stableRoute?.let { route ->
-                    CalendarDrawer(
-                        selectedView = route,
-                        onViewSelect = { view ->
-                            scope.launch {
-                                navController.navigate(view.toString())
-                                drawerState.close()
-                            }
-                        },
-                        accounts = drawerAccounts,
-                        calendars = drawerCalendars,
-                        onCalendarToggle = { calendar ->
-                            viewModel.toggleCalendarVisibility(calendar)
-                        },
-                    )
-                }
+                CalendarDrawer(
+                    selectedView = backStack.lastOrNull() ?: NavigableScreen.Month,
+                    onViewSelect = { view ->
+                        scope.launch {
+                            backStack.add(view)
+                            drawerState.close()
+                        }
+                    },
+                    accounts = drawerAccounts,
+                    calendars = drawerCalendars,
+                    onCalendarToggle = { calendar ->
+                        viewModel.toggleCalendarVisibility(calendar)
+                    },
+                )
             }
         },
     ) {
@@ -135,9 +126,9 @@ fun CalendarApp(
                 }
             },
         ) { paddingValues ->
-            BaseNavigation(
+            NavigationHost(
                 modifier = Modifier.padding(paddingValues),
-                navController = navController,
+                backStack = backStack,
                 dateStateHolder = dateStateHolder,
                 events = { calendarUiState.events },
                 holidays = { calendarUiState.holidays },

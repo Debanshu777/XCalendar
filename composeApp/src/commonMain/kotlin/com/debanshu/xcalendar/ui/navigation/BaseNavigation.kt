@@ -2,9 +2,11 @@ package com.debanshu.xcalendar.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
@@ -15,66 +17,73 @@ import com.debanshu.xcalendar.ui.screen.threeDayScreen.ThreeDayScreen
 import com.debanshu.xcalendar.ui.screen.weekScreen.WeekScreen
 
 @Composable
-fun BaseNavigation(
+fun NavigationHost(
     modifier: Modifier,
-    navController: NavHostController,
+    backStack: MutableList<NavigableScreen>,
     dateStateHolder: DateStateHolder,
     events: () -> List<Event>,
     holidays: () -> List<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
-    NavHost(
+    NavDisplay(
         modifier = modifier,
-        navController = navController,
-        startDestination = NavigableScreen.Month.toString(),
-    ) {
-        composable(route = NavigableScreen.Month.toString()) {
-            MonthScreen(
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onDateClick = {
-                    navController.navigate(NavigableScreen.Day.toString())
-                },
-            )
-        }
-        composable(route = NavigableScreen.Week.toString()) {
-            WeekScreen(
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = onEventClick,
-                onDateClickCallback = {
-                    navController.navigate(NavigableScreen.Day.toString())
-                },
-            )
-        }
-        composable(route = NavigableScreen.Day.toString()) {
-            DayScreen(
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = onEventClick,
-            )
-        }
-        composable(route = NavigableScreen.ThreeDay.toString()) {
-            ThreeDayScreen(
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = onEventClick,
-                onDateClickCallback = {
-                    navController.navigate(NavigableScreen.Day.toString())
-                },
-            )
-        }
-        composable(route = NavigableScreen.Schedule.toString()) {
-            ScheduleScreen(
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = onEventClick,
-            )
-        }
-    }
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators =
+            listOf(
+                rememberSavedStateNavEntryDecorator(),
+                rememberSceneSetupNavEntryDecorator(),
+            ),
+        entryProvider =
+            entryProvider {
+                entry(NavigableScreen.Month) {
+                    MonthScreen(
+                        dateStateHolder = dateStateHolder,
+                        events = events,
+                        holidays = holidays,
+                        onDateClick = {
+                            backStack.add(NavigableScreen.Day)
+                        },
+                    )
+                }
+                entry(NavigableScreen.Week) {
+                    WeekScreen(
+                        dateStateHolder = dateStateHolder,
+                        events = events,
+                        holidays = holidays,
+                        onEventClick = onEventClick,
+                        onDateClickCallback = {
+                            backStack.add(NavigableScreen.Day)
+                        },
+                    )
+                }
+                entry(NavigableScreen.Day) {
+                    DayScreen(
+                        dateStateHolder = dateStateHolder,
+                        events = events,
+                        holidays = holidays,
+                        onEventClick = onEventClick,
+                    )
+                }
+                entry(NavigableScreen.ThreeDay) {
+                    ThreeDayScreen(
+                        dateStateHolder = dateStateHolder,
+                        events = events,
+                        holidays = holidays,
+                        onEventClick = onEventClick,
+                        onDateClickCallback = {
+                            backStack.add(NavigableScreen.Day)
+                        },
+                    )
+                }
+                entry(NavigableScreen.Schedule) {
+                    ScheduleScreen(
+                        dateStateHolder = dateStateHolder,
+                        events = events,
+                        holidays = holidays,
+                        onEventClick = onEventClick,
+                    )
+                }
+            },
+    )
 }

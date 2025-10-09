@@ -67,13 +67,13 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.annotations)
 
-            implementation(libs.navigation.compose)
             implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
             implementation(libs.androidx.adaptive)
             implementation(libs.androidx.adaptive.layout)
             implementation(libs.androidx.adaptive.navigation)
+            implementation(libs.navigation3.compose.ui)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
