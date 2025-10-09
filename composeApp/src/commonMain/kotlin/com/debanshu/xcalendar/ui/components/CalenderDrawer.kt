@@ -40,7 +40,7 @@ import compose.icons.fontawesomeicons.solid.CalendarWeek
 
 @Composable
 internal fun CalendarDrawer(
-    selectedView: String,
+    selectedView: NavigableScreen,
     onViewSelect: (NavigableScreen) -> Unit,
     accounts: List<User>,
     calendars: List<Calendar>,
@@ -64,35 +64,35 @@ internal fun CalendarDrawer(
         )
         CalendarViewOption(
             name = "Schedule",
-            selected = selectedView == NavigableScreen.Schedule.toString(),
+            selected = selectedView is NavigableScreen.Schedule,
             icon = FontAwesomeIcons.Regular.ListAlt,
             onClick = { onViewSelect(NavigableScreen.Schedule) },
         )
 
         CalendarViewOption(
             name = "Day",
-            selected = selectedView == NavigableScreen.Day.toString(),
+            selected = selectedView is NavigableScreen.Day,
             icon = FontAwesomeIcons.Solid.CalendarDay,
             onClick = { onViewSelect(NavigableScreen.Day) },
         )
 
         CalendarViewOption(
             name = "3 Day",
-            selected = selectedView == NavigableScreen.ThreeDay.toString(),
+            selected = selectedView is NavigableScreen.ThreeDay,
             icon = FontAwesomeIcons.Solid.CalendarAlt,
             onClick = { onViewSelect(NavigableScreen.ThreeDay) },
         )
 
         CalendarViewOption(
             name = "Week",
-            selected = selectedView == NavigableScreen.Week.toString(),
+            selected = selectedView is NavigableScreen.Week,
             icon = FontAwesomeIcons.Solid.CalendarWeek,
             onClick = { onViewSelect(NavigableScreen.Week) },
         )
 
         CalendarViewOption(
             name = "Month",
-            selected = selectedView == NavigableScreen.Month.toString(),
+            selected = selectedView is NavigableScreen.Month,
             icon = FontAwesomeIcons.Solid.CalendarAlt,
             onClick = { onViewSelect(NavigableScreen.Month) },
         )

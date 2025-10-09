@@ -1,13 +1,21 @@
 package com.debanshu.xcalendar.ui.navigation
 
-sealed class NavigableScreen {
-    data object Schedule : NavigableScreen()
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-    data object Day : NavigableScreen()
+sealed interface NavigableScreen : NavKey {
+    @Serializable
+    data object Schedule : NavigableScreen
 
-    data object ThreeDay : NavigableScreen()
+    @Serializable
+    data object Day : NavigableScreen
 
-    data object Week : NavigableScreen()
+    @Serializable
+    data object ThreeDay : NavigableScreen
 
-    data object Month : NavigableScreen()
+    @Serializable
+    data object Week : NavigableScreen
+
+    @Serializable
+    data object Month : NavigableScreen
 }
