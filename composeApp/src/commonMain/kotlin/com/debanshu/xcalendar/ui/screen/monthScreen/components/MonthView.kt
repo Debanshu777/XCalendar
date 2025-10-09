@@ -27,8 +27,8 @@ import kotlinx.datetime.number
 fun MonthView(
     modifier: Modifier,
     month: YearMonth,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    events: List<Event>,
+    holidays: List<Holiday>,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -38,19 +38,17 @@ fun MonthView(
     val skipPreviousPadding = firstDayOfWeek >= 7
     val totalDaysDisplayed = if (skipPreviousPadding) daysInMonth else firstDayOfWeek + daysInMonth
     val remainingCells = 42 - totalDaysDisplayed
-    val allEvents = events()
-    val allHolidays = holidays()
 
     val eventsByDate =
-        remember(month.year, month.month, allEvents) {
-            allEvents.groupBy { event ->
+        remember(month.year, month.month, events) {
+            events.groupBy { event ->
                 event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }
 
     val holidaysByDate =
-        remember(month.year, month.month, allHolidays) {
-            allHolidays.groupBy { holiday ->
+        remember(month.year, month.month, holidays) {
+            holidays.groupBy { holiday ->
                 holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }

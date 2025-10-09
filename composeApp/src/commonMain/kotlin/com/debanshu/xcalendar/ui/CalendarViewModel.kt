@@ -9,7 +9,6 @@ import com.debanshu.xcalendar.domain.repository.EventRepository
 import com.debanshu.xcalendar.domain.repository.HolidayRepository
 import com.debanshu.xcalendar.domain.repository.UserRepository
 import com.debanshu.xcalendar.domain.states.CalendarUiState
-import com.debanshu.xcalendar.ui.components.TopBarCalendarView
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -153,7 +152,6 @@ class CalendarViewModel(
         if (_isInitialized.compareAndSet(false, true)) {
             viewModelScope.launch {
                 try {
-                    // Launch all initialization tasks concurrently
                     val initJobs =
                         listOf(
                             async {
@@ -163,8 +161,6 @@ class CalendarViewModel(
                             },
                             async { initializeHolidays() },
                         )
-
-                    // Wait for all to complete
                     initJobs.awaitAll()
                 } catch (exception: Exception) {
                     handleError("Initialization failed", exception)
@@ -209,11 +205,6 @@ class CalendarViewModel(
         }.onFailure { exception ->
             handleError("Failed to initialize events", exception)
         }
-    }
-
-    // Optimized state update methods
-    fun setTopAppBarMonthDropdown(viewType: TopBarCalendarView) {
-        updateState { it.copy(showMonthDropdown = viewType) }
     }
 
     fun toggleCalendarVisibility(calendar: Calendar) {
@@ -286,7 +277,6 @@ class CalendarViewModel(
         )
     }
 
-    // Helper methods for cleaner code
     private fun performEventOperation(
         operation: suspend () -> Unit,
         onSuccess: (CalendarUiState) -> CalendarUiState,
@@ -314,10 +304,7 @@ class CalendarViewModel(
         message: String,
         exception: Throwable,
     ) {
-        // Log error for debugging
         println("CalendarViewModel Error: $message - ${exception.message}")
-
-        // Update UI state with error information
         updateState { currentState ->
             currentState.copy(
                 isLoading = false,

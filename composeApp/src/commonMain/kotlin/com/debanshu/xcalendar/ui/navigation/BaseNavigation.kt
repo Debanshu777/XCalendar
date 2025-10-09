@@ -21,8 +21,8 @@ fun NavigationHost(
     modifier: Modifier,
     backStack: MutableList<NavigableScreen>,
     dateStateHolder: DateStateHolder,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    events: List<Event>,
+    holidays: List<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     NavDisplay(
