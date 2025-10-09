@@ -74,6 +74,8 @@ fun CalendarApp(
     val visibleCalendars by remember(calendarUiState.calendars) {
         derivedStateOf { calendarUiState.calendars.filter { it.isVisible } }
     }
+    val events = remember { calendarUiState.events }
+    val holidays = remember { calendarUiState.holidays }
 
     ModalNavigationDrawer(
         modifier = Modifier.testTag("ModalNavigationDrawer"),
@@ -101,19 +103,16 @@ fun CalendarApp(
             topBar = {
                 CalendarTopAppBar(
                     dateState = dataState,
-                    monthDropdownState = calendarUiState.showMonthDropdown,
                     onMenuClick = { scope.launch { drawerState.open() } },
                     onSelectToday = {
                         dateStateHolder.updateSelectedDateState(dataState.currentDate)
                     },
-                    onToggleMonthDropdown = { show ->
-                        viewModel.setTopAppBarMonthDropdown(show)
-                    },
                     onDayClick = { date ->
                         dateStateHolder.updateSelectedDateState(date)
+                        backStack.add(NavigableScreen.Day)
                     },
-                    { calendarUiState.events },
-                    { calendarUiState.holidays },
+                    events,
+                    holidays,
                 )
             },
             floatingActionButton = {
@@ -130,8 +129,8 @@ fun CalendarApp(
                 modifier = Modifier.padding(paddingValues),
                 backStack = backStack,
                 dateStateHolder = dateStateHolder,
-                events = { calendarUiState.events },
-                holidays = { calendarUiState.holidays },
+                events = events,
+                holidays = holidays,
                 onEventClick = { event ->
                     viewModel.selectEvent(event)
                     showDetailsBottomSheet = true

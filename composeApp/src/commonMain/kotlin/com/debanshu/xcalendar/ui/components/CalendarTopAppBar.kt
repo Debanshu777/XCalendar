@@ -38,12 +38,14 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
@@ -76,27 +78,15 @@ import kotlin.time.ExperimentalTime
 @Composable
 internal fun CalendarTopAppBar(
     dateState: DateState,
-    monthDropdownState: TopBarCalendarView,
     onMenuClick: () -> Unit,
     onSelectToday: () -> Unit,
-    onToggleMonthDropdown: (TopBarCalendarView) -> Unit,
     onDayClick: (LocalDate) -> Unit,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    events: List<Event>,
+    holidays: List<Holiday>,
 ) {
-    val currentYear = dateState.currentDate.year
-
-    val showYear = dateState.selectedInViewMonth.year != currentYear
-
+    val showYear = dateState.selectedInViewMonth.year != dateState.currentDate.year
     val rotationAngle = remember { Animatable(0f) }
-
-    LaunchedEffect(Unit) {
-        rotationAngle.animateTo(
-            targetValue = 360f,
-            animationSpec = tween(durationMillis = 2000, easing = LinearEasing),
-        )
-    }
-
+    var monthDropdownState by remember { mutableStateOf<TopBarCalendarView>(TopBarCalendarView.NoView) }
     val rotationDegree by animateFloatAsState(
         targetValue =
             if (monthDropdownState != TopBarCalendarView.NoView) {
@@ -111,14 +101,21 @@ internal fun CalendarTopAppBar(
             ),
         label = "rotation",
     )
-
-    val monthTitle =
+    val monthTitle by derivedStateOf {
         if (showYear) {
             "${dateState.selectedInViewMonth.month.name.toSentenceCase()} ${dateState.selectedInViewMonth.year}"
         } else {
             dateState.selectedInViewMonth.month.name
                 .toSentenceCase()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        rotationAngle.animateTo(
+            targetValue = 360f,
+            animationSpec = tween(durationMillis = 2000, easing = LinearEasing),
+        )
+    }
 
     Column(
         modifier =
@@ -150,13 +147,12 @@ internal fun CalendarTopAppBar(
                 Row(
                     modifier =
                         Modifier.noRippleClickable {
-                            val toggleView =
+                            monthDropdownState =
                                 if (monthDropdownState != TopBarCalendarView.NoView) {
                                     TopBarCalendarView.NoView
                                 } else {
                                     TopBarCalendarView.Month
                                 }
-                            onToggleMonthDropdown(toggleView)
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -180,7 +176,10 @@ internal fun CalendarTopAppBar(
                         )
                     }
                     Icon(
-                        modifier = Modifier.size(16.dp).rotate(rotationDegree),
+                        modifier =
+                            Modifier
+                                .size(16.dp)
+                                .graphicsLayer { rotationZ = rotationDegree },
                         imageVector = FontAwesomeIcons.Solid.CaretDown,
                         contentDescription = "Toggle Month Dropdown",
                     )
@@ -235,8 +234,8 @@ internal fun CalendarTopAppBar(
                             dateState
                                 .selectedInViewMonth.month,
                         ),
-                    events = events(),
-                    holidays = holidays(),
+                    events = events,
+                    holidays = holidays,
                     onDayClick = onDayClick,
                 )
             }

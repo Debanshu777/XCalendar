@@ -20,8 +20,8 @@ import kotlinx.datetime.number
 fun MonthScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    events: List<Event>,
+    holidays: List<Holiday>,
     onDateClick: () -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -65,24 +65,14 @@ fun MonthScreen(
         },
         onReferenceChange = onMonthChange,
     ) { month ->
-        // Cache events and holidays for this specific month
-        val monthEvents =
-            remember(month, events) {
-                events()
-            }
-        val monthHolidays =
-            remember(month, holidays) {
-                holidays()
-            }
-
         MonthView(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .testTag("MonthView_$month"),
             month = month,
-            events = { monthEvents },
-            holidays = { monthHolidays },
+            events = events,
+            holidays = holidays,
             onDayClick = onSpecificDayClicked,
         )
     }

@@ -14,16 +14,16 @@ import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
 fun ThreeDayScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    events: List<Event>,
+    holidays: List<Holiday>,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
 ) {
     BaseCalendarScreen(
         modifier = modifier,
         dateStateHolder = dateStateHolder,
-        events = events(),
-        holidays = holidays(),
+        events = events,
+        holidays = holidays,
         onEventClick = onEventClick,
         numDays = 3,
         onDateClickCallback = onDateClickCallback,
