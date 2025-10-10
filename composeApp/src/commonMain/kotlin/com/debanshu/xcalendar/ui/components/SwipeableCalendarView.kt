@@ -1,56 +1,21 @@
 package com.debanshu.xcalendar.ui.components
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 /**
  * A swipeable calendar view that can be used for day, three-day or week views.
@@ -77,9 +42,9 @@ import kotlin.time.ExperimentalTime
 @Composable
 internal fun SwipeableCalendarView(
     modifier: Modifier = Modifier,
-    startDate: () -> LocalDate,
-    events: () -> List<Event>,
-    holidays: () -> List<Holiday>,
+    startDate: LocalDate,
+    events: List<Event>,
+    holidays: List<Holiday>,
     onDayClick: (LocalDate) -> Unit,
     onEventClick: (Event) -> Unit,
     onDateRangeChange: (LocalDate) -> Unit,
@@ -92,20 +57,16 @@ internal fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
-    // Get current values reactively
-    val currentEvents = events()
-    val currentHolidays = holidays()
-
     val eventsByDate =
-        remember(currentEvents) {
-            currentEvents.groupBy { event ->
+        remember(events) {
+            events.groupBy { event ->
                 event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }
 
     val holidaysByDate =
-        remember(currentHolidays) {
-            currentHolidays.groupBy { holiday ->
+        remember(holidays) {
+            holidays.groupBy { holiday ->
                 holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
             }
         }

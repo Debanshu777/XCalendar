@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 @Composable
 internal fun <T> SwipeablePager(
     modifier: Modifier = Modifier,
-    currentReference: () -> T,
+    currentReference: T,
     calculateOffset: (current: T, base: T) -> Int,
     pageToReference: (baseReference: T, initialPage: Int, page: Int) -> T,
     onReferenceChange: (T) -> Unit,
@@ -42,14 +42,11 @@ internal fun <T> SwipeablePager(
     val initialPage = totalPages / 2
 
     // Capture initial reference as stable base for offset calculations
-    val baseReference = remember { currentReference() }
-
-    // Get current reference value reactively
-    val currentRef = currentReference()
+    val baseReference = remember { currentReference }
 
     val referenceOffset =
-        remember(currentRef, baseReference) {
-            calculateOffset(currentRef, baseReference)
+        remember(currentReference, baseReference) {
+            calculateOffset(currentReference, baseReference)
         }
 
     val pagerState =
@@ -71,16 +68,15 @@ internal fun <T> SwipeablePager(
         snapshotFlow { pagerState.settledPage }
             .collect { page ->
                 val newReference = pageConverter(page)
-                val current = currentReference()
-                if (newReference != current) {
+                if (newReference != currentReference) {
                     onReferenceChange(newReference)
                 }
             }
     }
 
     // Handle external reference changes (e.g., "Select Today" button)
-    LaunchedEffect(currentRef) {
-        val targetOffset = calculateOffset(currentRef, baseReference)
+    LaunchedEffect(currentReference) {
+        val targetOffset = calculateOffset(currentReference, baseReference)
         val targetPage = initialPage + targetOffset
 
         // Only scroll if the settled page doesn't match the target

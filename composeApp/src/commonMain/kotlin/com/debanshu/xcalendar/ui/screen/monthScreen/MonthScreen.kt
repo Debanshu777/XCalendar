@@ -50,12 +50,11 @@ fun MonthScreen(
 
     SwipeablePager(
         modifier = modifier.testTag("SwipeableMonthView"),
-        currentReference = {
+        currentReference =
             YearMonth(
                 dateState.selectedInViewMonth.year,
                 dateState.selectedInViewMonth.month,
-            )
-        },
+            ),
         calculateOffset = { current, base ->
             (current.year - base.year) * 12 + (current.month.number - base.month.number)
         },

@@ -139,9 +139,9 @@ internal fun BaseCalendarScreen(
             )
         }
         SwipeableCalendarView(
-            startDate = { dateState.selectedDate },
-            events = { events },
-            holidays = { holidays },
+            startDate = dateState.selectedDate,
+            events = events,
+            holidays = holidays,
             onDayClick = { date ->
                 dateStateHolder.updateSelectedDateState(date)
                 onDateClickCallback()
