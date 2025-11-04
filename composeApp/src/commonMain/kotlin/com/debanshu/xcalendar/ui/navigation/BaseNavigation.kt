@@ -2,11 +2,8 @@ package com.debanshu.xcalendar.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
@@ -29,11 +26,6 @@ fun NavigationHost(
         modifier = modifier,
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
-        entryDecorators =
-            listOf(
-                rememberSavedStateNavEntryDecorator(),
-                rememberSceneSetupNavEntryDecorator(),
-            ),
         entryProvider =
             entryProvider {
                 entry(NavigableScreen.Month) {

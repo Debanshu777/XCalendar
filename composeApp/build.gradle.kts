@@ -53,7 +53,8 @@ kotlin {
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
-            implementation(compose.material3)
+            implementation(libs.jetbrains.material3)
+            implementation(libs.kotlinx.collections.immutable)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
