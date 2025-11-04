@@ -12,46 +12,57 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import org.koin.core.annotation.Singleton
+import org.koin.core.annotation.Single
 import kotlin.time.ExperimentalTime
 
-@Singleton
+@Single
 class HolidayRepository(
     private val holidayDao: HolidayDao,
     private val holidayApiService: HolidayApiService,
 ) {
-    suspend fun updateHolidays(countryCode: String, year: Int){
+    suspend fun updateHolidays(
+        countryCode: String,
+        year: Int,
+    ) {
         when (val response = holidayApiService.getHolidays(countryCode, year)) {
             is Result.Error -> {
                 println("HEREEEEEEE" + response.error.toString())
             }
 
             is Result.Success -> {
-                val remoteHolidays = response.data.response.holidays.map { it.asHoliday() }
+                val remoteHolidays =
+                    response.data.response.holidays
+                        .map { it.asHoliday() }
                 holidayDao.insertHolidays(remoteHolidays.map { it.asHolidayEntity() })
             }
         }
     }
+
     @OptIn(ExperimentalTime::class)
-    fun getHolidaysForYear(countryCode: String, year: Int): Flow<List<Holiday>> {
-        val startDateTime = LocalDateTime(
-            year = year,
-            month = Month.JANUARY,
-            day = 1,
-            hour = 0,
-            minute = 0,
-            second = 0,
-            nanosecond = 0
-        )
-        val endDateTime = LocalDateTime(
-            year = year,
-            month = Month.DECEMBER,
-            day = 31,
-            hour = 23,
-            minute = 59,
-            second = 59,
-            nanosecond = 999_999_999
-        )
+    fun getHolidaysForYear(
+        countryCode: String,
+        year: Int,
+    ): Flow<List<Holiday>> {
+        val startDateTime =
+            LocalDateTime(
+                year = year,
+                month = Month.JANUARY,
+                day = 1,
+                hour = 0,
+                minute = 0,
+                second = 0,
+                nanosecond = 0,
+            )
+        val endDateTime =
+            LocalDateTime(
+                year = year,
+                month = Month.DECEMBER,
+                day = 31,
+                hour = 23,
+                minute = 59,
+                second = 59,
+                nanosecond = 999_999_999,
+            )
         val timeZone = TimeZone.currentSystemDefault()
         val startInstant = startDateTime.toInstant(timeZone)
         val endInstant = endDateTime.toInstant(timeZone)
