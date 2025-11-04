@@ -9,6 +9,7 @@ import com.debanshu.xcalendar.domain.repository.EventRepository
 import com.debanshu.xcalendar.domain.repository.HolidayRepository
 import com.debanshu.xcalendar.domain.repository.UserRepository
 import com.debanshu.xcalendar.domain.states.CalendarUiState
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -129,10 +130,10 @@ class CalendarViewModel(
             events.distinctUntilChanged(),
         ) { currentState, usersList, holidaysList, calendarsList, eventsList ->
             currentState.copy(
-                accounts = usersList,
-                holidays = holidaysList,
-                calendars = calendarsList,
-                events = eventsList,
+                accounts = usersList.toImmutableList(),
+                holidays = holidaysList.toImmutableList(),
+                calendars = calendarsList.toImmutableList(),
+                events = eventsList.toImmutableList(),
                 isLoading = false,
             )
         }.distinctUntilChanged()
@@ -220,7 +221,7 @@ class CalendarViewModel(
                         currentState.calendars.map { cal ->
                             if (cal.id == calendar.id) updatedCalendar else cal
                         }
-                    currentState.copy(calendars = updatedCalendars)
+                    currentState.copy(calendars = updatedCalendars.toImmutableList())
                 }
             }.onFailure { exception ->
                 handleError("Failed to toggle calendar visibility", exception)
@@ -240,7 +241,7 @@ class CalendarViewModel(
         performEventOperation(
             operation = { eventRepository.addEvent(event) },
             onSuccess = { currentState ->
-                currentState.copy(events = currentState.events + event)
+                currentState.copy(events = (currentState.events + event).toImmutableList())
             },
             errorMessage = "Failed to add event",
         )
@@ -255,7 +256,7 @@ class CalendarViewModel(
                         if (e.id == event.id) event else e
                     }
                 currentState.copy(
-                    events = updatedEvents,
+                    events = updatedEvents.toImmutableList(),
                     selectedEvent = null,
                 )
             },
@@ -269,7 +270,7 @@ class CalendarViewModel(
             onSuccess = { currentState ->
                 val updatedEvents = currentState.events.filter { e -> e.id != event.id }
                 currentState.copy(
-                    events = updatedEvents,
+                    events = updatedEvents.toImmutableList(),
                     selectedEvent = null,
                 )
             },

@@ -6,6 +6,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
 import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * Day view screen that displays a single day calendar view.
@@ -14,8 +15,8 @@ import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
 fun DayScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     BaseCalendarScreen(

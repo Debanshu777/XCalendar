@@ -15,6 +15,10 @@ import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -24,8 +28,8 @@ import kotlinx.datetime.number
 fun MonthView(
     modifier: Modifier,
     month: YearMonth,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -38,16 +42,22 @@ fun MonthView(
 
     val eventsByDate =
         remember(month.year, month.month, events) {
-            events.groupBy { event ->
-                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
+            events
+                .groupBy { event ->
+                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }.mapValues {
+                    it.value.toImmutableList()
+                }.toImmutableMap()
         }
 
     val holidaysByDate =
         remember(month.year, month.month, holidays) {
-            holidays.groupBy { holiday ->
-                holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
+            holidays
+                .groupBy { holiday ->
+                    holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }.mapValues {
+                    it.value.toImmutableList()
+                }.toImmutableMap()
         }
 
     LazyVerticalGrid(
@@ -73,8 +83,8 @@ fun MonthView(
                 DayCell(
                     modifier = Modifier,
                     date = date,
-                    events = eventsByDate[date] ?: emptyList(),
-                    holidays = holidaysByDate[date] ?: emptyList(),
+                    events = eventsByDate[date] ?: persistentListOf(),
+                    holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = false,
                     onDayClick = onDayClick,
                     isTopLeft = index == 0,
@@ -93,8 +103,8 @@ fun MonthView(
             DayCell(
                 modifier = Modifier,
                 date = date,
-                events = eventsByDate[date] ?: emptyList(),
-                holidays = holidaysByDate[date] ?: emptyList(),
+                events = eventsByDate[date] ?: persistentListOf(),
+                holidays = holidaysByDate[date] ?: persistentListOf(),
                 isCurrentMonth = true,
                 onDayClick = onDayClick,
                 isTopLeft = cellIndex == 0,
@@ -114,8 +124,8 @@ fun MonthView(
             DayCell(
                 modifier = Modifier,
                 date = date,
-                events = eventsByDate[date] ?: emptyList(),
-                holidays = holidaysByDate[date] ?: emptyList(),
+                events = eventsByDate[date] ?: persistentListOf(),
+                holidays = holidaysByDate[date] ?: persistentListOf(),
                 isCurrentMonth = false,
                 onDayClick = onDayClick,
                 isTopLeft = cellIndex == 0,

@@ -34,6 +34,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.components.EventTag
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -45,8 +46,8 @@ import kotlin.time.ExperimentalTime
 fun DayCell(
     modifier: Modifier,
     date: LocalDate,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     isCurrentMonth: Boolean,
     onDayClick: (LocalDate) -> Unit,
     isTopLeft: Boolean = false,

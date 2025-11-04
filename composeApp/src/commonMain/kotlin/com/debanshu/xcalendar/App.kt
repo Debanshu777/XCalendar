@@ -38,6 +38,7 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Plus
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
@@ -144,7 +145,7 @@ fun CalendarApp(
                 ) {
                     AddEventDialog(
                         user = calendarUiState.accounts[0],
-                        calendars = visibleCalendars,
+                        calendars = visibleCalendars.toImmutableList(),
                         selectedDate = dataState.currentDate,
                         onSave = { event ->
                             viewModel.addEvent(event)

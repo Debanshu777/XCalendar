@@ -68,6 +68,8 @@ import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Bars
 import compose.icons.fontawesomeicons.solid.CaretDown
 import compose.icons.fontawesomeicons.solid.Search
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -81,8 +83,8 @@ internal fun CalendarTopAppBar(
     onMenuClick: () -> Unit,
     onSelectToday: () -> Unit,
     onDayClick: (LocalDate) -> Unit,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
 ) {
     val showYear = dateState.selectedInViewMonth.year != dateState.currentDate.year
     val rotationAngle = remember { Animatable(0f) }
@@ -248,8 +250,8 @@ internal fun CalendarTopAppBar(
 @Composable
 private fun TopBarMonthView(
     month: YearMonth,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -271,13 +273,15 @@ private fun TopBarMonthView(
             TopAppBarDayCell(
                 date = date,
                 events =
-                    events.filter { event ->
-                        event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                    },
+                    events
+                        .filter { event ->
+                            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
+                        }.toImmutableList(),
                 holidays =
-                    holidays.filter { holiday ->
-                        holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                    },
+                    holidays
+                        .filter { holiday ->
+                            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
+                        }.toImmutableList(),
                 onDayClick = onDayClick,
             )
         }
@@ -310,8 +314,8 @@ private fun TopAppBarWeekdayHeader() {
 @Composable
 private fun TopAppBarDayCell(
     date: LocalDate,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val today =
