@@ -37,13 +37,15 @@ import compose.icons.fontawesomeicons.regular.ListAlt
 import compose.icons.fontawesomeicons.solid.CalendarAlt
 import compose.icons.fontawesomeicons.solid.CalendarDay
 import compose.icons.fontawesomeicons.solid.CalendarWeek
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun CalendarDrawer(
     selectedView: NavigableScreen,
     onViewSelect: (NavigableScreen) -> Unit,
-    accounts: List<User>,
-    calendars: List<Calendar>,
+    accounts: ImmutableList<User>,
+    calendars: ImmutableList<Calendar>,
     onCalendarToggle: (Calendar) -> Unit,
 ) {
     Column(
@@ -105,7 +107,7 @@ internal fun CalendarDrawer(
         accounts.forEach { user ->
             AccountSection(
                 user = user,
-                calendars = calendars.filter { it.userId == user.id },
+                calendars = calendars.filter { it.userId == user.id }.toImmutableList(),
                 onCalendarToggle = onCalendarToggle,
             )
         }
@@ -247,7 +249,7 @@ internal fun CalendarViewOption(
 @Composable
 fun AccountSection(
     user: User,
-    calendars: List<Calendar>,
+    calendars: ImmutableList<Calendar>,
     onCalendarToggle: (Calendar) -> Unit,
 ) {
     Column {

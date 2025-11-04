@@ -27,6 +27,15 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
+        metricsDestination = layout.buildDirectory.dir("compose_compiler")
+        stabilityConfigurationFiles =
+            listOf(
+                rootProject.layout.projectDirectory.file("stability_config.conf"),
+            )
+    }
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -127,7 +136,6 @@ ksp {
     arg("KOIN_DEFAULT_MODULE", "false")
 }
 
-// Fix KSP task dependencies
 project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
     if (name != "kspCommonMainKotlinMetadata") {
         dependsOn("kspCommonMainKotlinMetadata")
@@ -137,6 +145,13 @@ project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
 // Explicitly declare KSP task dependencies
 tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
     dependsOn("kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions.freeCompilerArgs.addAll(
+        "-P",
+        "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping",
+    )
 }
 
 android {

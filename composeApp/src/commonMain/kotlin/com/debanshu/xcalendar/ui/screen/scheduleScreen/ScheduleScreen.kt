@@ -24,6 +24,7 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.DayWithEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.WeekHeader
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -32,8 +33,8 @@ import kotlinx.coroutines.launch
 fun ScheduleScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()

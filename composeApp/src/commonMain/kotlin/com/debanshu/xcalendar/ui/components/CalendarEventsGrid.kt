@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -41,7 +44,7 @@ import kotlin.time.ExperimentalTime
 internal fun CalendarEventsGrid(
     startDate: LocalDate,
     numDays: Int,
-    eventsByDate: Map<LocalDate, List<Event>>,
+    eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
     timeRange: IntRange,
     hourHeightDp: Float,
     onEventClick: (Event) -> Unit,
@@ -107,7 +110,7 @@ internal fun CalendarEventsGrid(
 
         // Process events by date using pre-calculated mapping
         dates.forEachIndexed { dayIndex, date ->
-            val dayEvents = eventsByDate[date] ?: emptyList()
+            val dayEvents = eventsByDate[date] ?: persistentListOf()
 
             // Group overlapping events with caching
             val eventGroups = remember(dayEvents) { groupOverlappingEvents(dayEvents) }

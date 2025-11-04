@@ -60,6 +60,7 @@ import compose.icons.fontawesomeicons.solid.Clock
 import compose.icons.fontawesomeicons.solid.Edit
 import compose.icons.fontawesomeicons.solid.LocationArrow
 import compose.icons.fontawesomeicons.solid.Times
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -70,7 +71,7 @@ import kotlin.time.ExperimentalTime
 @Composable
 internal fun AddEventDialog(
     user: User,
-    calendars: List<Calendar>,
+    calendars: ImmutableList<Calendar>,
     selectedDate: LocalDate,
     onSave: (Event) -> Unit = {},
     onDismiss: () -> Unit = {},
@@ -288,7 +289,7 @@ internal fun AddEventDialog(
 @Composable
 private fun CalenderSelectionSection(
     user: User,
-    calendars: List<Calendar>,
+    calendars: ImmutableList<Calendar>,
     incomingSelectedCalendarId: String,
     onCalendarSelected: (String) -> Unit,
 ) {
@@ -395,7 +396,7 @@ private fun CaladerTimeSection(
 
 @Composable
 private fun onCalenderList(
-    calendars: List<Calendar>,
+    calendars: ImmutableList<Calendar>,
     selectedCalendarId: String,
     onCalendarSelected: (String) -> Unit = {},
 ) {

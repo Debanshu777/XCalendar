@@ -11,6 +11,7 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.DayEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.WeekHeader
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 
@@ -132,14 +133,16 @@ class ScheduleStateHolder(
                     week.forEach { date ->
                         // Use cached results or compute and cache
                         val dayEvents =
-                            eventCache.getOrPut(date) {
-                                eventDateMap[date] ?: emptyList()
-                            }
+                            eventCache
+                                .getOrPut(date) {
+                                    eventDateMap[date] ?: emptyList()
+                                }.toImmutableList()
 
                         val dayHolidays =
-                            holidayCache.getOrPut(date) {
-                                holidayDateMap[date] ?: emptyList()
-                            }
+                            holidayCache
+                                .getOrPut(date) {
+                                    holidayDateMap[date] ?: emptyList()
+                                }.toImmutableList()
 
                         if (dayEvents.isNotEmpty() || dayHolidays.isNotEmpty()) {
                             items.add(DayEvents(date, dayEvents, dayHolidays))

@@ -13,6 +13,7 @@ import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
 import com.debanshu.xcalendar.ui.components.SwipeablePager
 import com.debanshu.xcalendar.ui.screen.monthScreen.components.MonthView
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
@@ -20,8 +21,8 @@ import kotlinx.datetime.number
 fun MonthScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onDateClick: () -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()

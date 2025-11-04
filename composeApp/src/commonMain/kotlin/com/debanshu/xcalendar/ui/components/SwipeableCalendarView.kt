@@ -12,6 +12,10 @@ import androidx.compose.ui.Modifier
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -43,8 +47,8 @@ import kotlinx.datetime.plus
 internal fun SwipeableCalendarView(
     modifier: Modifier = Modifier,
     startDate: LocalDate,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onDayClick: (LocalDate) -> Unit,
     onEventClick: (Event) -> Unit,
     onDateRangeChange: (LocalDate) -> Unit,
@@ -59,16 +63,22 @@ internal fun SwipeableCalendarView(
 
     val eventsByDate =
         remember(events) {
-            events.groupBy { event ->
-                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
+            events
+                .groupBy { event ->
+                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }.mapValues {
+                    it.value.toImmutableList()
+                }.toImmutableMap()
         }
 
     val holidaysByDate =
         remember(holidays) {
-            holidays.groupBy { holiday ->
-                holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
+            holidays
+                .groupBy { holiday ->
+                    holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                }.mapValues {
+                    it.value.toImmutableList()
+                }.toImmutableMap()
         }
 
     SwipeablePager(
@@ -105,8 +115,8 @@ internal fun SwipeableCalendarView(
 private fun CalendarContent(
     startDate: LocalDate,
     numDays: Int,
-    eventsByDate: Map<LocalDate, List<Event>>,
-    holidaysByDate: Map<LocalDate, List<Holiday>>,
+    eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
+    holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>,
     timeRange: IntRange,
     hourHeightDp: Float,
     onDayClick: (LocalDate) -> Unit,

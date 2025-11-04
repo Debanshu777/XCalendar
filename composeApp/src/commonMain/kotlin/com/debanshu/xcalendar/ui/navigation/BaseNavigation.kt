@@ -12,14 +12,15 @@ import com.debanshu.xcalendar.ui.screen.monthScreen.MonthScreen
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleScreen
 import com.debanshu.xcalendar.ui.screen.threeDayScreen.ThreeDayScreen
 import com.debanshu.xcalendar.ui.screen.weekScreen.WeekScreen
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun NavigationHost(
     modifier: Modifier,
     backStack: MutableList<NavigableScreen>,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     NavDisplay(
