@@ -25,6 +25,7 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.DayWithEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.WeekHeader
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -33,17 +34,17 @@ import kotlinx.coroutines.launch
 fun ScheduleScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
     val currentDate = dateState.currentDate
     val currentYearMonth = YearMonth.from(currentDate)
 
-    // Optimized: Create ScheduleStateHolder with stable keys to prevent unnecessary recreations
-    val currentEvents = rememberUpdatedState(events)
-    val currentHolidays = rememberUpdatedState(holidays)
+    // Use rememberUpdatedState to allow events and holidays to update without recreating the state holder
+    val currentEvents by rememberUpdatedState(events)
+    val currentHolidays by rememberUpdatedState(holidays)
 
     val scheduleStateHolder =
         remember(
@@ -52,14 +53,19 @@ fun ScheduleScreen(
         ) {
             ScheduleStateHolder(
                 initialMonth = currentYearMonth,
-                events = currentEvents.value,
-                holidays = currentHolidays.value,
+                getEvents = { currentEvents },
+                getHolidays = { currentHolidays },
             )
         }
 
     // Initialize month in the TopAppBar immediately
     LaunchedEffect(currentYearMonth) {
         dateStateHolder.updateSelectedInViewMonthState(currentYearMonth)
+    }
+
+    // Refresh items when events or holidays change, without recreating the state holder
+    LaunchedEffect(events, holidays) {
+        scheduleStateHolder.refreshItems()
     }
 
     // Create list state with initial position

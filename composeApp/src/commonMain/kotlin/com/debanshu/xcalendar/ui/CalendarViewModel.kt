@@ -9,6 +9,7 @@ import com.debanshu.xcalendar.domain.repository.EventRepository
 import com.debanshu.xcalendar.domain.repository.HolidayRepository
 import com.debanshu.xcalendar.domain.repository.UserRepository
 import com.debanshu.xcalendar.domain.states.CalendarUiState
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -129,10 +130,10 @@ class CalendarViewModel(
             events.distinctUntilChanged(),
         ) { currentState, usersList, holidaysList, calendarsList, eventsList ->
             currentState.copy(
-                accounts = usersList,
-                holidays = holidaysList,
-                calendars = calendarsList,
-                events = eventsList,
+                accounts = usersList.toImmutableList(),
+                holidays = holidaysList.toImmutableList(),
+                calendars = calendarsList.toImmutableList(),
+                events = eventsList.toImmutableList(),
                 isLoading = false,
             )
         }.distinctUntilChanged()
@@ -152,7 +153,6 @@ class CalendarViewModel(
         if (_isInitialized.compareAndSet(false, true)) {
             viewModelScope.launch {
                 try {
-                    // Launch all initialization tasks concurrently
                     val initJobs =
                         listOf(
                             async {
@@ -162,8 +162,6 @@ class CalendarViewModel(
                             },
                             async { initializeHolidays() },
                         )
-
-                    // Wait for all to complete
                     initJobs.awaitAll()
                 } catch (exception: Exception) {
                     handleError("Initialization failed", exception)
@@ -210,11 +208,6 @@ class CalendarViewModel(
         }
     }
 
-    // Optimized state update methods
-    fun setTopAppBarMonthDropdown(viewType: TopBarCalendarView) {
-        updateState { it.copy(showMonthDropdown = viewType) }
-    }
-
     fun toggleCalendarVisibility(calendar: Calendar) {
         val updatedCalendar = calendar.copy(isVisible = !calendar.isVisible)
 
@@ -228,7 +221,7 @@ class CalendarViewModel(
                         currentState.calendars.map { cal ->
                             if (cal.id == calendar.id) updatedCalendar else cal
                         }
-                    currentState.copy(calendars = updatedCalendars)
+                    currentState.copy(calendars = updatedCalendars.toImmutableList())
                 }
             }.onFailure { exception ->
                 handleError("Failed to toggle calendar visibility", exception)
@@ -248,7 +241,7 @@ class CalendarViewModel(
         performEventOperation(
             operation = { eventRepository.addEvent(event) },
             onSuccess = { currentState ->
-                currentState.copy(events = currentState.events + event)
+                currentState.copy(events = (currentState.events + event).toImmutableList())
             },
             errorMessage = "Failed to add event",
         )
@@ -263,7 +256,7 @@ class CalendarViewModel(
                         if (e.id == event.id) event else e
                     }
                 currentState.copy(
-                    events = updatedEvents,
+                    events = updatedEvents.toImmutableList(),
                     selectedEvent = null,
                 )
             },
@@ -277,7 +270,7 @@ class CalendarViewModel(
             onSuccess = { currentState ->
                 val updatedEvents = currentState.events.filter { e -> e.id != event.id }
                 currentState.copy(
-                    events = updatedEvents,
+                    events = updatedEvents.toImmutableList(),
                     selectedEvent = null,
                 )
             },
@@ -285,7 +278,6 @@ class CalendarViewModel(
         )
     }
 
-    // Helper methods for cleaner code
     private fun performEventOperation(
         operation: suspend () -> Unit,
         onSuccess: (CalendarUiState) -> CalendarUiState,
@@ -313,10 +305,7 @@ class CalendarViewModel(
         message: String,
         exception: Throwable,
     ) {
-        // Log error for debugging
         println("CalendarViewModel Error: $message - ${exception.message}")
-
-        // Update UI state with error information
         updateState { currentState ->
             currentState.copy(
                 isLoading = false,

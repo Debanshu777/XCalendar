@@ -6,6 +6,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
 import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * Three-day view screen that displays a 3-day calendar view.
@@ -14,8 +15,8 @@ import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
 fun ThreeDayScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: List<Event>,
-    holidays: List<Holiday>,
+    events: ImmutableList<Event>,
+    holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
 ) {
@@ -26,6 +27,6 @@ fun ThreeDayScreen(
         holidays = holidays,
         onEventClick = onEventClick,
         numDays = 3,
-        onDateClickCallback = onDateClickCallback
+        onDateClickCallback = onDateClickCallback,
     )
 }

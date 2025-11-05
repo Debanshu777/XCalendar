@@ -11,6 +11,7 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.DayEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.WeekHeader
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 
@@ -19,8 +20,8 @@ import kotlinx.datetime.TimeZone
  */
 class ScheduleStateHolder(
     initialMonth: YearMonth,
-    val events: List<Event>,
-    val holidays: List<Holiday>,
+    private val getEvents: () -> List<Event>,
+    private val getHolidays: () -> List<Holiday>,
 ) {
     private val _items = mutableStateListOf<ScheduleItem>()
     val items: List<ScheduleItem> = _items
@@ -38,8 +39,8 @@ class ScheduleStateHolder(
         val initialItems =
             createScheduleItemsForMonthRange(
                 monthRange.getMonths(),
-                events,
-                holidays,
+                getEvents(),
+                getHolidays(),
             )
         _items.addAll(initialItems)
 
@@ -60,7 +61,7 @@ class ScheduleStateHolder(
     fun loadMoreBackward(): Int {
         monthRange.expandBackward()
         val newMonths = monthRange.getLastAddedMonthsBackward()
-        val newItems = createScheduleItemsForMonthRange(newMonths, events, holidays)
+        val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
 
         if (newItems.isNotEmpty()) {
             _items.addAll(0, newItems)
@@ -76,13 +77,33 @@ class ScheduleStateHolder(
     fun loadMoreForward(): Int {
         monthRange.expandForward()
         val newMonths = monthRange.getLastAddedMonthsForward()
-        val newItems = createScheduleItemsForMonthRange(newMonths, events, holidays)
+        val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
 
         if (newItems.isNotEmpty()) {
             _items.addAll(newItems)
             return newItems.size
         }
         return 0
+    }
+
+    /**
+     * Refreshes all items with current events and holidays data
+     * Clears caches and regenerates the entire list while maintaining pagination state
+     */
+    fun refreshItems() {
+        // Clear caches to ensure fresh data
+        eventCache.clear()
+        holidayCache.clear()
+
+        // Regenerate all items with current data
+        val refreshedItems = createScheduleItemsForMonthRange(
+            monthRange.getMonths(),
+            getEvents(),
+            getHolidays()
+        )
+
+        _items.clear()
+        _items.addAll(refreshedItems)
     }
 
     private fun createScheduleItemsForMonthRange(
@@ -132,14 +153,16 @@ class ScheduleStateHolder(
                     week.forEach { date ->
                         // Use cached results or compute and cache
                         val dayEvents =
-                            eventCache.getOrPut(date) {
-                                eventDateMap[date] ?: emptyList()
-                            }
+                            eventCache
+                                .getOrPut(date) {
+                                    eventDateMap[date] ?: emptyList()
+                                }.toImmutableList()
 
                         val dayHolidays =
-                            holidayCache.getOrPut(date) {
-                                holidayDateMap[date] ?: emptyList()
-                            }
+                            holidayCache
+                                .getOrPut(date) {
+                                    holidayDateMap[date] ?: emptyList()
+                                }.toImmutableList()
 
                         if (dayEvents.isNotEmpty() || dayHolidays.isNotEmpty()) {
                             items.add(DayEvents(date, dayEvents, dayHolidays))

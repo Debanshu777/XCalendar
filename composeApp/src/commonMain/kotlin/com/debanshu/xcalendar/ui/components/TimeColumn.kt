@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.debanshu.xcalendar.common.customBorder
 import com.debanshu.xcalendar.common.formatHour
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 
@@ -27,20 +26,21 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
  * @param scrollState The scroll state to synchronize scrolling with other components
  */
 @Composable
-fun TimeColumn(
+internal fun TimeColumn(
     modifier: Modifier = Modifier,
     timeRange: IntRange = 0..23,
     hourHeightDp: Float = 60f,
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ) {
     Column(
-        modifier = modifier
-            .verticalScroll(scrollState)
+        modifier =
+            modifier
+                .verticalScroll(scrollState),
     ) {
         timeRange.forEach { hour ->
             TimeCell(
                 hour = hour,
-                hourHeightDp = hourHeightDp
+                hourHeightDp = hourHeightDp,
             )
         }
     }
@@ -55,32 +55,24 @@ fun TimeColumn(
 @Composable
 private fun TimeCell(
     hour: Int,
-    hourHeightDp: Float
+    hourHeightDp: Float,
 ) {
     Box(
-        modifier = Modifier
-            .height(hourHeightDp.dp)
-            .fillMaxWidth()
-            .customBorder(
-                end = true,
-                bottom = true,
-                endFraction = 0f,
-                endLengthFraction = 1f,
-                bottomFraction = 0.85f,
-                bottomLengthFraction = 1f,
-                color = XCalendarTheme.colorScheme.surfaceVariant,
-                width = 1.dp
-            )
-            .padding(end = 16.dp)
+        modifier =
+            Modifier
+                .height(hourHeightDp.dp)
+                .fillMaxWidth()
+                .padding(end = 16.dp),
     ) {
         Text(
             text = formatHour(hour),
             style = XCalendarTheme.typography.labelSmall,
             color = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.End,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(y = (-8).dp)
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(y = (-8).dp),
         )
     }
 }

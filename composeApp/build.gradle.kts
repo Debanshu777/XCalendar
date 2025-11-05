@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.hotReload)
 }
 
 kotlin {
@@ -24,6 +25,15 @@ kotlin {
     }
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
+        metricsDestination = layout.buildDirectory.dir("compose_compiler")
+        stabilityConfigurationFiles =
+            listOf(
+                rootProject.layout.projectDirectory.file("stability_config.conf"),
+            )
     }
 
     listOf(
@@ -52,7 +62,8 @@ kotlin {
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
-            implementation(compose.material3)
+            implementation(libs.jetbrains.material3)
+            implementation(libs.kotlinx.collections.immutable)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
@@ -77,12 +88,14 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.annotations)
-            implementation(libs.navigation.compose)
 
-            implementation(libs.navigation.compose)
             implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
+            implementation(libs.androidx.adaptive)
+            implementation(libs.androidx.adaptive.layout)
+            implementation(libs.androidx.adaptive.navigation)
+            implementation(libs.navigation3.compose.ui)
 
             implementation(libs.material3.adaptive)
         }
@@ -123,7 +136,6 @@ ksp {
     arg("KOIN_DEFAULT_MODULE", "false")
 }
 
-// Fix KSP task dependencies
 project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
     if (name != "kspCommonMainKotlinMetadata") {
         dependsOn("kspCommonMainKotlinMetadata")
@@ -133,6 +145,13 @@ project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
 // Explicitly declare KSP task dependencies
 tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
     dependsOn("kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions.freeCompilerArgs.addAll(
+        "-P",
+        "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping",
+    )
 }
 
 android {
