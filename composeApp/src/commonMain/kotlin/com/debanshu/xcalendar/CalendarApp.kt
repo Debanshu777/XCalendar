@@ -75,8 +75,8 @@ private fun CalendarApp(
     val visibleCalendars by remember(calendarUiState.calendars) {
         derivedStateOf { calendarUiState.calendars.filter { it.isVisible } }
     }
-    val events = remember { calendarUiState.events }
-    val holidays = remember { calendarUiState.holidays }
+    val events = remember(calendarUiState.events) { calendarUiState.events }
+    val holidays = remember(calendarUiState.holidays) { calendarUiState.holidays }
 
     ModalNavigationDrawer(
         modifier = Modifier.testTag("ModalNavigationDrawer"),
@@ -143,18 +143,20 @@ private fun CalendarApp(
                     sheetState = sheetState,
                     properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
                 ) {
-                    AddEventDialog(
-                        user = calendarUiState.accounts[0],
-                        calendars = visibleCalendars.toImmutableList(),
-                        selectedDate = dataState.currentDate,
-                        onSave = { event ->
-                            viewModel.addEvent(event)
-                            showAddBottomSheet = false
-                        },
-                        onDismiss = {
-                            showAddBottomSheet = false
-                        },
-                    )
+                    calendarUiState.accounts.firstOrNull()?.let {
+                        AddEventDialog(
+                            user = it,
+                            calendars = visibleCalendars.toImmutableList(),
+                            selectedDate = dataState.currentDate,
+                            onSave = { event ->
+                                viewModel.addEvent(event)
+                                showAddBottomSheet = false
+                            },
+                            onDismiss = {
+                                showAddBottomSheet = false
+                            },
+                        )
+                    }
                 }
             }
 

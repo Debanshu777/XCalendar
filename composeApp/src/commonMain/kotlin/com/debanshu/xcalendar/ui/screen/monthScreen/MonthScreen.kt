@@ -39,13 +39,7 @@ fun MonthScreen(
     val onMonthChange =
         remember(dateStateHolder) {
             { yearMonth: YearMonth ->
-                dateStateHolder.updateSelectedDateState(
-                    LocalDate(
-                        yearMonth.year,
-                        yearMonth.month,
-                        yearMonth.getLastDateOrdinal(),
-                    ),
-                )
+                dateStateHolder.updateSelectedInViewMonthState(yearMonth)
             }
         }
 
