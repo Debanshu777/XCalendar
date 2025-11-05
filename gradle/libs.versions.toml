@@ -32,7 +32,6 @@ androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:
 androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptive" }
 jetbrains-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
-androidx-core = { module = "androidx.window.extensions.core:core", version.ref = "core" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor = { module = "io.ktor:ktor-bom", version.ref = "ktor-bom" }

@@ -1,7 +1,7 @@
 package com.debanshu.xcalendar.ui.screen.monthScreen.components
 
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -142,3 +142,4 @@ fun MonthView(
             }
         }
     }
+}
