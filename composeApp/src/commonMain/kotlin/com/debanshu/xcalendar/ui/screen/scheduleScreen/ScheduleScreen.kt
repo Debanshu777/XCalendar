@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,23 +42,30 @@ fun ScheduleScreen(
     val currentDate = dateState.currentDate
     val currentYearMonth = YearMonth.from(currentDate)
 
+    // Use rememberUpdatedState to allow events and holidays to update without recreating the state holder
+    val currentEvents by rememberUpdatedState(events)
+    val currentHolidays by rememberUpdatedState(holidays)
+
     val scheduleStateHolder =
         remember(
             currentYearMonth.year,
             currentYearMonth.month,
-            events,
-            holidays,
         ) {
             ScheduleStateHolder(
                 initialMonth = currentYearMonth,
-                events = events,
-                holidays = holidays,
+                getEvents = { currentEvents },
+                getHolidays = { currentHolidays },
             )
         }
 
     // Initialize month in the TopAppBar immediately
     LaunchedEffect(currentYearMonth) {
         dateStateHolder.updateSelectedInViewMonthState(currentYearMonth)
+    }
+
+    // Refresh items when events or holidays change, without recreating the state holder
+    LaunchedEffect(events, holidays) {
+        scheduleStateHolder.refreshItems()
     }
 
     // Create list state with initial position
