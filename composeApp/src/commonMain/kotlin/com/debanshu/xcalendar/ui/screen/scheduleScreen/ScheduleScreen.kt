@@ -45,6 +45,8 @@ fun ScheduleScreen(
         remember(
             currentYearMonth.year,
             currentYearMonth.month,
+            events,
+            holidays,
         ) {
             ScheduleStateHolder(
                 initialMonth = currentYearMonth,
