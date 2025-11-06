@@ -1,10 +1,8 @@
 package com.debanshu.xcalendar.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -86,13 +84,10 @@ internal fun <T> SwipeablePager(
         }
     }
 
-    Surface(modifier = modifier.fillMaxSize()) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-        ) { page ->
-            val reference = pageConverter(page)
-            content(reference)
-        }
+    HorizontalPager(
+        state = pagerState,
+    ) { page ->
+        val reference = pageConverter(page)
+        content(reference)
     }
 }

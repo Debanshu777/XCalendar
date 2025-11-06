@@ -1,6 +1,8 @@
 package com.debanshu.xcalendar
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DrawerValue
@@ -18,14 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.savedstate.serialization.SavedStateConfiguration
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
 import com.debanshu.xcalendar.ui.CalendarViewModel
 import com.debanshu.xcalendar.ui.components.AddEventDialog
@@ -40,12 +45,26 @@ import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Plus
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+private val config =
+    SavedStateConfiguration {
+        serializersModule =
+            SerializersModule {
+                polymorphic(NavKey::class) {
+                    subclass(NavigableScreen.Schedule::class, NavigableScreen.Schedule.serializer())
+                    subclass(NavigableScreen.Day::class, NavigableScreen.Day.serializer())
+                    subclass(NavigableScreen.ThreeDay::class, NavigableScreen.ThreeDay.serializer())
+                    subclass(NavigableScreen.Week::class, NavigableScreen.Week.serializer())
+                    subclass(NavigableScreen.Month::class, NavigableScreen.Month.serializer())
+                }
+            }
+    }
+
 @Composable
-@Preview
 fun CalendarApp() {
     val viewModel = koinViewModel<CalendarViewModel>()
     val dateStateHolder = koinInject<DateStateHolder>()
@@ -64,7 +83,7 @@ private fun CalendarApp(
     val dataState by dateStateHolder.currentDateState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val backStack = remember { mutableStateListOf<NavigableScreen>(NavigableScreen.Month) }
+    val backStack = rememberNavBackStack(config, NavigableScreen.Month)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showAddBottomSheet by remember { mutableStateOf(false) }
     var showDetailsBottomSheet by remember { mutableStateOf(false) }
@@ -84,7 +103,7 @@ private fun CalendarApp(
         drawerContent = {
             ModalDrawerSheet {
                 CalendarDrawer(
-                    selectedView = backStack.lastOrNull() ?: NavigableScreen.Month,
+                    selectedView = backStack.lastOrNull() as NavigableScreen,
                     onViewSelect = { view ->
                         scope.launch {
                             backStack.add(view)
@@ -101,6 +120,7 @@ private fun CalendarApp(
         },
     ) {
         Scaffold(
+            containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
             topBar = {
                 CalendarTopAppBar(
                     dateState = dataState,
@@ -127,7 +147,12 @@ private fun CalendarApp(
             },
         ) { paddingValues ->
             NavigationHost(
-                modifier = Modifier.padding(paddingValues),
+                modifier =
+                    Modifier.padding(
+                        top = paddingValues.calculateTopPadding(),
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    ),
                 backStack = backStack,
                 dateStateHolder = dateStateHolder,
                 events = events,

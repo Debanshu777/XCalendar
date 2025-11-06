@@ -1,6 +1,5 @@
 package com.debanshu.xcalendar.ui.screen.monthScreen
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,10 +59,7 @@ fun MonthScreen(
         onReferenceChange = onMonthChange,
     ) { month ->
         MonthView(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .testTag("MonthView_$month"),
+            modifier = Modifier.testTag("MonthView_$month"),
             month = month,
             events = events,
             holidays = holidays,

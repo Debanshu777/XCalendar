@@ -14,7 +14,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.buildkonfig)
-    alias(libs.plugins.hotReload)
 }
 
 kotlin {
@@ -96,6 +95,7 @@ kotlin {
             implementation(libs.androidx.adaptive.layout)
             implementation(libs.androidx.adaptive.navigation)
             implementation(libs.navigation3.compose.ui)
+            implementation(libs.navigation3.viewmodel)
 
             implementation(libs.material3.adaptive)
         }

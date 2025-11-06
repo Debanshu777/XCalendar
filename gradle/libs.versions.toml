@@ -1,17 +1,16 @@
 [versions]
-adaptive = "1.2.0"
+adaptive = "1.3.0-alpha01"
 agp = "8.13.0"
-hotReload = "1.0.0-rc02"
 android-compileSdk = "36"
 android-minSdk = "30"
 android-targetSdk = "36"
 androidx-activityCompose = "1.11.0"
-androidx-lifecycle = "2.9.5"
+androidx-lifecycle = "2.10.0-alpha04"
 coil3 = "2.6.1"
-compose-multiplatform = "1.9.2"
+compose-multiplatform = "1.10.0-beta01"
 kotlin = "2.2.21"
 kotlinxCollectionsImmutable = "0.4.0"
-material3Version = "1.10.0-alpha03"
+material3Version = "1.10.0-alpha04"
 room_version = "2.8.3"
 ksp = "2.2.21-2.0.4"
 sqlite = "2.6.1"
@@ -19,7 +18,7 @@ ktor-bom = "3.3.1"
 koin-bom = "4.1.1"
 koin-annotations-bom = "2.3.0"
 kotlinx-datetime = "0.7.1"
-navigation = "1.0.0-alpha03"
+navigation = "1.0.0-alpha04"
 composeIcons = "1.1.1"
 materialKolor = "4.0.3"
 config = "0.17.1"
@@ -29,7 +28,7 @@ store = "5.1.0-alpha07"
 [libraries]
 androidx-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
-androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "adaptive" }
+androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "adaptive" }
 jetbrains-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
@@ -60,6 +59,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sqlite" }
 
 navigation3-compose-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation" }
+navigation3-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3",version.ref = "androidx-lifecycle" }
 icons = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "composeIcons" }
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
@@ -73,5 +73,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room_version" }
-hotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "hotReload" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "config" }

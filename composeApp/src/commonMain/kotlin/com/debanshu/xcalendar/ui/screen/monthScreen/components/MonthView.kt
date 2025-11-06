@@ -2,7 +2,6 @@ package com.debanshu.xcalendar.ui.screen.monthScreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.common.isLeap
 import com.debanshu.xcalendar.common.lengthOfMonth
 import com.debanshu.xcalendar.common.model.YearMonth
@@ -69,13 +69,16 @@ fun MonthView(
     val nextMonth = if (month.month.number == 12) Month(1) else Month(month.month.number + 1)
     val nextYear = if (month.month.number == 12) month.year + 1 else month.year
     val gridState = rememberLazyGridState()
-
-    BoxWithConstraints {
-        val itemSize = DpSize(maxWidth / 7, maxHeight / 6)
+    BoxWithConstraints(
+        propagateMinConstraints = true,
+    ) {
+        val itemSize =
+            DpSize(
+                maxWidth.div(7),
+                (maxHeight - 50.dp).div(6),
+            )
         LazyVerticalGrid(
-            modifier = modifier
-                .fillMaxSize()
-                .background(color = XCalendarTheme.colorScheme.surfaceContainerLow),
+            modifier = modifier.background(color = XCalendarTheme.colorScheme.surfaceContainerLow),
             state = gridState,
             columns = GridCells.Fixed(7),
             userScrollEnabled = false,
@@ -114,7 +117,11 @@ fun MonthView(
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = true,
                     onDayClick = onDayClick,
-                    itemSize = itemSize,
+                    itemSize = if (cellIndex >= 35) {
+                        itemSize.copy(height = itemSize.height + 70.dp)
+                    } else {
+                        itemSize
+                    },
                     isTopLeft = cellIndex == 0,
                     isTopRight = cellIndex == 6,
                     isBottomLeft = cellIndex == 35,
@@ -133,7 +140,11 @@ fun MonthView(
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = false,
                     onDayClick = onDayClick,
-                    itemSize = itemSize,
+                    itemSize = if (cellIndex >= 35) {
+                        itemSize.copy(height = itemSize.height + 70.dp)
+                    } else {
+                        itemSize
+                    },
                     isTopLeft = cellIndex == 0,
                     isTopRight = cellIndex == 6,
                     isBottomLeft = cellIndex == 35,
