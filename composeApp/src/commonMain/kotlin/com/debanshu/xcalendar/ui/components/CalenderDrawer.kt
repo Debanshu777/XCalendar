@@ -42,6 +42,7 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun CalendarDrawer(
+    modifier: Modifier = Modifier,
     selectedView: NavigableScreen,
     onViewSelect: (NavigableScreen) -> Unit,
     accounts: ImmutableList<User>,
@@ -50,7 +51,7 @@ internal fun CalendarDrawer(
 ) {
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
     ) {

@@ -79,6 +79,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun CalendarTopAppBar(
+    modifier: Modifier = Modifier,
     dateState: DateState,
     onMenuClick: () -> Unit,
     onSelectToday: () -> Unit,
@@ -121,7 +122,7 @@ internal fun CalendarTopAppBar(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .background(
                     color = XCalendarTheme.colorScheme.surfaceContainerLow,
                 ).animateContentSize(),

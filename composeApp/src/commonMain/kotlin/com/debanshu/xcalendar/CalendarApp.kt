@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -39,6 +38,7 @@ import com.debanshu.xcalendar.ui.components.CalendarTopAppBar
 import com.debanshu.xcalendar.ui.components.EventDetailsDialog
 import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.navigation.NavigationHost
+import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
@@ -79,6 +79,7 @@ private fun CalendarApp(
     viewModel: CalendarViewModel,
     dateStateHolder: DateStateHolder,
 ) {
+    val sharedElementScope = LocalSharedTransitionScope.current
     val calendarUiState by viewModel.uiState.collectAsState()
     val dataState by dateStateHolder.currentDateState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -97,113 +98,122 @@ private fun CalendarApp(
     val events = remember(calendarUiState.events) { calendarUiState.events }
     val holidays = remember(calendarUiState.holidays) { calendarUiState.holidays }
 
-    ModalNavigationDrawer(
-        modifier = Modifier.testTag("ModalNavigationDrawer"),
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                CalendarDrawer(
-                    selectedView = backStack.lastOrNull() as NavigableScreen,
-                    onViewSelect = { view ->
-                        scope.launch {
-                            backStack.add(view)
-                            drawerState.close()
-                        }
-                    },
-                    accounts = drawerAccounts,
-                    calendars = drawerCalendars,
-                    onCalendarToggle = { calendar ->
-                        viewModel.toggleCalendarVisibility(calendar)
-                    },
-                )
-            }
-        },
-    ) {
-        Scaffold(
-            containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
-            topBar = {
-                CalendarTopAppBar(
-                    dateState = dataState,
-                    onMenuClick = { scope.launch { drawerState.open() } },
-                    onSelectToday = {
-                        dateStateHolder.updateSelectedDateState(dataState.currentDate)
-                    },
-                    onDayClick = { date ->
-                        dateStateHolder.updateSelectedDateState(date)
-                        backStack.add(NavigableScreen.Day)
-                    },
-                    events,
-                    holidays,
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { showAddBottomSheet = true }) {
-                    Icon(
-                        modifier = Modifier.size(20.dp),
-                        imageVector = FontAwesomeIcons.Solid.Plus,
-                        contentDescription = "Add Event",
+    with(sharedElementScope) {
+        ModalNavigationDrawer(
+            modifier =
+                Modifier.skipToLookaheadSize(),
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    CalendarDrawer(
+                        selectedView = backStack.lastOrNull() as NavigableScreen,
+                        onViewSelect = { view ->
+                            scope.launch {
+                                backStack.add(view)
+                                drawerState.close()
+                            }
+                        },
+                        accounts = drawerAccounts,
+                        calendars = drawerCalendars,
+                        onCalendarToggle = { calendar ->
+                            viewModel.toggleCalendarVisibility(calendar)
+                        },
                     )
                 }
             },
-        ) { paddingValues ->
-            NavigationHost(
-                modifier =
-                    Modifier.padding(
-                        top = paddingValues.calculateTopPadding(),
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
-                backStack = backStack,
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = { event ->
-                    viewModel.selectEvent(event)
-                    showDetailsBottomSheet = true
+        ) {
+            Scaffold(
+                containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
+                topBar = {
+                    CalendarTopAppBar(
+                        dateState = dataState,
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onSelectToday = {
+                            dateStateHolder.updateSelectedDateState(dataState.currentDate)
+                        },
+                        onDayClick = { date ->
+                            dateStateHolder.updateSelectedDateState(date)
+                            backStack.add(NavigableScreen.Day)
+                        },
+                        events = events,
+                        holidays = holidays,
+                    )
                 },
-            )
-            if (showAddBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showAddBottomSheet = false },
-                    sheetState = sheetState,
-                    properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
-                ) {
-                    calendarUiState.accounts.firstOrNull()?.let {
-                        AddEventDialog(
-                            user = it,
-                            calendars = visibleCalendars.toImmutableList(),
-                            selectedDate = dataState.currentDate,
-                            onSave = { event ->
-                                viewModel.addEvent(event)
-                                showAddBottomSheet = false
-                            },
-                            onDismiss = {
-                                showAddBottomSheet = false
-                            },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier =
+                            Modifier.renderInSharedTransitionScopeOverlay(
+                                1f,
+                            ),
+                        onClick = { showAddBottomSheet = true },
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            imageVector = FontAwesomeIcons.Solid.Plus,
+                            contentDescription = "Add Event",
                         )
                     }
-                }
-            }
-
-            if (showDetailsBottomSheet) {
-                calendarUiState.selectedEvent?.let { event ->
+                },
+            ) { paddingValues ->
+                NavigationHost(
+                    modifier =
+                        Modifier.padding(
+                            top = paddingValues.calculateTopPadding(),
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
+                    backStack = backStack,
+                    dateStateHolder = dateStateHolder,
+                    events = events,
+                    holidays = holidays,
+                    onEventClick = { event ->
+                        viewModel.selectEvent(event)
+                        showDetailsBottomSheet = true
+                    },
+                )
+                if (showAddBottomSheet) {
                     ModalBottomSheet(
-                        onDismissRequest = { showDetailsBottomSheet = false },
+                        onDismissRequest = { showAddBottomSheet = false },
                         sheetState = sheetState,
                         properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
                     ) {
-                        EventDetailsDialog(
-                            event = event,
-                            onEdit = {
-                                viewModel.editEvent(it)
-                                viewModel.clearSelectedEvent()
-                                showDetailsBottomSheet = false
-                            },
-                            onDismiss = {
-                                viewModel.clearSelectedEvent()
-                                showDetailsBottomSheet = false
-                            },
-                        )
+                        calendarUiState.accounts.firstOrNull()?.let {
+                            AddEventDialog(
+                                user = it,
+                                calendars = visibleCalendars.toImmutableList(),
+                                selectedDate = dataState.currentDate,
+                                onSave = { event ->
+                                    viewModel.addEvent(event)
+                                    showAddBottomSheet = false
+                                },
+                                onDismiss = {
+                                    showAddBottomSheet = false
+                                },
+                            )
+                        }
+                    }
+                }
+
+                if (showDetailsBottomSheet) {
+                    calendarUiState.selectedEvent?.let { event ->
+                        ModalBottomSheet(
+                            onDismissRequest = { showDetailsBottomSheet = false },
+                            sheetState = sheetState,
+                            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
+                        ) {
+                            EventDetailsDialog(
+                                event = event,
+                                onEdit = {
+                                    viewModel.editEvent(it)
+                                    viewModel.clearSelectedEvent()
+                                    showDetailsBottomSheet = false
+                                },
+                                onDismiss = {
+                                    viewModel.clearSelectedEvent()
+                                    showDetailsBottomSheet = false
+                                },
+                            )
+                        }
                     }
                 }
             }

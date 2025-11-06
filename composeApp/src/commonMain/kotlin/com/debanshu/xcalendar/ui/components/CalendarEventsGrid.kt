@@ -25,8 +25,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
+import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -51,106 +53,119 @@ internal fun CalendarEventsGrid(
     currentDate: LocalDate,
     scrollState: ScrollState,
 ) {
+    val sharedElementScope = LocalSharedTransitionScope.current
     val dates =
         List(numDays) { index ->
             startDate.plus(DatePeriod(days = index))
         }
 
-    BoxWithConstraints(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .background(XCalendarTheme.colorScheme.surfaceContainerLow),
-    ) {
-        val dayColumnWidth = maxWidth / numDays
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        val currentMinute = now.hour * 60 + now.minute
+    with(sharedElementScope) {
+        BoxWithConstraints(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .background(XCalendarTheme.colorScheme.surfaceContainerLow),
+        ) {
+            val dayColumnWidth = maxWidth / numDays
+            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val currentMinute = now.hour * 60 + now.minute
 
-        Column {
-            timeRange.forEach { _ ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(hourHeightDp.dp),
-                ) {
-                    repeat(numDays) {
-                        Box(
-                            Modifier
-                                .weight(1f)
-                                .border(
-                                    width = 2.dp,
-                                    color = XCalendarTheme.colorScheme.surfaceContainerLow,
-                                    shape = RoundedCornerShape(10.dp),
-                                ).fillMaxHeight()
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
-                        )
+            Column {
+                timeRange.forEach { time ->
+                    Row(
+                        Modifier
+                            .sharedBounds(
+                                rememberSharedContentState("DAYS_COLUMN_$time"),
+                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                            ).fillMaxWidth()
+                            .height(hourHeightDp.dp),
+                    ) {
+                        repeat(numDays) { index ->
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState("DAYS_COLUMN_${time}_$index"),
+                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    ).weight(1f)
+                                    .border(
+                                        width = 2.dp,
+                                        color = XCalendarTheme.colorScheme.surfaceContainerLow,
+                                        shape = RoundedCornerShape(10.dp),
+                                    ).fillMaxHeight()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        if (dates.any { it == currentDate }) {
-            val dayIndex = dates.indexOfFirst { it == currentDate }
-            if (dayIndex >= 0) {
-                val offsetX = dayColumnWidth * dayIndex
-                val offsetY = (currentMinute / 60f * hourHeightDp).dp
+            if (dates.any { it == currentDate }) {
+                val dayIndex = dates.indexOfFirst { it == currentDate }
+                if (dayIndex >= 0) {
+                    val offsetX = dayColumnWidth * dayIndex
+                    val offsetY = (currentMinute / 60f * hourHeightDp).dp
 
-                Box(
-                    modifier =
-                        Modifier
-                            .offset(x = offsetX, y = offsetY)
-                            .width(dayColumnWidth)
-                            .height(2.dp)
-                            .background(XCalendarTheme.colorScheme.primary),
-                )
+                    Box(
+                        modifier =
+                            Modifier
+                                .sharedElement(
+                                    rememberSharedContentState("TIME_LINE"),
+                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                ).offset(x = offsetX, y = offsetY)
+                                .width(dayColumnWidth)
+                                .height(2.dp)
+                                .background(XCalendarTheme.colorScheme.primary),
+                    )
+                }
             }
-        }
 
-        // Process events by date using pre-calculated mapping
-        dates.forEachIndexed { dayIndex, date ->
-            val dayEvents = eventsByDate[date] ?: persistentListOf()
+            // Process events by date using pre-calculated mapping
+            dates.forEachIndexed { dayIndex, date ->
+                val dayEvents = eventsByDate[date] ?: persistentListOf()
 
-            // Group overlapping events with caching
-            val eventGroups = remember(dayEvents) { groupOverlappingEvents(dayEvents) }
+                // Group overlapping events with caching
+                val eventGroups = remember(dayEvents) { groupOverlappingEvents(dayEvents) }
 
-            eventGroups.forEach { (_, group) ->
-                val totalOverlapping = group.size
+                eventGroups.forEach { (_, group) ->
+                    val totalOverlapping = group.size
 
-                group.forEachIndexed { _, event ->
-                    val eventStart =
-                        event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                    val eventEnd = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                    val hour = eventStart.hour
-                    val minute = eventStart.minute
+                    group.forEachIndexed { _, event ->
+                        val eventStart =
+                            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                        val eventEnd =
+                            event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                        val hour = eventStart.hour
+                        val minute = eventStart.minute
 
-                    if (hour in timeRange) {
-                        val durationMinutes =
-                            if (eventStart.date == eventEnd.date) {
-                                (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
-                            } else {
-                                (24 - hour) * 60 - minute
-                            }
+                        if (hour in timeRange) {
+                            val durationMinutes =
+                                if (eventStart.date == eventEnd.date) {
+                                    (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
+                                } else {
+                                    (24 - hour) * 60 - minute
+                                }
 
-                        val topOffset =
-                            (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
-                        val eventHeight = (durationMinutes / 60f) * hourHeightDp
+                            val topOffset =
+                                (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
+                            val eventHeight = (durationMinutes / 60f) * hourHeightDp
 
-                        // Calculate width and horizontal position based on overlap
-                        EventItem(
-                            event = event,
-                            onClick = { onEventClick(event) },
-                            modifier =
-                                Modifier
-                                    .offset(
-                                        x = dayColumnWidth * dayIndex,
-                                        y = topOffset.dp,
-                                    ).width(dayColumnWidth)
-                                    .height(eventHeight.dp.coerceAtLeast(30.dp))
-                                    .padding(1.dp),
-                            isOverlapping = totalOverlapping > 1,
-                        )
+                            // Calculate width and horizontal position based on overlap
+                            EventItem(
+                                event = event,
+                                onClick = { onEventClick(event) },
+                                modifier =
+                                    Modifier
+                                        .offset(
+                                            x = dayColumnWidth * dayIndex,
+                                            y = topOffset.dp,
+                                        ).width(dayColumnWidth)
+                                        .height(eventHeight.dp.coerceAtLeast(30.dp))
+                                        .padding(1.dp),
+                                isOverlapping = totalOverlapping > 1,
+                            )
+                        }
                     }
                 }
             }
