@@ -65,7 +65,6 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Bars
 import compose.icons.fontawesomeicons.solid.CaretDown
 import compose.icons.fontawesomeicons.solid.Search
 import kotlinx.collections.immutable.ImmutableList
@@ -81,7 +80,6 @@ import kotlin.time.ExperimentalTime
 internal fun CalendarTopAppBar(
     modifier: Modifier = Modifier,
     dateState: DateState,
-    onMenuClick: () -> Unit,
     onSelectToday: () -> Unit,
     onDayClick: (LocalDate) -> Unit,
     events: ImmutableList<Event>,
@@ -137,15 +135,6 @@ internal fun CalendarTopAppBar(
                     actionIconContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
                     subtitleContentColor = XCalendarTheme.colorScheme.onSurfaceVariant,
                 ),
-            navigationIcon = {
-                IconButton(onClick = onMenuClick) {
-                    Icon(
-                        modifier = Modifier.size(16.dp),
-                        imageVector = FontAwesomeIcons.Solid.Bars,
-                        contentDescription = "Menu",
-                    )
-                }
-            },
             title = {
                 Row(
                     modifier =

@@ -27,11 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
-import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
 
@@ -64,7 +62,6 @@ internal fun BaseCalendarScreen(
     val verticalScrollState = rememberScrollState()
     val timeColumnWidth = 60.dp
     val timeRange = 0..23
-    val sharedElementScope = LocalSharedTransitionScope.current
 
     val isToday = dateState.selectedDate == dateState.currentDate
 
@@ -75,103 +72,90 @@ internal fun BaseCalendarScreen(
             dynamicHeightOfHeaderComposableWithHolidays.value.coerceAtLeast(160).toDp()
         }
 
-    with(sharedElementScope) {
-        Row(
-            modifier = modifier,
-        ) {
-            Column {
-                Box(
-                    modifier =
-                        Modifier
-                            .height(heightDp)
-                            .width(timeColumnWidth)
-                            .background(color = XCalendarTheme.colorScheme.surfaceContainerLow)
-                            .animateContentSize(),
-                ) {
-                    if (numDays == 1) {
-                        Column(
+    Row(
+        modifier = modifier,
+    ) {
+        Column {
+            Box(
+                modifier =
+                    Modifier
+                        .height(heightDp)
+                        .width(timeColumnWidth)
+                        .background(color = XCalendarTheme.colorScheme.surfaceContainerLow)
+                        .animateContentSize(),
+            ) {
+                if (numDays == 1) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top,
+                    ) {
+                        Text(
+                            text =
+                                dateState.selectedDate.dayOfWeek.name
+                                    .take(3),
+                            style = XCalendarTheme.typography.labelSmall,
+                            color =
+                                when {
+                                    isToday -> XCalendarTheme.colorScheme.onPrimaryContainer
+                                    else -> XCalendarTheme.colorScheme.onSurface
+                                },
+                        )
+                        Box(
                             modifier =
                                 Modifier
-                                    .fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Top,
+                                    .padding(vertical = 4.dp)
+                                    .size(30.dp)
+                                    .clip(MaterialShapes.Cookie9Sided.toShape())
+                                    .background(
+                                        when {
+                                            isToday -> XCalendarTheme.colorScheme.primary
+                                            else -> Color.Transparent
+                                        },
+                                    ),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                modifier =
-                                    Modifier.sharedElement(
-                                        rememberSharedContentState("${dateState.selectedDate.dayOfWeek.name.take(3)}"),
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    ),
-                                text =
-                                    dateState.selectedDate.dayOfWeek.name
-                                        .take(3),
-                                style = XCalendarTheme.typography.labelSmall,
+                                text = dateState.selectedDate.day.toString(),
+                                style = XCalendarTheme.typography.bodyLarge,
                                 color =
                                     when {
-                                        isToday -> XCalendarTheme.colorScheme.onPrimaryContainer
+                                        isToday -> XCalendarTheme.colorScheme.inverseOnSurface
                                         else -> XCalendarTheme.colorScheme.onSurface
                                     },
                             )
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .sharedBounds(
-                                            rememberSharedContentState("BOX_${dateState.selectedDate.day}"),
-                                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                        ).padding(vertical = 4.dp)
-                                        .size(30.dp)
-                                        .clip(MaterialShapes.Cookie9Sided.toShape())
-                                        .background(
-                                            when {
-                                                isToday -> XCalendarTheme.colorScheme.primary
-                                                else -> Color.Transparent
-                                            },
-                                        ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = dateState.selectedDate.day.toString(),
-                                    style = XCalendarTheme.typography.bodyLarge,
-                                    color =
-                                        when {
-                                            isToday -> XCalendarTheme.colorScheme.inverseOnSurface
-                                            else -> XCalendarTheme.colorScheme.onSurface
-                                        },
-                                )
-                            }
                         }
                     }
                 }
-                TimeColumn(
-                    modifier =
-                        Modifier
-                            .sharedBounds(
-                                rememberSharedContentState("TimeColumn"),
-                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                            ).background(XCalendarTheme.colorScheme.surfaceContainerLow)
-                            .width(timeColumnWidth),
-                    timeRange = timeRange,
-                    scrollState = verticalScrollState,
-                )
             }
-            SwipeableCalendarView(
-                startDate = dateState.selectedDate,
-                events = events,
-                holidays = holidays,
-                onDayClick = { date ->
-                    dateStateHolder.updateSelectedDateState(date)
-                    onDateClickCallback()
-                },
-                onEventClick = onEventClick,
-                onDateRangeChange = { newStartDate ->
-                    dateStateHolder.updateSelectedDateState(newStartDate)
-                },
-                numDays = numDays,
+            TimeColumn(
+                modifier =
+                    Modifier
+                        .background(XCalendarTheme.colorScheme.surfaceContainerLow)
+                        .width(timeColumnWidth),
                 timeRange = timeRange,
                 scrollState = verticalScrollState,
-                currentDate = dateState.currentDate,
-                dynamicHeaderHeightState = dynamicHeightOfHeaderComposableWithHolidays,
             )
         }
+        SwipeableCalendarView(
+            startDate = dateState.selectedDate,
+            events = events,
+            holidays = holidays,
+            onDayClick = { date ->
+                dateStateHolder.updateSelectedDateState(date)
+                onDateClickCallback()
+            },
+            onEventClick = onEventClick,
+            onDateRangeChange = { newStartDate ->
+                dateStateHolder.updateSelectedDateState(newStartDate)
+            },
+            numDays = numDays,
+            timeRange = timeRange,
+            scrollState = verticalScrollState,
+            currentDate = dateState.currentDate,
+            dynamicHeaderHeightState = dynamicHeightOfHeaderComposableWithHolidays,
+        )
     }
 }

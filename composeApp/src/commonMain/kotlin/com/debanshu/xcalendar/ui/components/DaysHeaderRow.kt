@@ -33,9 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -55,83 +53,65 @@ internal fun DaysHeaderRow(
     modifier: Modifier = Modifier,
     dynamicHeaderHeightState: MutableState<Int>?,
 ) {
-    val sharedElementScope = LocalSharedTransitionScope.current
     val dates =
         List(numDays) { index ->
             startDate.plus(DatePeriod(days = index))
         }
 
-    with(sharedElementScope) {
-        Row(
-            modifier =
-                modifier
-                    .sharedBounds(
-                        rememberSharedContentState("DaysHeaderRow"),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                    ).background(XCalendarTheme.colorScheme.surfaceContainerLow)
-                    .height(IntrinsicSize.Min)
-                    .heightIn(min = 60.dp)
-                    .onGloballyPositioned {
-                        if (dynamicHeaderHeightState != null) {
-                            dynamicHeaderHeightState.value = it.size.height
-                        }
-                    },
-        ) {
-            if (numDays > 1) {
-                dates.forEach { date ->
-                    val isToday = date == currentDate
-                    val currentDayHolidays = holidaysByDate[date] ?: persistentListOf()
+    Row(
+        modifier =
+            modifier
+                .background(XCalendarTheme.colorScheme.surfaceContainerLow)
+                .height(IntrinsicSize.Min)
+                .heightIn(min = 60.dp)
+                .onGloballyPositioned {
+                    if (dynamicHeaderHeightState != null) {
+                        dynamicHeaderHeightState.value = it.size.height
+                    }
+                },
+    ) {
+        if (numDays > 1) {
+            dates.forEach { date ->
+                val isToday = date == currentDate
+                val currentDayHolidays = holidaysByDate[date] ?: persistentListOf()
 
-                    Column(
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxHeight()
+                            .weight(1f)
+                            .padding(top = 8.dp)
+                            .clickable { onDayClick(date) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = date.dayOfWeek.name.take(3),
+                        style = XCalendarTheme.typography.labelSmall,
+                    )
+                    Box(
                         modifier =
                             Modifier
-                                .fillMaxHeight()
-                                .weight(1f)
-                                .padding(top = 8.dp)
-                                .clickable { onDayClick(date) },
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                                .padding(vertical = XCalendarTheme.dimensions.spacing_4)
+                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .size(30.dp)
+                                .background(
+                                    when {
+                                        isToday -> XCalendarTheme.colorScheme.primary
+                                        else -> Color.Transparent
+                                    },
+                                ),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            modifier =
-                                Modifier.sharedElement(
-                                    rememberSharedContentState("${date.dayOfWeek.name.take(3)}"),
-                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                ),
-                            text = date.dayOfWeek.name.take(3),
-                            style = XCalendarTheme.typography.labelSmall,
+                            text = date.day.toString(),
+                            style = XCalendarTheme.typography.bodyMedium,
+                            color =
+                                when {
+                                    isToday -> XCalendarTheme.colorScheme.inverseOnSurface
+                                    else -> XCalendarTheme.colorScheme.onSurface
+                                },
                         )
-                        Box(
-                            modifier =
-                                Modifier
-                                    .sharedBounds(
-                                        rememberSharedContentState("BOX_${date.day}"),
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    ).padding(vertical = XCalendarTheme.dimensions.spacing_4)
-                                    .clip(MaterialShapes.Cookie9Sided.toShape())
-                                    .size(30.dp)
-                                    .background(
-                                        when {
-                                            isToday -> XCalendarTheme.colorScheme.primary
-                                            else -> Color.Transparent
-                                        },
-                                    ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                modifier =
-                                    Modifier.sharedElement(
-                                        rememberSharedContentState("${date.day}"),
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    ),
-                                text = date.day.toString(),
-                                style = XCalendarTheme.typography.bodyMedium,
-                                color =
-                                    when {
-                                        isToday -> XCalendarTheme.colorScheme.inverseOnSurface
-                                        else -> XCalendarTheme.colorScheme.onSurface
-                                    },
-                            )
-                        }
+                    }
                         if (currentDayHolidays.isNotEmpty()) {
                             Column {
                                 currentDayHolidays.take(2).forEach { holiday ->
@@ -162,76 +142,75 @@ internal fun DaysHeaderRow(
                                     )
                                 }
                             }
-                        }
                     }
                 }
-            } else {
-                val currentDayHolidays = holidaysByDate[dates.first()] ?: emptyList()
-                var holidaysExpanded by remember { mutableStateOf(false) }
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
-                ) {
-                    if (currentDayHolidays.isNotEmpty()) {
-                        val displayHolidays =
-                            if (holidaysExpanded) {
-                                currentDayHolidays
-                            } else {
-                                currentDayHolidays.take(2)
-                            }
-                        displayHolidays.forEach { holiday ->
-                            Text(
-                                text = holiday.name,
-                                style = XCalendarTheme.typography.labelMedium,
-                                textAlign = TextAlign.Start,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = XCalendarTheme.colorScheme.inverseOnSurface,
-                                modifier =
-                                    Modifier
-                                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                                        .fillMaxWidth()
-                                        .background(
-                                            Color(0xFF007F73),
-                                            RoundedCornerShape(8.dp),
-                                        ).padding(8.dp),
-                            )
+            }
+        } else {
+            val currentDayHolidays = holidaysByDate[dates.first()] ?: emptyList()
+            var holidaysExpanded by remember { mutableStateOf(false) }
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+            ) {
+                if (currentDayHolidays.isNotEmpty()) {
+                    val displayHolidays =
+                        if (holidaysExpanded) {
+                            currentDayHolidays
+                        } else {
+                            currentDayHolidays.take(2)
                         }
-
-                        if (currentDayHolidays.size > 2 && !holidaysExpanded) {
-                            val extraCount = currentDayHolidays.size - 2
-                            Text(
-                                text = "+$extraCount more",
-                                style = XCalendarTheme.typography.labelMedium,
-                                textAlign = TextAlign.Start,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = XCalendarTheme.colorScheme.onSurfaceVariant,
-                                modifier =
-                                    Modifier
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                        .fillMaxWidth()
-                                        .clickable { holidaysExpanded = true },
-                            )
-                        } else if (holidaysExpanded && currentDayHolidays.size > 2) {
-                            Text(
-                                text = "Show less",
-                                style = XCalendarTheme.typography.labelMedium,
-                                textAlign = TextAlign.Start,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = XCalendarTheme.colorScheme.onSurfaceVariant,
-                                modifier =
-                                    Modifier
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                        .fillMaxWidth()
-                                        .clickable { holidaysExpanded = false },
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
+                    displayHolidays.forEach { holiday ->
+                        Text(
+                            text = holiday.name,
+                            style = XCalendarTheme.typography.labelMedium,
+                            textAlign = TextAlign.Start,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = XCalendarTheme.colorScheme.inverseOnSurface,
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                                    .fillMaxWidth()
+                                    .background(
+                                        Color(0xFF007F73),
+                                        RoundedCornerShape(8.dp),
+                                    ).padding(8.dp),
+                        )
                     }
+
+                    if (currentDayHolidays.size > 2 && !holidaysExpanded) {
+                        val extraCount = currentDayHolidays.size - 2
+                        Text(
+                            text = "+$extraCount more",
+                            style = XCalendarTheme.typography.labelMedium,
+                            textAlign = TextAlign.Start,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = XCalendarTheme.colorScheme.onSurfaceVariant,
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { holidaysExpanded = true },
+                        )
+                    } else if (holidaysExpanded && currentDayHolidays.size > 2) {
+                        Text(
+                            text = "Show less",
+                            style = XCalendarTheme.typography.labelMedium,
+                            textAlign = TextAlign.Start,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = XCalendarTheme.colorScheme.onSurfaceVariant,
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .fillMaxWidth()
+                                    .clickable { holidaysExpanded = false },
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
         }
