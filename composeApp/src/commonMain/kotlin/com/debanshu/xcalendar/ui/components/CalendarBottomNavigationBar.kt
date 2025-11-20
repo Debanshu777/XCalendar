@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +37,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -47,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.debanshu.xcalendar.common.applyIf
 import com.debanshu.xcalendar.common.noRippleClickable
 import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
@@ -86,11 +90,23 @@ internal fun CalendarBottomNavigationBar(
     val density = LocalDensity.current
     val itemMetrics = remember { mutableStateMapOf<Int, ItemMetrics>() }
     val indicatorOffset = remember { Animatable(0f) }
+    val indicatorScale = remember { Animatable(1f) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }
     var dragStartIndex by remember { mutableStateOf(-1) }
     var indicatorWidthPx by remember { mutableFloatStateOf(0f) }
     var indicatorInitialized by remember { mutableStateOf(false) }
+    val glassBrush =
+        Brush.linearGradient(
+            colors =
+                listOf(
+                    Color.White.copy(alpha = 0.25f),
+                    Color.White.copy(alpha = 0.1f),
+                ),
+        )
+
+    // Scale factor for dragging state (25% increase)
+    val dragScaleFactor = 1.25f
 
     // Calculate current selected index - updates on every recomposition when selectedView changes
     // This is derived from the prop, so it reflects the parent's state
@@ -163,6 +179,18 @@ internal fun CalendarBottomNavigationBar(
         }
     }
 
+    // Animate scale when dragging state changes
+    LaunchedEffect(isDragging) {
+        indicatorScale.animateTo(
+            targetValue = if (isDragging) dragScaleFactor else 1f,
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessHigh,
+                ),
+        )
+    }
+
     Row(
         modifier =
             modifier
@@ -171,14 +199,15 @@ internal fun CalendarBottomNavigationBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Surface(
+        Box(
             modifier = Modifier.height(56.dp).weight(1f),
-            shape = RoundedCornerShape(30.dp),
-            color = XCalendarTheme.colorScheme.surfaceContainer,
         ) {
-            Box(
+            Row(
                 modifier =
                     Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(XCalendarTheme.colorScheme.surfaceContainer)
                         .padding(3.dp)
                         .pointerInput(selectedIndex) {
                             // Key on selectedIndex to restart gesture detection when selection changes externally
@@ -227,71 +256,71 @@ internal fun CalendarBottomNavigationBar(
                                 },
                             )
                         },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Floating pill indicator
+                navItems.forEachIndexed { index, navItem ->
+                    BottomNavItem(
+                        modifier =
+                            Modifier.onGloballyPositioned { coordinates ->
+                                itemMetrics[index] =
+                                    ItemMetrics(
+                                        left = coordinates.positionInParent().x,
+                                        width = coordinates.size.width.toFloat(),
+                                    )
+                                if (indicatorWidthPx == 0f || index == selectedIndex) {
+                                    indicatorWidthPx = coordinates.size.width.toFloat()
+                                }
+                            },
+                        selected = selectedIndex == index,
+                        isDragging = isDragging,
+                        onClick = {
+                            if (index != selectedIndex && !isDragging) {
+                                coroutineScope.launch {
+                                    val targetPos =
+                                        itemMetrics[index]?.left ?: indicatorOffset.value
+                                    indicatorOffset.animateTo(
+                                        targetValue = targetPos,
+                                        animationSpec =
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                stiffness = Spring.StiffnessHigh,
+                                            ),
+                                    )
+                                    // Trigger view change after animation completes
+                                    currentOnViewSelect(navItem.screen)
+                                }
+                            }
+                        },
+                        icon = navItem.icon,
+                        label = navItem.label,
+                    )
+                }
+            }
+
+            if (isDragging) {
                 if (itemMetrics.size == navItems.size && indicatorWidthPx > 0f) {
                     val currentOffset = if (isDragging) dragOffset else indicatorOffset.value
                     Box(
                         modifier =
                             Modifier
+                                .padding(3.dp)
                                 .offset { IntOffset(currentOffset.roundToInt(), 0) }
                                 .width(with(density) { indicatorWidthPx.toDp() })
                                 .fillMaxHeight()
-                                .background(
-                                    color = XCalendarTheme.colorScheme.secondaryContainer,
-                                    shape = RoundedCornerShape(30.dp),
-                                ),
+                                .graphicsLayer {
+                                    scaleX = indicatorScale.value
+                                    scaleY = indicatorScale.value
+                                    clip = false
+                                }.clip(RoundedCornerShape(30.dp))
+                                .background(glassBrush),
                     )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    navItems.forEachIndexed { index, navItem ->
-                        BottomNavItem(
-                            modifier =
-                                Modifier.onGloballyPositioned { coordinates ->
-                                    itemMetrics[index] =
-                                        ItemMetrics(
-                                            left = coordinates.positionInParent().x,
-                                            width = coordinates.size.width.toFloat(),
-                                        )
-                                    if (indicatorWidthPx == 0f || index == selectedIndex) {
-                                        indicatorWidthPx = coordinates.size.width.toFloat()
-                                    }
-                                },
-                            selected = selectedIndex == index,
-                            onClick = {
-                                if (index != selectedIndex && !isDragging) {
-                                    coroutineScope.launch {
-                                        val targetPos =
-                                            itemMetrics[index]?.left ?: indicatorOffset.value
-                                        indicatorOffset.animateTo(
-                                            targetValue = targetPos,
-                                            animationSpec =
-                                                spring(
-                                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                                    stiffness = Spring.StiffnessHigh,
-                                                ),
-                                        )
-                                        // Trigger view change after animation completes
-                                        currentOnViewSelect(navItem.screen)
-                                    }
-                                }
-                            },
-                            icon = navItem.icon,
-                            label = navItem.label,
-                        )
-                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Floating Action Button
         FloatingActionButton(
             onClick = onAddClick,
             shape = CircleShape,
@@ -322,6 +351,7 @@ private data class ItemMetrics(
 private fun RowScope.BottomNavItem(
     modifier: Modifier = Modifier,
     selected: Boolean,
+    isDragging: Boolean,
     onClick: () -> Unit,
     icon: ImageVector,
     label: String,
@@ -331,7 +361,13 @@ private fun RowScope.BottomNavItem(
             modifier
                 .noRippleClickable(onClick = onClick)
                 .weight(1f)
-                .padding(vertical = 4.dp),
+                .fillMaxHeight()
+                .applyIf(selected && !isDragging) {
+                    background(
+                        color = XCalendarTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(30.dp),
+                    ).padding(horizontal = 3.dp)
+                },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -340,7 +376,7 @@ private fun RowScope.BottomNavItem(
             contentDescription = label,
             modifier = Modifier.size(24.dp),
             tint =
-                if (selected) {
+                if (selected && !isDragging) {
                     XCalendarTheme.colorScheme.primary
                 } else {
                     XCalendarTheme.colorScheme.onSurfaceVariant
@@ -353,7 +389,7 @@ private fun RowScope.BottomNavItem(
             text = label,
             style = XCalendarTheme.typography.labelSmall.copy(fontSize = 9.sp),
             color =
-                if (selected) {
+                if (selected && !isDragging) {
                     XCalendarTheme.colorScheme.primary
                 } else {
                     XCalendarTheme.colorScheme.onSurfaceVariant

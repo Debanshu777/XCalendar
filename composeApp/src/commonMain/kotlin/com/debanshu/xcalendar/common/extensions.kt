@@ -1,10 +1,6 @@
 package com.debanshu.xcalendar.common
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.Modifier
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
@@ -146,3 +142,13 @@ fun convertStringToColor(
         ((g and 0xFF) shl 8) or
         (b and 0xFF)
 }
+
+inline fun Modifier.applyIf(
+    condition: Boolean,
+    modifier: Modifier.() -> Modifier,
+): Modifier =
+    if (condition) {
+        then(modifier(Modifier))
+    } else {
+        this
+    }

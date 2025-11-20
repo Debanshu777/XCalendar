@@ -33,9 +33,7 @@ fun NavigationHost(
         onBack = { backStack.removeLastOrNull() },
         entryDecorators =
             listOf(
-                // Add the default decorators for managing scenes and saving state
                 rememberSaveableStateHolderNavEntryDecorator(),
-                // Then add the view model store decorator
                 rememberViewModelStoreNavEntryDecorator(),
             ),
         entryProvider =
