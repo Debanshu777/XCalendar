@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,19 +37,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.debanshu.xcalendar.common.GlassShaderParams
 import com.debanshu.xcalendar.common.applyIf
+import com.debanshu.xcalendar.common.createGlassRenderEffect
 import com.debanshu.xcalendar.common.noRippleClickable
 import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
@@ -64,7 +64,6 @@ import compose.icons.fontawesomeicons.solid.CalendarWeek
 import compose.icons.fontawesomeicons.solid.Plus
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 @Composable
 internal fun CalendarBottomNavigationBar(
@@ -96,14 +95,6 @@ internal fun CalendarBottomNavigationBar(
     var dragStartIndex by remember { mutableStateOf(-1) }
     var indicatorWidthPx by remember { mutableFloatStateOf(0f) }
     var indicatorInitialized by remember { mutableStateOf(false) }
-    val glassBrush =
-        Brush.linearGradient(
-            colors =
-                listOf(
-                    Color.White.copy(alpha = 0.25f),
-                    Color.White.copy(alpha = 0.1f),
-                ),
-        )
 
     // Scale factor for dragging state (25% increase)
     val dragScaleFactor = 1.25f
@@ -199,8 +190,52 @@ internal fun CalendarBottomNavigationBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
+        // Navigation bar container with glass shader effect
+        var navBarSize by remember { mutableStateOf(IntSize.Zero) }
+
+        // Create glass effect when dragging - applied to entire nav bar
+        val glassEffect =
+            remember(navBarSize, isDragging, dragOffset, indicatorWidthPx) {
+                if (isDragging && navBarSize.width > 0 && navBarSize.height > 0 && indicatorWidthPx > 0f) {
+                    // Calculate normalized center position for the glass shape
+                    val centerX = (dragOffset + indicatorWidthPx / 2f) / navBarSize.width
+                    val centerY = 0.5f // Vertically centered
+
+                    // Calculate normalized width and height for the glass rectangle
+                    // Scale based on indicator scale for smooth animation
+                    val glassWidth = (indicatorWidthPx / navBarSize.width) * 1.2f * indicatorScale.value
+                    val glassHeight = 1.1f * indicatorScale.value // Extends beyond nav bar height
+
+                    // Corner radius - half of height for pill shape, or smaller for rounded rect
+                    val cornerRadius = glassHeight * 0.5f // Pill shape
+
+                    createGlassRenderEffect(
+                        width = navBarSize.width.toFloat(),
+                        height = navBarSize.height.toFloat(),
+                        params =
+                            GlassShaderParams.waterDroplet().copy(
+                                width = glassWidth,
+                                height = glassHeight,
+                                centerX = centerX,
+                                centerY = centerY,
+                                cornerRadius = cornerRadius,
+                            ),
+                    )
+                } else {
+                    null
+                }
+            }
+
         Box(
-            modifier = Modifier.height(56.dp).weight(1f),
+            modifier =
+                Modifier
+                    .height(56.dp)
+                    .weight(1f)
+                    .onSizeChanged { navBarSize = it }
+                    .graphicsLayer {
+                        // Apply glass shader to entire nav bar content
+                        renderEffect = glassEffect
+                    },
         ) {
             Row(
                 modifier =
@@ -210,22 +245,19 @@ internal fun CalendarBottomNavigationBar(
                         .background(XCalendarTheme.colorScheme.surfaceContainer)
                         .padding(3.dp)
                         .pointerInput(selectedIndex) {
-                            // Key on selectedIndex to restart gesture detection when selection changes externally
                             detectHorizontalDragGestures(
                                 onDragStart = {
                                     isDragging = true
-                                    // Capture the starting index to compare against at drag end
                                     dragStartIndex = selectedIndex
                                     dragOffset = indicatorOffset.value
                                 },
                                 onHorizontalDrag = { _, dragAmount ->
-                                    // Direct state update - no coroutine, no async overhead
                                     val (minBound, maxBound) = dragBounds
-                                    dragOffset = (dragOffset + dragAmount).coerceIn(minBound, maxBound)
+                                    dragOffset =
+                                        (dragOffset + dragAmount).coerceIn(minBound, maxBound)
                                 },
                                 onDragEnd = {
                                     coroutineScope.launch {
-                                        // Find nearest item using cached centers
                                         val indicatorCenter = dragOffset + (indicatorWidthPx / 2f)
 
                                         val nearestIndex =
@@ -234,9 +266,9 @@ internal fun CalendarBottomNavigationBar(
                                                     abs(center - indicatorCenter)
                                                 }?.key ?: dragStartIndex
 
-                                        val targetPos = itemMetrics[nearestIndex]?.left ?: dragOffset
+                                        val targetPos =
+                                            itemMetrics[nearestIndex]?.left ?: dragOffset
 
-                                        // Animate to nearest item
                                         indicatorOffset.animateTo(
                                             targetValue = targetPos,
                                             animationSpec =
@@ -248,7 +280,6 @@ internal fun CalendarBottomNavigationBar(
 
                                         isDragging = false
 
-                                        // Trigger view change only if dragged to a different item
                                         if (nearestIndex != dragStartIndex) {
                                             currentOnViewSelect(navItems[nearestIndex].screen)
                                         }
@@ -287,33 +318,12 @@ internal fun CalendarBottomNavigationBar(
                                                 stiffness = Spring.StiffnessHigh,
                                             ),
                                     )
-                                    // Trigger view change after animation completes
                                     currentOnViewSelect(navItem.screen)
                                 }
                             }
                         },
                         icon = navItem.icon,
                         label = navItem.label,
-                    )
-                }
-            }
-
-            if (isDragging) {
-                if (itemMetrics.size == navItems.size && indicatorWidthPx > 0f) {
-                    val currentOffset = if (isDragging) dragOffset else indicatorOffset.value
-                    Box(
-                        modifier =
-                            Modifier
-                                .padding(3.dp)
-                                .offset { IntOffset(currentOffset.roundToInt(), 0) }
-                                .width(with(density) { indicatorWidthPx.toDp() })
-                                .fillMaxHeight()
-                                .graphicsLayer {
-                                    scaleX = indicatorScale.value
-                                    scaleY = indicatorScale.value
-                                    clip = false
-                                }.clip(RoundedCornerShape(30.dp))
-                                .background(glassBrush),
                     )
                 }
             }

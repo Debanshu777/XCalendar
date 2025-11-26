@@ -55,7 +55,6 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
-            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
@@ -63,11 +62,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.jetbrains.material3)
             implementation(libs.kotlinx.collections.immutable)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
 
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
@@ -91,7 +85,6 @@ kotlin {
             implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
-            implementation(libs.androidx.adaptive)
             implementation(libs.androidx.adaptive.layout)
             implementation(libs.androidx.adaptive.navigation)
             implementation(libs.navigation3.compose.ui)
@@ -115,7 +108,6 @@ kotlin {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
     add("kspCommonMainMetadata", libs.koin.ksp.compiler)
     listOf(
         "kspAndroid",
