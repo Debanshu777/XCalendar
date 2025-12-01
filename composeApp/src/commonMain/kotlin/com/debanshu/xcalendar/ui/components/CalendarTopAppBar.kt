@@ -63,15 +63,15 @@ import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.domain.states.dateState.DateState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
-import compose.icons.FontAwesomeIcons
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.CaretDown
-import compose.icons.fontawesomeicons.solid.Search
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.painterResource
+import xcalendar.composeapp.generated.resources.Res
+import xcalendar.composeapp.generated.resources.ic_arrow_drop_down
+import xcalendar.composeapp.generated.resources.ic_search
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -170,9 +170,8 @@ internal fun CalendarTopAppBar(
                     Icon(
                         modifier =
                             Modifier
-                                .size(16.dp)
                                 .graphicsLayer { rotationZ = rotationDegree },
-                        imageVector = FontAwesomeIcons.Solid.CaretDown,
+                        painter = painterResource(Res.drawable.ic_arrow_drop_down),
                         contentDescription = "Toggle Month Dropdown",
                     )
                 }
@@ -180,8 +179,7 @@ internal fun CalendarTopAppBar(
             actions = {
                 IconButton(onClick = { /* Handle search */ }) {
                     Icon(
-                        modifier = Modifier.size(16.dp),
-                        imageVector = FontAwesomeIcons.Solid.Search,
+                        painter = painterResource(Res.drawable.ic_search),
                         contentDescription = "Search",
                     )
                 }

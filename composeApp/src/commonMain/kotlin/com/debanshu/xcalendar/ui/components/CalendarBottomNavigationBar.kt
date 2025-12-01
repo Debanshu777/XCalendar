@@ -38,12 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -54,15 +52,16 @@ import com.debanshu.xcalendar.common.createGlassRenderEffect
 import com.debanshu.xcalendar.common.noRippleClickable
 import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
-import compose.icons.FontAwesomeIcons
-import compose.icons.fontawesomeicons.Regular
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.regular.ListAlt
-import compose.icons.fontawesomeicons.solid.CalendarAlt
-import compose.icons.fontawesomeicons.solid.CalendarDay
-import compose.icons.fontawesomeicons.solid.CalendarWeek
-import compose.icons.fontawesomeicons.solid.Plus
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import xcalendar.composeapp.generated.resources.Res
+import xcalendar.composeapp.generated.resources.ic_add
+import xcalendar.composeapp.generated.resources.ic_calendar_view_day
+import xcalendar.composeapp.generated.resources.ic_calendar_view_month
+import xcalendar.composeapp.generated.resources.ic_calendar_view_schedule
+import xcalendar.composeapp.generated.resources.ic_calendar_view_three_day
+import xcalendar.composeapp.generated.resources.ic_calendar_view_week
 import kotlin.math.abs
 
 @Composable
@@ -76,17 +75,16 @@ internal fun CalendarBottomNavigationBar(
     val navItems =
         remember {
             listOf(
-                NavItem(NavigableScreen.Schedule, FontAwesomeIcons.Regular.ListAlt, "Schedule"),
-                NavItem(NavigableScreen.Day, FontAwesomeIcons.Solid.CalendarDay, "Day"),
-                NavItem(NavigableScreen.ThreeDay, FontAwesomeIcons.Solid.CalendarAlt, "3 Day"),
-                NavItem(NavigableScreen.Week, FontAwesomeIcons.Solid.CalendarWeek, "Week"),
-                NavItem(NavigableScreen.Month, FontAwesomeIcons.Solid.CalendarAlt, "Month"),
+                NavItem(NavigableScreen.Schedule, Res.drawable.ic_calendar_view_schedule, "Schedule"),
+                NavItem(NavigableScreen.Day, Res.drawable.ic_calendar_view_day, "Day"),
+                NavItem(NavigableScreen.ThreeDay, Res.drawable.ic_calendar_view_three_day, "3 Day"),
+                NavItem(NavigableScreen.Week, Res.drawable.ic_calendar_view_week, "Week"),
+                NavItem(NavigableScreen.Month, Res.drawable.ic_calendar_view_month, "Month"),
             )
         }
 
     // State management
     val coroutineScope = rememberCoroutineScope()
-    val density = LocalDensity.current
     val itemMetrics = remember { mutableStateMapOf<Int, ItemMetrics>() }
     val indicatorOffset = remember { Animatable(0f) }
     val indicatorScale = remember { Animatable(1f) }
@@ -233,7 +231,6 @@ internal fun CalendarBottomNavigationBar(
                     .weight(1f)
                     .onSizeChanged { navBarSize = it }
                     .graphicsLayer {
-                        // Apply glass shader to entire nav bar content
                         renderEffect = glassEffect
                     },
         ) {
@@ -338,8 +335,7 @@ internal fun CalendarBottomNavigationBar(
             contentColor = XCalendarTheme.colorScheme.onPrimary,
         ) {
             Icon(
-                modifier = Modifier.size(24.dp),
-                imageVector = FontAwesomeIcons.Solid.Plus,
+                painter = painterResource(Res.drawable.ic_add),
                 contentDescription = "Add Event",
             )
         }
@@ -348,7 +344,7 @@ internal fun CalendarBottomNavigationBar(
 
 private data class NavItem(
     val screen: NavigableScreen,
-    val icon: ImageVector,
+    val icon: DrawableResource,
     val label: String,
 )
 
@@ -363,7 +359,7 @@ private fun RowScope.BottomNavItem(
     selected: Boolean,
     isDragging: Boolean,
     onClick: () -> Unit,
-    icon: ImageVector,
+    icon: DrawableResource,
     label: String,
 ) {
     Column(
@@ -382,7 +378,7 @@ private fun RowScope.BottomNavItem(
         verticalArrangement = Arrangement.Center,
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = label,
             modifier = Modifier.size(24.dp),
             tint =

@@ -1,9 +1,9 @@
 [versions]
-adaptive = "1.3.0-alpha02"
 agp = "8.13.1"
 android-compileSdk = "36"
 android-minSdk = "30"
 android-targetSdk = "36"
+adaptive = "1.3.0-alpha02"
 androidx-activityCompose = "1.12.0"
 androidx-lifecycle = "2.10.0-alpha05"
 coil3 = "2.6.1"
@@ -19,7 +19,6 @@ koin-bom = "4.1.1"
 koin-annotations-bom = "2.3.1"
 kotlinx-datetime = "0.7.1"
 navigation = "1.0.0-alpha05"
-composeIcons = "1.1.1"
 materialKolor = "4.0.5"
 config = "0.17.1"
 kotlinx-coroutines = "1.10.2"
@@ -28,6 +27,7 @@ store = "5.1.0-alpha07"
 [libraries]
 androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
 androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "adaptive" }
+components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 jetbrains-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
@@ -59,7 +59,6 @@ sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.r
 
 navigation3-compose-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation" }
 navigation3-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3",version.ref = "androidx-lifecycle" }
-icons = { group = "br.com.devsrsouza.compose.icons", name = "font-awesome", version.ref = "composeIcons" }
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
 

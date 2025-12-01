@@ -61,6 +61,7 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(libs.jetbrains.material3)
+            implementation(libs.components.resources)
             implementation(libs.kotlinx.collections.immutable)
 
             implementation(libs.lifecycle.viewmodel)
@@ -82,7 +83,6 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.annotations)
 
-            implementation(libs.icons)
             implementation(libs.materialKolor)
             implementation(libs.store)
             implementation(libs.androidx.adaptive.layout)

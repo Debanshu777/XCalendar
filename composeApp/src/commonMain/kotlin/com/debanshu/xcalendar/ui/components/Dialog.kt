@@ -40,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -52,19 +51,21 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.User
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
-import compose.icons.FontAwesomeIcons
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Bars
-import compose.icons.fontawesomeicons.solid.Bell
-import compose.icons.fontawesomeicons.solid.Clock
-import compose.icons.fontawesomeicons.solid.Edit
-import compose.icons.fontawesomeicons.solid.LocationArrow
-import compose.icons.fontawesomeicons.solid.Times
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import xcalendar.composeapp.generated.resources.Res
+import xcalendar.composeapp.generated.resources.ic_clock
+import xcalendar.composeapp.generated.resources.ic_close
+import xcalendar.composeapp.generated.resources.ic_description
+import xcalendar.composeapp.generated.resources.ic_edit
+import xcalendar.composeapp.generated.resources.ic_location
+import xcalendar.composeapp.generated.resources.ic_notifications
+import xcalendar.composeapp.generated.resources.ic_unfold_more
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
@@ -252,7 +253,7 @@ internal fun AddEventDialog(
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp)
 
             AddEventOption(
-                icon = FontAwesomeIcons.Solid.LocationArrow,
+                icon = Res.drawable.ic_location,
                 text = "Add location",
                 onClick = {
                     showMoreOptions = !showMoreOptions
@@ -278,7 +279,7 @@ internal fun AddEventDialog(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp)
             AddEventOption(
-                icon = FontAwesomeIcons.Solid.Bars,
+                icon = Res.drawable.ic_description,
                 text = "Add description",
                 onClick = { /* Handle add description */ },
             )
@@ -349,7 +350,7 @@ private fun CaladerTimeSection(
             ),
     ) {
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Clock,
+            painter = painterResource(Res.drawable.ic_clock),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
             tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
@@ -561,7 +562,7 @@ private fun TimeDisplayRow(
 
 @Composable
 private fun AddEventOption(
-    icon: ImageVector,
+    icon: DrawableResource,
     text: String,
     onClick: () -> Unit,
 ) {
@@ -574,9 +575,8 @@ private fun AddEventOption(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
             tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         )
 
@@ -602,9 +602,8 @@ private fun NotificationRow(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
     ) {
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Bell,
+            painter = painterResource(Res.drawable.ic_notifications),
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
             tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         )
 
@@ -618,9 +617,8 @@ private fun NotificationRow(
         Spacer(modifier = Modifier.weight(1f))
 
         Icon(
-            imageVector = FontAwesomeIcons.Solid.Bars,
+            painter = painterResource(Res.drawable.ic_unfold_more),
             contentDescription = null,
-            modifier = Modifier.size(16.dp),
             tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
     }
@@ -704,6 +702,7 @@ private fun formatEventSubheading(event: Event): String {
                         val amPm = if (endDateTime.hour >= 12) "PM" else "AM"
                         "$startHour$startMinute-$endHour$endMinute$amPm"
                     }
+
                     // Different AM/PM periods
                     else -> {
                         val startAmPm = if (startDateTime.hour >= 12) "PM" else "AM"
@@ -753,20 +752,18 @@ fun EventDetailsDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = FontAwesomeIcons.Solid.Times,
+                    painter = painterResource(Res.drawable.ic_close),
                     contentDescription = "Close",
                     modifier =
                         Modifier
-                            .size(24.dp)
                             .clickable { onDismiss() },
                     tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
                 Icon(
-                    imageVector = FontAwesomeIcons.Solid.Edit,
+                    painter = painterResource(Res.drawable.ic_edit),
                     contentDescription = "Edit",
                     modifier =
                         Modifier
-                            .size(24.dp)
                             .clickable { onEdit(event) },
                     tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -817,9 +814,8 @@ fun EventDetailsDialog(
                         .padding(16.dp),
             ) {
                 Icon(
-                    imageVector = FontAwesomeIcons.Solid.LocationArrow,
+                    painter = painterResource(Res.drawable.ic_location),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
                     tint = XCalendarTheme.colorScheme.primary,
                 )
 
@@ -842,9 +838,8 @@ fun EventDetailsDialog(
                             .padding(16.dp),
                 ) {
                     Icon(
-                        imageVector = FontAwesomeIcons.Solid.LocationArrow,
+                        painter = painterResource(Res.drawable.ic_location),
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
                         tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
 
@@ -867,9 +862,8 @@ fun EventDetailsDialog(
                         .padding(16.dp),
             ) {
                 Icon(
-                    imageVector = FontAwesomeIcons.Solid.Bell,
+                    painter = painterResource(Res.drawable.ic_notifications),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
                     tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
 
@@ -891,9 +885,8 @@ fun EventDetailsDialog(
                         .padding(16.dp),
             ) {
                 Icon(
-                    imageVector = FontAwesomeIcons.Solid.Bars,
+                    painter = painterResource(Res.drawable.ic_description),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
                     tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
 
@@ -917,9 +910,8 @@ fun EventDetailsDialog(
                                 .padding(16.dp),
                     ) {
                         Icon(
-                            imageVector = FontAwesomeIcons.Solid.Bars,
+                            painter = painterResource(Res.drawable.ic_description),
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp).padding(top = 2.dp),
                             tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
 
