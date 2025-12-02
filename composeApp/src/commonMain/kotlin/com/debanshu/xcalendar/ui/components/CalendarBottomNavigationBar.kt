@@ -1,10 +1,12 @@
 package com.debanshu.xcalendar.ui.components
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,7 +77,11 @@ internal fun CalendarBottomNavigationBar(
     val navItems =
         remember {
             listOf(
-                NavItem(NavigableScreen.Schedule, Res.drawable.ic_calendar_view_schedule, "Schedule"),
+                NavItem(
+                    NavigableScreen.Schedule,
+                    Res.drawable.ic_calendar_view_schedule,
+                    "Schedule",
+                ),
                 NavItem(NavigableScreen.Day, Res.drawable.ic_calendar_view_day, "Day"),
                 NavItem(NavigableScreen.ThreeDay, Res.drawable.ic_calendar_view_three_day, "3 Day"),
                 NavItem(NavigableScreen.Week, Res.drawable.ic_calendar_view_week, "Week"),
@@ -88,11 +94,14 @@ internal fun CalendarBottomNavigationBar(
     val itemMetrics = remember { mutableStateMapOf<Int, ItemMetrics>() }
     val indicatorOffset = remember { Animatable(0f) }
     val indicatorScale = remember { Animatable(1f) }
+    val boxScale = remember { Animatable(1f) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }
     var dragStartIndex by remember { mutableStateOf(-1) }
     var indicatorWidthPx by remember { mutableFloatStateOf(0f) }
     var indicatorInitialized by remember { mutableStateOf(false) }
+    var isClickAnimating by remember { mutableStateOf(false) }
+    var isMorphingOut by remember { mutableStateOf(false) }
 
     // Scale factor for dragging state (25% increase)
     val dragScaleFactor = 1.25f
@@ -168,10 +177,39 @@ internal fun CalendarBottomNavigationBar(
         }
     }
 
-    // Animate scale when dragging state changes
-    LaunchedEffect(isDragging) {
-        indicatorScale.animateTo(
-            targetValue = if (isDragging) dragScaleFactor else 1f,
+    // Animate scale when dragging or click animating state changes (scale up)
+    LaunchedEffect(isDragging, isClickAnimating) {
+        if (isDragging || isClickAnimating) {
+            indicatorScale.animateTo(
+                targetValue = dragScaleFactor,
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh,
+                    ),
+            )
+        }
+    }
+
+    // Handle morph-out animation: scale down from 1.25x to 1.0x then complete
+    LaunchedEffect(isMorphingOut) {
+        if (isMorphingOut) {
+            indicatorScale.animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessHigh,
+                    ),
+            )
+            isMorphingOut = false // Morph complete, show item background
+        }
+    }
+
+    // Animate box scale when dragging or click animating state changes
+    LaunchedEffect(isDragging, isClickAnimating, isMorphingOut) {
+        boxScale.animateTo(
+            targetValue = if (isDragging || isClickAnimating || isMorphingOut) 1.05f else 1f,
             animationSpec =
                 spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -191,18 +229,32 @@ internal fun CalendarBottomNavigationBar(
         // Navigation bar container with glass shader effect
         var navBarSize by remember { mutableStateOf(IntSize.Zero) }
 
-        // Create glass effect when dragging - applied to entire nav bar
+        // Create glass effect when dragging, click animating, or morphing out - applied to entire nav bar
         val glassEffect =
-            remember(navBarSize, isDragging, dragOffset, indicatorWidthPx) {
-                if (isDragging && navBarSize.width > 0 && navBarSize.height > 0 && indicatorWidthPx > 0f) {
+            remember(
+                navBarSize,
+                isDragging,
+                isClickAnimating,
+                isMorphingOut,
+                dragOffset,
+                indicatorWidthPx,
+                indicatorOffset.value,
+                indicatorScale.value,
+            ) {
+                if ((isDragging || isClickAnimating || isMorphingOut) && navBarSize.width > 0 && navBarSize.height > 0 && indicatorWidthPx > 0f) {
                     // Calculate normalized center position for the glass shape
-                    val centerX = (dragOffset + indicatorWidthPx / 2f) / navBarSize.width
+                    // Use dragOffset for dragging, indicatorOffset.value for click animation
+                    val effectOffset = if (isDragging) dragOffset else indicatorOffset.value
+                    val centerX = (effectOffset + indicatorWidthPx / 2f) / navBarSize.width
                     val centerY = 0.5f // Vertically centered
 
                     // Calculate normalized width and height for the glass rectangle
                     // Scale based on indicator scale for smooth animation
-                    val glassWidth = (indicatorWidthPx / navBarSize.width) * 1.2f * indicatorScale.value
-                    val glassHeight = 1.1f * indicatorScale.value // Extends beyond nav bar height
+                    val glassWidth =
+                        (indicatorWidthPx / navBarSize.width) * 1.3f *
+                            indicatorScale
+                                .value
+                    val glassHeight = indicatorScale.value // Extends beyond nav bar height
 
                     // Corner radius - half of height for pill shape, or smaller for rounded rect
                     val cornerRadius = glassHeight * 0.5f // Pill shape
@@ -217,6 +269,8 @@ internal fun CalendarBottomNavigationBar(
                                 centerX = centerX,
                                 centerY = centerY,
                                 cornerRadius = cornerRadius,
+                                thickness = 0.1f,
+                                bevelWidth = 0.25f,
                             ),
                     )
                 } else {
@@ -232,6 +286,8 @@ internal fun CalendarBottomNavigationBar(
                     .onSizeChanged { navBarSize = it }
                     .graphicsLayer {
                         renderEffect = glassEffect
+                        scaleX = boxScale.value
+                        scaleY = boxScale.value
                     },
         ) {
             Row(
@@ -242,16 +298,16 @@ internal fun CalendarBottomNavigationBar(
                         .background(XCalendarTheme.colorScheme.surfaceContainer)
                         .padding(3.dp)
                         .pointerInput(selectedIndex) {
-                            detectHorizontalDragGestures(
+                            detectDragGesturesAfterLongPress(
                                 onDragStart = {
                                     isDragging = true
                                     dragStartIndex = selectedIndex
                                     dragOffset = indicatorOffset.value
                                 },
-                                onHorizontalDrag = { _, dragAmount ->
+                                onDrag = { _, dragAmount ->
                                     val (minBound, maxBound) = dragBounds
                                     dragOffset =
-                                        (dragOffset + dragAmount).coerceIn(minBound, maxBound)
+                                        (dragOffset + dragAmount.x).coerceIn(minBound, maxBound)
                                 },
                                 onDragEnd = {
                                     coroutineScope.launch {
@@ -276,6 +332,7 @@ internal fun CalendarBottomNavigationBar(
                                         )
 
                                         isDragging = false
+                                        isMorphingOut = true // Start morph phase
 
                                         if (nearestIndex != dragStartIndex) {
                                             currentOnViewSelect(navItems[nearestIndex].screen)
@@ -302,19 +359,24 @@ internal fun CalendarBottomNavigationBar(
                             },
                         selected = selectedIndex == index,
                         isDragging = isDragging,
+                        isClickAnimating = isClickAnimating,
+                        isMorphingOut = isMorphingOut,
                         onClick = {
-                            if (index != selectedIndex && !isDragging) {
+                            if (index != selectedIndex && !isDragging && !isClickAnimating && !isMorphingOut) {
                                 coroutineScope.launch {
+                                    isClickAnimating = true
                                     val targetPos =
                                         itemMetrics[index]?.left ?: indicatorOffset.value
                                     indicatorOffset.animateTo(
                                         targetValue = targetPos,
                                         animationSpec =
-                                            spring(
-                                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                                stiffness = Spring.StiffnessHigh,
+                                            tween(
+                                                durationMillis = 400,
+                                                easing = EaseInCubic,
                                             ),
                                     )
+                                    isClickAnimating = false
+                                    isMorphingOut = true // Start morph phase
                                     currentOnViewSelect(navItem.screen)
                                 }
                             }
@@ -358,17 +420,22 @@ private fun RowScope.BottomNavItem(
     modifier: Modifier = Modifier,
     selected: Boolean,
     isDragging: Boolean,
+    isClickAnimating: Boolean,
+    isMorphingOut: Boolean,
     onClick: () -> Unit,
     icon: DrawableResource,
     label: String,
 ) {
+    // Determine if the background should be shown (not during any animation phase)
+    val showBackground = selected && !isDragging && !isClickAnimating && !isMorphingOut
+
     Column(
         modifier =
             modifier
                 .noRippleClickable(onClick = onClick)
                 .weight(1f)
                 .fillMaxHeight()
-                .applyIf(selected && !isDragging) {
+                .applyIf(showBackground) {
                     background(
                         color = XCalendarTheme.colorScheme.secondaryContainer,
                         shape = RoundedCornerShape(30.dp),
@@ -382,7 +449,7 @@ private fun RowScope.BottomNavItem(
             contentDescription = label,
             modifier = Modifier.size(24.dp),
             tint =
-                if (selected && !isDragging) {
+                if (showBackground) {
                     XCalendarTheme.colorScheme.primary
                 } else {
                     XCalendarTheme.colorScheme.onSurfaceVariant
@@ -395,7 +462,7 @@ private fun RowScope.BottomNavItem(
             text = label,
             style = XCalendarTheme.typography.labelSmall.copy(fontSize = 9.sp),
             color =
-                if (selected && !isDragging) {
+                if (showBackground) {
                     XCalendarTheme.colorScheme.primary
                 } else {
                     XCalendarTheme.colorScheme.onSurfaceVariant
