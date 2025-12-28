@@ -11,7 +11,8 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 class ClientWrapper(
-    val networkClient: HttpClient,
+    @PublishedApi internal val networkClient: HttpClient,
+    @PublishedApi internal val json: Json,
 ) {
     suspend inline fun <reified T> networkGetUsecase(
         endpoint: String,
@@ -37,13 +38,12 @@ class ClientWrapper(
             }
         return when (response.status.value) {
             in 200..299 -> {
-                val json =
-                    Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                    }
-                val data = json.decodeFromString<T>(response.body())
-                Result.Success(data)
+                try {
+                    val data = json.decodeFromString<T>(response.body())
+                    Result.Success(data)
+                } catch (_: SerializationException) {
+                    Result.Error(DataError.Network.SERIALIZATION)
+                }
             }
 
             401 -> Result.Error(DataError.Network.UNAUTHORIZED)

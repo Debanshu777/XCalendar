@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
-@Single
+@Single(binds = [IUserRepository::class])
 class UserRepository(
     private val userDao: UserDao,
-) {
-    suspend fun getUserFromApi() {
+) : IUserRepository {
+    override suspend fun getUserFromApi() {
         val dummyUser =
             User(
                 id = "user_id",
@@ -23,13 +23,13 @@ class UserRepository(
         addUser(dummyUser)
     }
 
-    fun getAllUsers(): Flow<List<User>> = userDao.getAllUsers().map { entities -> entities.map { it.asUser() } }
+    override fun getAllUsers(): Flow<List<User>> = userDao.getAllUsers().map { entities -> entities.map { it.asUser() } }
 
-    suspend fun addUser(user: User) {
+    override suspend fun addUser(user: User) {
         userDao.insertUser(user.asUserEntity())
     }
 
-    suspend fun deleteUser(user: User) {
+    override suspend fun deleteUser(user: User) {
         userDao.deleteUser(user.asUserEntity())
     }
 }

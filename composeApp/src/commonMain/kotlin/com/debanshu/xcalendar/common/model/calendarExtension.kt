@@ -17,7 +17,7 @@ fun CalendarResponseItem.asCalendar(): Calendar {
 }
 
 fun CalendarEntity.asCalendar(): Calendar =
-    Calendar(id, name, convertStringToColor(id + name), userId, isVisible, isPrimary)
+    Calendar(id, name, color, userId, isVisible, isPrimary)
 
 fun Calendar.asCalendarEntity(): CalendarEntity =
-    CalendarEntity(id, name, userId, isVisible, isPrimary)
+    CalendarEntity(id, name, color, userId, isVisible, isPrimary)

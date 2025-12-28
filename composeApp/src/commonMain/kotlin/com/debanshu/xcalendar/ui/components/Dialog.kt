@@ -67,8 +67,10 @@ import xcalendar.composeapp.generated.resources.ic_location
 import xcalendar.composeapp.generated.resources.ic_notifications
 import xcalendar.composeapp.generated.resources.ic_unfold_more
 import kotlin.time.ExperimentalTime
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 internal fun AddEventDialog(
     user: User,
@@ -141,7 +143,7 @@ internal fun AddEventDialog(
                                     calendars.find { it.id == selectedCalendarId }
                                 val event =
                                     Event(
-                                        id = "",
+                                        id = Uuid.random().toString(),
                                         calendarId = selectedCalendarId,
                                         calendarName = selectedCalendar?.name ?: "",
                                         title = title,

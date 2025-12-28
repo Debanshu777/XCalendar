@@ -23,6 +23,7 @@ materialKolor = "4.0.5"
 config = "0.17.1"
 kotlinx-coroutines = "1.10.2"
 store = "5.1.0-alpha07"
+kermit = "2.0.4"
 
 [libraries]
 androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
@@ -38,6 +39,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
 material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 
@@ -61,6 +63,7 @@ navigation3-compose-ui = { module = "org.jetbrains.androidx.navigation3:navigati
 navigation3-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3",version.ref = "androidx-lifecycle" }
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

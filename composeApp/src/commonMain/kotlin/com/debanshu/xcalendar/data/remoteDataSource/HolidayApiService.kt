@@ -4,13 +4,15 @@ import com.debanshu.xcalendar.BuildKonfig
 import com.debanshu.xcalendar.data.remoteDataSource.error.DataError
 import com.debanshu.xcalendar.data.remoteDataSource.model.holiday.HolidayResponse
 import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
 class HolidayApiService(
     client: HttpClient,
+    json: Json,
 ) {
-    private val clientWrapper = ClientWrapper(client)
+    private val clientWrapper = ClientWrapper(client, json)
     private val baseUrl = "https://calendarific.com/api/v2/holidays"
 
     suspend fun getHolidays(

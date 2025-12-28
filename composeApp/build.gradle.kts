@@ -85,6 +85,7 @@ kotlin {
 
             implementation(libs.materialKolor)
             implementation(libs.store)
+            implementation(libs.kermit)
             implementation(libs.androidx.adaptive.layout)
             implementation(libs.androidx.adaptive.navigation)
             implementation(libs.navigation3.compose.ui)
@@ -99,6 +100,11 @@ kotlin {
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+        
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 

@@ -6,9 +6,12 @@ import com.debanshu.xcalendar.data.localDataSource.EventDao
 import com.debanshu.xcalendar.data.localDataSource.HolidayDao
 import com.debanshu.xcalendar.data.localDataSource.UserDao
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.http.ContentType
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
@@ -42,6 +45,23 @@ class DataModule {
         install(ContentNegotiation) {
             json(json, contentType = ContentType.Application.Json)
         }
+        
+        // Configure timeouts
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000L  // 30 seconds
+            connectTimeoutMillis = 15_000L  // 15 seconds
+            socketTimeoutMillis = 30_000L   // 30 seconds
+        }
+        
+        // Configure retry logic for transient failures
+        install(HttpRequestRetry) {
+            maxRetries = 3
+            retryIf { _, response ->
+                !response.status.isSuccess() && response.status.value in 500..599
+            }
+            retryOnServerErrors(maxRetries = 3)
+            exponentialDelay()
+        }
     }
 
     @Single
@@ -68,12 +88,16 @@ class ViewModelModule
 class DomainModule
 
 @Module
+@ComponentScan("com.debanshu.xcalendar.domain.usecase")
+class UseCaseModule
+
+@Module
 @ComponentScan("com.debanshu.xcalendar.domain.states")
 class StateModule
 
 @Module(
     includes = [PlatformModule::class, DataModule::class, ViewModelModule::class,
-        DomainModule::class, StateModule::class]
+        DomainModule::class, UseCaseModule::class, StateModule::class]
 )
 class AppModule
 

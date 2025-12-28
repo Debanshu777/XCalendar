@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.domain.repository
 
+import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.common.model.asCalendar
 import com.debanshu.xcalendar.common.model.asCalendarEntity
 import com.debanshu.xcalendar.data.localDataSource.CalendarDao
@@ -10,35 +11,41 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
-@Single
+@Single(binds = [ICalendarRepository::class])
 class CalendarRepository(
     private val calendarDao: CalendarDao,
     private val apiService: RemoteCalendarApiService,
-) {
-    suspend fun getCalendersForUser(userId: String) {
+) : ICalendarRepository {
+    /**
+     * Refreshes calendars from API and stores them locally.
+     * @throws RepositoryException if the API call fails
+     */
+    override suspend fun refreshCalendarsForUser(userId: String) {
         when (val apiCalendars = apiService.fetchCalendarsForUser(userId)) {
             is Result.Error -> {
-                println("HEREEEEEEE" + apiCalendars.error.toString())
+                val errorMessage = "Failed to fetch calendars: ${apiCalendars.error}"
+                AppLogger.e { errorMessage }
+                throw RepositoryException(errorMessage)
             }
 
             is Result.Success -> {
-                println("HEREEEEEEE 2" + apiCalendars.toString())
+                AppLogger.d { "Successfully fetched ${apiCalendars.data.size} calendars" }
                 val calendars = apiCalendars.data.map { it.asCalendar() }
                 upsertCalendar(calendars)
             }
         }
     }
 
-    fun getCalendarsForUser(userId: String): Flow<List<Calendar>> =
+    override fun getCalendarsForUser(userId: String): Flow<List<Calendar>> =
         calendarDao
             .getCalendarsByUserId(userId)
             .map { entities -> entities.map { it.asCalendar() } }
 
-    suspend fun upsertCalendar(calendars: List<Calendar>) {
+    override suspend fun upsertCalendar(calendars: List<Calendar>) {
         calendarDao.upsertCalendar(calendars.map { it.asCalendarEntity() })
     }
 
-    suspend fun deleteCalendar(calendar: Calendar) {
+    override suspend fun deleteCalendar(calendar: Calendar) {
         calendarDao.deleteCalendar(calendar.asCalendarEntity())
     }
 }

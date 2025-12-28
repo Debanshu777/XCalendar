@@ -2,13 +2,19 @@ package com.debanshu.xcalendar.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.debanshu.xcalendar.common.AppLogger
+import com.debanshu.xcalendar.common.DateUtils
 import com.debanshu.xcalendar.domain.model.Calendar
-import com.debanshu.xcalendar.domain.model.Event
-import com.debanshu.xcalendar.domain.repository.CalendarRepository
-import com.debanshu.xcalendar.domain.repository.EventRepository
-import com.debanshu.xcalendar.domain.repository.HolidayRepository
-import com.debanshu.xcalendar.domain.repository.UserRepository
+import com.debanshu.xcalendar.domain.repository.ICalendarRepository
+import com.debanshu.xcalendar.domain.repository.IEventRepository
+import com.debanshu.xcalendar.domain.repository.IUserRepository
 import com.debanshu.xcalendar.domain.states.CalendarUiState
+import com.debanshu.xcalendar.domain.usecase.calendar.GetUserCalendarsUseCase
+import com.debanshu.xcalendar.domain.usecase.calendar.ToggleCalendarVisibilityUseCase
+import com.debanshu.xcalendar.domain.usecase.event.GetEventsForDateRangeUseCase
+import com.debanshu.xcalendar.domain.usecase.holiday.GetHolidaysForYearUseCase
+import com.debanshu.xcalendar.domain.usecase.holiday.RefreshHolidaysUseCase
+import com.debanshu.xcalendar.domain.util.DomainError
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -24,45 +30,31 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
 import org.koin.android.annotation.KoinViewModel
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @KoinViewModel
 class CalendarViewModel(
-    private val userRepository: UserRepository,
-    private val calendarRepository: CalendarRepository,
-    private val eventRepository: EventRepository,
-    private val holidayRepository: HolidayRepository,
+    private val userRepository: IUserRepository,
+    private val calendarRepository: ICalendarRepository,
+    private val eventRepository: IEventRepository,
+    // Use Cases
+    private val getUserCalendarsUseCase: GetUserCalendarsUseCase,
+    private val toggleCalendarVisibilityUseCase: ToggleCalendarVisibilityUseCase,
+    private val getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
+    private val getHolidaysForYearUseCase: GetHolidaysForYearUseCase,
+    private val refreshHolidaysUseCase: RefreshHolidaysUseCase,
 ) : ViewModel() {
-    @OptIn(ExperimentalTime::class)
-    private val currentDate =
-        Clock.System
-            .now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
 
-    @OptIn(ExperimentalTime::class)
-    private val startTime =
-        currentDate
-            .minus(DatePeriod(months = 10))
-            .atStartOfDayIn(TimeZone.currentSystemDefault())
-            .toEpochMilliseconds()
-
-    @OptIn(ExperimentalTime::class)
-    private val endTime =
-        currentDate
-            .plus(DatePeriod(months = 10))
-            .atStartOfDayIn(TimeZone.currentSystemDefault())
-            .toEpochMilliseconds()
+    // TODO: Make userId configurable for future multi-user support
+    private val userId = "user_id"
+    
+    // Use shared date utilities
+    private val dateRange = DateUtils.getDateRange()
+    private val currentDate = dateRange.currentDate
+    private val startTime = dateRange.startTime
+    private val endTime = dateRange.endTime
 
     // Internal state management
     private val _uiState = MutableStateFlow(CalendarUiState(isLoading = true))
@@ -84,8 +76,7 @@ class CalendarViewModel(
             )
 
     private val holidays =
-        holidayRepository
-            .getHolidaysForYear("IN", currentDate.year)
+        getHolidaysForYearUseCase("IN", currentDate.year)
             .catch { exception ->
                 handleError("Failed to load holidays", exception)
                 emit(emptyList())
@@ -96,8 +87,7 @@ class CalendarViewModel(
             )
 
     private val calendars =
-        calendarRepository
-            .getCalendarsForUser("user_id")
+        getUserCalendarsUseCase(userId)
             .catch { exception ->
                 handleError("Failed to load calendars", exception)
                 emit(emptyList())
@@ -108,8 +98,7 @@ class CalendarViewModel(
             )
 
     private val events =
-        eventRepository
-            .getEventsForCalendarsInRange("user_id", startTime, endTime)
+        getEventsForDateRangeUseCase(userId, startTime, endTime)
             .catch { exception ->
                 handleError("Failed to load events", exception)
                 emit(emptyList())
@@ -182,9 +171,9 @@ class CalendarViewModel(
 
     private suspend fun initializeHolidays() {
         runCatching {
-            holidayRepository.getHolidaysForYear("IN", currentDate.year).collectLatest {
+            getHolidaysForYearUseCase("IN", currentDate.year).collectLatest {
                 if (it.isEmpty()) {
-                    holidayRepository.updateHolidays("IN", currentDate.year)
+                    refreshHolidaysUseCase("IN", currentDate.year)
                 }
             }
         }.onFailure { exception ->
@@ -194,7 +183,7 @@ class CalendarViewModel(
 
     private suspend fun initializeCalendars() {
         runCatching {
-            calendarRepository.getCalendersForUser("user_id")
+            calendarRepository.refreshCalendarsForUser(userId)
         }.onFailure { exception ->
             handleError("Failed to initialize calendars", exception)
         }
@@ -209,13 +198,9 @@ class CalendarViewModel(
     }
 
     fun toggleCalendarVisibility(calendar: Calendar) {
-        val updatedCalendar = calendar.copy(isVisible = !calendar.isVisible)
-
         viewModelScope.launch {
             runCatching {
-                // Uncomment when repository method is ready
-                // calendarRepository.upsertCalendar(listOf(updatedCalendar))
-
+                val updatedCalendar = toggleCalendarVisibilityUseCase(calendar)
                 updateState { currentState ->
                     val updatedCalendars =
                         currentState.calendars.map { cal ->
@@ -229,69 +214,8 @@ class CalendarViewModel(
         }
     }
 
-    fun selectEvent(event: Event) {
-        updateState { it.copy(selectedEvent = event) }
-    }
-
-    fun clearSelectedEvent() {
-        updateState { it.copy(selectedEvent = null) }
-    }
-
-    fun addEvent(event: Event) {
-        performEventOperation(
-            operation = { eventRepository.addEvent(event) },
-            onSuccess = { currentState ->
-                currentState.copy(events = (currentState.events + event).toImmutableList())
-            },
-            errorMessage = "Failed to add event",
-        )
-    }
-
-    fun editEvent(event: Event) {
-        performEventOperation(
-            operation = { eventRepository.updateEvent(event) },
-            onSuccess = { currentState ->
-                val updatedEvents =
-                    currentState.events.map { e ->
-                        if (e.id == event.id) event else e
-                    }
-                currentState.copy(
-                    events = updatedEvents.toImmutableList(),
-                    selectedEvent = null,
-                )
-            },
-            errorMessage = "Failed to edit event",
-        )
-    }
-
-    fun deleteEvent(event: Event) {
-        performEventOperation(
-            operation = { eventRepository.deleteEvent(event) },
-            onSuccess = { currentState ->
-                val updatedEvents = currentState.events.filter { e -> e.id != event.id }
-                currentState.copy(
-                    events = updatedEvents.toImmutableList(),
-                    selectedEvent = null,
-                )
-            },
-            errorMessage = "Failed to delete event",
-        )
-    }
-
-    private fun performEventOperation(
-        operation: suspend () -> Unit,
-        onSuccess: (CalendarUiState) -> CalendarUiState,
-        errorMessage: String,
-    ) {
-        viewModelScope.launch {
-            runCatching {
-                operation()
-                updateState(onSuccess)
-            }.onFailure { exception ->
-                handleError(errorMessage, exception)
-            }
-        }
-    }
+    // Event CRUD operations are now handled by EventViewModel
+    // This ViewModel focuses on data loading and calendar visibility
 
     private fun updateState(update: (CalendarUiState) -> CalendarUiState) {
         _uiState.update(update)
@@ -305,13 +229,18 @@ class CalendarViewModel(
         message: String,
         exception: Throwable,
     ) {
-        println("CalendarViewModel Error: $message - ${exception.message}")
+        AppLogger.e(exception) { "CalendarViewModel: $message" }
+        val errorMessage = "$message: ${exception.message ?: "Unknown error"}"
         updateState { currentState ->
             currentState.copy(
                 isLoading = false,
-                errorMessage = message,
+                error = DomainError.Unknown(errorMessage),
             )
         }
+    }
+
+    fun clearError() {
+        updateState { it.copy(error = null) }
     }
 
     @OptIn(ExperimentalAtomicApi::class)

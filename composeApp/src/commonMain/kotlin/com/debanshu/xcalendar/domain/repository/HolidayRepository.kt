@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.domain.repository
 
+import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.common.model.asHoliday
 import com.debanshu.xcalendar.common.model.asHolidayEntity
 import com.debanshu.xcalendar.data.localDataSource.HolidayDao
@@ -15,18 +16,24 @@ import kotlinx.datetime.toInstant
 import org.koin.core.annotation.Single
 import kotlin.time.ExperimentalTime
 
-@Single
+@Single(binds = [IHolidayRepository::class])
 class HolidayRepository(
     private val holidayDao: HolidayDao,
     private val holidayApiService: HolidayApiService,
-) {
-    suspend fun updateHolidays(
+) : IHolidayRepository {
+    /**
+     * Updates holidays from API and stores them locally.
+     * @throws RepositoryException if the API call fails
+     */
+    override suspend fun updateHolidays(
         countryCode: String,
         year: Int,
     ) {
         when (val response = holidayApiService.getHolidays(countryCode, year)) {
             is Result.Error -> {
-                println("HEREEEEEEE" + response.error.toString())
+                val errorMessage = "Failed to fetch holidays: ${response.error}"
+                AppLogger.e { errorMessage }
+                throw RepositoryException(errorMessage)
             }
 
             is Result.Success -> {
@@ -39,7 +46,7 @@ class HolidayRepository(
     }
 
     @OptIn(ExperimentalTime::class)
-    fun getHolidaysForYear(
+    override fun getHolidaysForYear(
         countryCode: String,
         year: Int,
     ): Flow<List<Holiday>> {

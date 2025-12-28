@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6abcdbdb3c8762822c68a836d87f3c13",
+    "identityHash": "5ed3ba94c00cfc920c862e8791710302",
     "entities": [
       {
         "tableName": "users",
@@ -62,7 +62,7 @@
       },
       {
         "tableName": "calendars",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `userId` TEXT NOT NULL, `isVisible` INTEGER NOT NULL, `isPrimary` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`userId`) REFERENCES `users`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL, `userId` TEXT NOT NULL, `isVisible` INTEGER NOT NULL, `isPrimary` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`userId`) REFERENCES `users`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -74,6 +74,12 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -320,7 +326,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6abcdbdb3c8762822c68a836d87f3c13')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5ed3ba94c00cfc920c862e8791710302')"
     ]
   }
 }
