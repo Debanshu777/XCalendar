@@ -10,7 +10,11 @@ import androidx.navigation3.runtime.NavKey
 
 /**
  * Replaces the current top of the stack with a new destination.
- * Removes the current destination and adds the new one if they're different.
+ * 
+ * This is the primary navigation method for switching between calendar views
+ * (Month, Week, Day, etc.) where we want to replace rather than stack.
+ * 
+ * Only performs navigation if the destination differs from current view.
  * 
  * @param destination The new destination to navigate to
  */
@@ -25,19 +29,11 @@ fun <T : NavKey> NavBackStack<T>.replaceLast(destination: T) {
 }
 
 /**
- * Navigates to a destination if not already there.
- * Simply adds the destination to the back stack.
- * 
- * @param destination The destination to navigate to
- */
-fun <T : NavKey> NavBackStack<T>.navigateTo(destination: T) {
-    add(destination)
-}
-
-/**
  * Pops the back stack if possible.
  * 
- * @return true if navigation occurred, false if back stack was empty
+ * Useful for handling back navigation consistently.
+ * 
+ * @return true if a destination was popped, false if back stack was empty
  */
 fun <T : NavKey> NavBackStack<T>.popIfPossible(): Boolean {
     return if (isNotEmpty()) {
@@ -47,4 +43,3 @@ fun <T : NavKey> NavBackStack<T>.popIfPossible(): Boolean {
         false
     }
 }
-

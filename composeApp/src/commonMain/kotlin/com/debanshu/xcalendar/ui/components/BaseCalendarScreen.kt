@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
+import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
 

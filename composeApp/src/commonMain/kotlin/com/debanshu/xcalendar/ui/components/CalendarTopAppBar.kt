@@ -60,7 +60,7 @@ import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.common.toSentenceCase
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.domain.states.dateState.DateState
+import com.debanshu.xcalendar.ui.state.DateState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.ImmutableList

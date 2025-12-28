@@ -1,4 +1,4 @@
-package com.debanshu.xcalendar.domain.states.scheduleState
+package com.debanshu.xcalendar.ui.state
 
 import androidx.compose.runtime.mutableStateListOf
 import com.debanshu.xcalendar.common.isLeap
@@ -16,7 +16,16 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 
 /**
- * Manages the state for the schedule screen with optimized lazy loading
+ * Manages the state for the schedule screen with optimized lazy loading.
+ * 
+ * Features:
+ * - Dynamic pagination (load more months as user scrolls)
+ * - Event and holiday caching for performance
+ * - Maintains scroll position during pagination
+ * 
+ * @property initialMonth The month to start from (typically current month)
+ * @property getEvents Lambda to get current events list
+ * @property getHolidays Lambda to get current holidays list
  */
 class ScheduleStateHolder(
     initialMonth: YearMonth,
@@ -26,7 +35,6 @@ class ScheduleStateHolder(
     private val _items = mutableStateListOf<ScheduleItem>()
     val items: List<ScheduleItem> = _items
 
-    // Optimized: Using smaller initial range for faster load, with dynamic pagination
     private val monthRange = ScheduleState(initialMonth, initialRange = 3)
     val initialScrollIndex: Int
 
@@ -35,27 +43,24 @@ class ScheduleStateHolder(
     private val holidayCache = mutableMapOf<LocalDate, List<Holiday>>()
 
     init {
-        // Load initial data with reduced range for faster startup
-        val initialItems =
-            createScheduleItemsForMonthRange(
-                monthRange.getMonths(),
-                getEvents(),
-                getHolidays(),
-            )
+        val initialItems = createScheduleItemsForMonthRange(
+            monthRange.getMonths(),
+            getEvents(),
+            getHolidays(),
+        )
         _items.addAll(initialItems)
 
-        // Find position of current month
-        initialScrollIndex =
-            _items
-                .indexOfFirst {
-                    it is MonthHeader &&
-                        it.yearMonth.year == initialMonth.year &&
-                        it.yearMonth.month == initialMonth.month
-                }.coerceAtLeast(0)
+        initialScrollIndex = _items
+            .indexOfFirst { item ->
+                item is MonthHeader &&
+                    item.yearMonth.year == initialMonth.year &&
+                    item.yearMonth.month == initialMonth.month
+            }
+            .coerceAtLeast(0)
     }
 
     /**
-     * Loads more items at the beginning of the list
+     * Loads more items at the beginning of the list.
      * @return Number of new items added
      */
     fun loadMoreBackward(): Int {
@@ -71,7 +76,7 @@ class ScheduleStateHolder(
     }
 
     /**
-     * Loads more items at the end of the list
+     * Loads more items at the end of the list.
      * @return Number of new items added
      */
     fun loadMoreForward(): Int {
@@ -87,15 +92,13 @@ class ScheduleStateHolder(
     }
 
     /**
-     * Refreshes all items with current events and holidays data
-     * Clears caches and regenerates the entire list while maintaining pagination state
+     * Refreshes all items with current events and holidays data.
+     * Clears caches and regenerates the entire list while maintaining pagination state.
      */
     fun refreshItems() {
-        // Clear caches to ensure fresh data
         eventCache.clear()
         holidayCache.clear()
 
-        // Regenerate all items with current data
         val refreshedItems = createScheduleItemsForMonthRange(
             monthRange.getMonths(),
             getEvents(),
@@ -113,56 +116,33 @@ class ScheduleStateHolder(
     ): List<ScheduleItem> {
         val items = mutableListOf<ScheduleItem>()
 
-        // Pre-calculate date ranges for events and holidays for faster filtering
-        val eventDateMap =
-            allEvents.groupBy { event ->
-                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
+        // Pre-calculate date ranges for events and holidays
+        val eventDateMap = allEvents.groupBy { event ->
+            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        }
 
-        val holidayDateMap =
-            allHolidays.groupBy { holiday ->
-                holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-            }
-
-        fun calculateDaysInMonth(yearMonth: YearMonth): List<LocalDate> {
-            val daysInMonth = yearMonth.month.lengthOfMonth(yearMonth.year.isLeap())
-            return (1..daysInMonth).map { day ->
-                LocalDate(yearMonth.year, yearMonth.month, day)
-            }
+        val holidayDateMap = allHolidays.groupBy { holiday ->
+            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
         }
 
         months.forEach { yearMonth ->
-            // Add month header
             items.add(MonthHeader(yearMonth))
 
-            // Get days in month
             val daysInMonth = calculateDaysInMonth(yearMonth)
-
-            // Group by weeks
             val weeks = daysInMonth.chunked(7)
 
             weeks.forEach { week ->
                 if (week.isNotEmpty()) {
-                    val firstDay = week.first()
-                    val lastDay = week.last()
+                    items.add(WeekHeader(week.first(), week.last()))
 
-                    // Add week header
-                    items.add(WeekHeader(firstDay, lastDay))
-
-                    // Add days with events using cached filtering
                     week.forEach { date ->
-                        // Use cached results or compute and cache
-                        val dayEvents =
-                            eventCache
-                                .getOrPut(date) {
-                                    eventDateMap[date] ?: emptyList()
-                                }.toImmutableList()
+                        val dayEvents = eventCache.getOrPut(date) {
+                            eventDateMap[date] ?: emptyList()
+                        }.toImmutableList()
 
-                        val dayHolidays =
-                            holidayCache
-                                .getOrPut(date) {
-                                    holidayDateMap[date] ?: emptyList()
-                                }.toImmutableList()
+                        val dayHolidays = holidayCache.getOrPut(date) {
+                            holidayDateMap[date] ?: emptyList()
+                        }.toImmutableList()
 
                         if (dayEvents.isNotEmpty() || dayHolidays.isNotEmpty()) {
                             items.add(DayEvents(date, dayEvents, dayHolidays))
@@ -175,7 +155,15 @@ class ScheduleStateHolder(
         return items
     }
 
+    private fun calculateDaysInMonth(yearMonth: YearMonth): List<LocalDate> {
+        val daysInMonth = yearMonth.month.lengthOfMonth(yearMonth.year.isLeap())
+        return (1..daysInMonth).map { day ->
+            LocalDate(yearMonth.year, yearMonth.month, day)
+        }
+    }
+
     companion object {
         const val THRESHOLD = 10
     }
 }
+

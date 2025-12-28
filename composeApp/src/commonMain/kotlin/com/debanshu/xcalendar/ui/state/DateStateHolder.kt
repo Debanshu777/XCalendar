@@ -1,48 +1,52 @@
-package com.debanshu.xcalendar.domain.states.dateState
+package com.debanshu.xcalendar.ui.state
 
 import com.debanshu.xcalendar.common.model.YearMonth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.koin.core.annotation.Single
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 /**
  * Holds and manages the current date state for the calendar UI.
  * 
+ * This is a UI-layer state holder that manages:
+ * - Current date (today)
+ * - Selected date
+ * - Currently viewed month
+ * 
  * Uses StateFlow.update() instead of tryEmit() to ensure atomic updates
  * and prevent silent failures when the buffer is full.
- * 
- * For a high-scale app, reliable state updates are critical for:
- * - Consistent UI behavior
- * - Avoiding race conditions
- * - Debugging state-related issues
  */
 @Single
 class DateStateHolder {
     @OptIn(ExperimentalTime::class)
-    val date: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    private val initialDate: LocalDate = Clock.System.now()
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
     
     private val _currentDateState = MutableStateFlow(
         DateState(
-            currentDate = date,
-            selectedDate = date,
-            selectedInViewMonth = YearMonth(date.year, date.month.number),
+            currentDate = initialDate,
+            selectedDate = initialDate,
+            selectedInViewMonth = YearMonth(initialDate.year, initialDate.month.number),
         )
     )
     
     val currentDateState: StateFlow<DateState> = _currentDateState
     
     /**
+     * The current date (today) for convenience access.
+     */
+    val today: LocalDate get() = _currentDateState.value.currentDate
+    
+    /**
      * Updates the currently visible month in the calendar view.
-     * 
-     * Uses [MutableStateFlow.update] for atomic, thread-safe updates
-     * instead of tryEmit which can silently fail.
      */
     fun updateSelectedInViewMonthState(selectedInViewMonth: YearMonth) {
         _currentDateState.update { current ->
@@ -52,9 +56,6 @@ class DateStateHolder {
 
     /**
      * Updates the selected date and synchronizes the view month.
-     * 
-     * Uses [MutableStateFlow.update] for atomic, thread-safe updates
-     * instead of tryEmit which can silently fail.
      */
     fun updateSelectedDateState(selectedDate: LocalDate) {
         _currentDateState.update { current ->
@@ -70,12 +71,16 @@ class DateStateHolder {
      */
     @OptIn(ExperimentalTime::class)
     fun resetToToday() {
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val today = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .date
         _currentDateState.update { current ->
             current.copy(
+                currentDate = today,
                 selectedDate = today,
                 selectedInViewMonth = YearMonth(today.year, today.month.number),
             )
         }
     }
 }
+

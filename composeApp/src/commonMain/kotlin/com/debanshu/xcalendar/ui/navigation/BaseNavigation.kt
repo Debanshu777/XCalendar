@@ -10,7 +10,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
+import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.screen.dayScreen.DayScreen
 import com.debanshu.xcalendar.ui.screen.monthScreen.MonthScreen
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleScreen

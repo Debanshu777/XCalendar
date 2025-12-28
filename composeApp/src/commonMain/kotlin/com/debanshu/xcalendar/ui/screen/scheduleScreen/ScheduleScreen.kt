@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
-import com.debanshu.xcalendar.domain.states.scheduleState.ScheduleStateHolder
+import com.debanshu.xcalendar.ui.state.DateStateHolder
+import com.debanshu.xcalendar.ui.state.ScheduleStateHolder
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.DayWithEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.WeekHeader
