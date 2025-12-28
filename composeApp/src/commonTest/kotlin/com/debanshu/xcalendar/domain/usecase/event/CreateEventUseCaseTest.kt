@@ -2,13 +2,14 @@ package com.debanshu.xcalendar.domain.usecase.event
 
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.repository.IEventRepository
-import com.debanshu.xcalendar.domain.util.EventValidationException
+import com.debanshu.xcalendar.domain.util.DomainError
+import com.debanshu.xcalendar.domain.util.DomainResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class CreateEventUseCaseTest {
@@ -19,7 +20,7 @@ class CreateEventUseCaseTest {
         val updatedEvents = mutableListOf<Event>()
         val deletedEvents = mutableListOf<Event>()
         
-        override suspend fun getEventsForCalendar(
+        override suspend fun syncEventsForCalendar(
             calendarIds: List<String>,
             startTime: Long,
             endTime: Long
@@ -84,44 +85,47 @@ class CreateEventUseCaseTest {
         val testEvent = createTestEvent()
         
         // When
-        useCase(testEvent)
+        val result = useCase(testEvent)
         
         // Then
+        assertIs<DomainResult.Success<Unit>>(result)
         assertEquals(1, fakeRepository.addedEvents.size)
         assertEquals(testEvent, fakeRepository.addedEvents.first())
     }
 
     @Test
-    fun `CreateEventUseCase throws exception for blank title`() = runTest {
+    fun `CreateEventUseCase returns error for blank title`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val useCase = CreateEventUseCase(fakeRepository)
         val invalidEvent = createTestEvent(title = "   ")
         
-        // When/Then
-        assertFailsWith<EventValidationException> {
-            useCase(invalidEvent)
-        }
+        // When
+        val result = useCase(invalidEvent)
         
-        // Verify event was not added
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
         assertTrue(fakeRepository.addedEvents.isEmpty())
     }
 
     @Test
-    fun `CreateEventUseCase throws exception for empty title`() = runTest {
+    fun `CreateEventUseCase returns error for empty title`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val useCase = CreateEventUseCase(fakeRepository)
         val invalidEvent = createTestEvent(title = "")
         
-        // When/Then
-        assertFailsWith<EventValidationException> {
-            useCase(invalidEvent)
-        }
+        // When
+        val result = useCase(invalidEvent)
+        
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
     }
 
     @Test
-    fun `CreateEventUseCase throws exception when end time before start time`() = runTest {
+    fun `CreateEventUseCase returns error when end time before start time`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val useCase = CreateEventUseCase(fakeRepository)
@@ -130,23 +134,27 @@ class CreateEventUseCaseTest {
             endTime = 1704067200000L     // Earlier time
         )
         
-        // When/Then
-        assertFailsWith<EventValidationException> {
-            useCase(invalidEvent)
-        }
+        // When
+        val result = useCase(invalidEvent)
+        
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
     }
 
     @Test
-    fun `CreateEventUseCase throws exception for blank calendar ID`() = runTest {
+    fun `CreateEventUseCase returns error for blank calendar ID`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val useCase = CreateEventUseCase(fakeRepository)
         val invalidEvent = createTestEvent(calendarId = "")
         
-        // When/Then
-        assertFailsWith<EventValidationException> {
-            useCase(invalidEvent)
-        }
+        // When
+        val result = useCase(invalidEvent)
+        
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
     }
 
     @Test
@@ -161,9 +169,10 @@ class CreateEventUseCaseTest {
         )
         
         // When
-        useCase(allDayEvent)
+        val result = useCase(allDayEvent)
         
-        // Then - should not throw
+        // Then
+        assertIs<DomainResult.Success<Unit>>(result)
         assertEquals(1, fakeRepository.addedEvents.size)
     }
 
@@ -182,37 +191,42 @@ class CreateEventUseCaseTest {
         val updatedEvent = originalEvent.copy(title = "Updated Title")
         
         // When
-        updateUseCase(updatedEvent)
+        val result = updateUseCase(updatedEvent)
         
         // Then
+        assertIs<DomainResult.Success<Unit>>(result)
         assertEquals(1, fakeRepository.updatedEvents.size)
         assertEquals("Updated Title", fakeRepository.addedEvents.first().title)
     }
 
     @Test
-    fun `UpdateEventUseCase throws exception for blank event ID`() = runTest {
+    fun `UpdateEventUseCase returns error for blank event ID`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val updateUseCase = UpdateEventUseCase(fakeRepository)
         val invalidEvent = createTestEvent(id = "")
         
-        // When/Then
-        assertFailsWith<IllegalArgumentException> {
-            updateUseCase(invalidEvent)
-        }
+        // When
+        val result = updateUseCase(invalidEvent)
+        
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
     }
 
     @Test
-    fun `UpdateEventUseCase validates event data`() = runTest {
+    fun `UpdateEventUseCase returns error for invalid event data`() = runTest {
         // Given
         val fakeRepository = FakeEventRepository()
         val updateUseCase = UpdateEventUseCase(fakeRepository)
         val invalidEvent = createTestEvent(title = "")
         
-        // When/Then
-        assertFailsWith<EventValidationException> {
-            updateUseCase(invalidEvent)
-        }
+        // When
+        val result = updateUseCase(invalidEvent)
+        
+        // Then
+        assertIs<DomainResult.Error>(result)
+        assertIs<DomainError.ValidationError>(result.error)
     }
 
     // ==================== DeleteEventUseCase Tests ====================
@@ -229,9 +243,10 @@ class CreateEventUseCaseTest {
         assertEquals(1, fakeRepository.addedEvents.size)
         
         // When
-        deleteUseCase(testEvent)
+        val result = deleteUseCase(testEvent)
         
         // Then
+        assertIs<DomainResult.Success<Unit>>(result)
         assertEquals(1, fakeRepository.deletedEvents.size)
         assertTrue(fakeRepository.addedEvents.isEmpty())
     }

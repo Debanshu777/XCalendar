@@ -28,6 +28,14 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE id = :eventId")
     suspend fun getEventById(eventId: String): EventEntity?
 
+    /**
+     * Gets a single event with its reminders.
+     * Use this instead of getEventById when you need reminder data.
+     */
+    @Transaction
+    @Query("SELECT * FROM events WHERE id = :eventId")
+    suspend fun getEventWithRemindersById(eventId: String): EventWithReminders?
+
     @Upsert
     suspend fun upsertEvent(event: EventEntity): Long
 

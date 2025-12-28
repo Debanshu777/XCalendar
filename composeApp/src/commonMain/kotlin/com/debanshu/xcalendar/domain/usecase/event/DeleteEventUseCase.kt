@@ -8,21 +8,13 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class DeleteEventUseCase(
-    private val eventRepository: IEventRepository
+    private val eventRepository: IEventRepository,
 ) {
-    /**
-     * Deletes an event.
-     * 
-     * @param event The event to delete
-     * @return DomainResult.Success with Unit if successful, DomainResult.Error otherwise
-     */
-    suspend operator fun invoke(event: Event): DomainResult<Unit> {
-        return try {
+    suspend operator fun invoke(event: Event): DomainResult<Unit> =
+        try {
             eventRepository.deleteEvent(event)
             DomainResult.Success(Unit)
         } catch (e: Exception) {
             DomainResult.Error(DomainError.Unknown(e.message ?: "Failed to delete event"))
         }
-    }
 }
-

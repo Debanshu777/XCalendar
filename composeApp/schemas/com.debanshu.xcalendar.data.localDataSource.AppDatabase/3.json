@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "b90c477ec8cc93d3f71a2a6645f2892d",
+    "version": 3,
+    "identityHash": "f5da01a7977feee2d16121b3941cbfd6",
     "entities": [
       {
         "tableName": "users",
@@ -363,11 +363,47 @@
             "key"
           ]
         }
+      },
+      {
+        "tableName": "cache_metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `lastFetchTimestamp` INTEGER NOT NULL, `expiresAt` INTEGER NOT NULL, `dataType` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastFetchTimestamp",
+            "columnName": "lastFetchTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiresAt",
+            "columnName": "expiresAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataType",
+            "columnName": "dataType",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b90c477ec8cc93d3f71a2a6645f2892d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f5da01a7977feee2d16121b3941cbfd6')"
     ]
   }
 }

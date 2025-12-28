@@ -4,16 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.common.DateUtils
-import com.debanshu.xcalendar.domain.model.Calendar
 import com.debanshu.xcalendar.domain.repository.ICalendarRepository
 import com.debanshu.xcalendar.domain.repository.IEventRepository
 import com.debanshu.xcalendar.domain.repository.IUserRepository
 import com.debanshu.xcalendar.domain.states.CalendarUiState
 import com.debanshu.xcalendar.domain.usecase.calendar.GetUserCalendarsUseCase
-import com.debanshu.xcalendar.domain.usecase.calendar.ToggleCalendarVisibilityUseCase
 import com.debanshu.xcalendar.domain.usecase.event.GetEventsForDateRangeUseCase
 import com.debanshu.xcalendar.domain.usecase.holiday.GetHolidaysForYearUseCase
 import com.debanshu.xcalendar.domain.usecase.holiday.RefreshHolidaysUseCase
+import com.debanshu.xcalendar.domain.usecase.user.GetCurrentUserUseCase
 import com.debanshu.xcalendar.domain.util.DomainError
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
@@ -39,30 +38,21 @@ class CalendarViewModel(
     private val userRepository: IUserRepository,
     private val calendarRepository: ICalendarRepository,
     private val eventRepository: IEventRepository,
-    // Use Cases
-    private val getUserCalendarsUseCase: GetUserCalendarsUseCase,
-    private val toggleCalendarVisibilityUseCase: ToggleCalendarVisibilityUseCase,
-    private val getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
+    getUserCalendarsUseCase: GetUserCalendarsUseCase,
+    getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
     private val getHolidaysForYearUseCase: GetHolidaysForYearUseCase,
     private val refreshHolidaysUseCase: RefreshHolidaysUseCase,
+    getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ViewModel() {
-
-    // TODO: Make userId configurable for future multi-user support
-    private val userId = "user_id"
-    
-    // Use shared date utilities
+    private val userId = getCurrentUserUseCase()
     private val dateRange = DateUtils.getDateRange()
     private val currentDate = dateRange.currentDate
     private val startTime = dateRange.startTime
     private val endTime = dateRange.endTime
-
-    // Internal state management
     private val _uiState = MutableStateFlow(CalendarUiState(isLoading = true))
 
     @OptIn(ExperimentalAtomicApi::class)
-    private val _isInitialized = AtomicBoolean(false)
-
-    // Cached data flows with proper error handling
+    private val isInitialized = AtomicBoolean(false)
     private val users =
         userRepository
             .getAllUsers()
@@ -139,7 +129,7 @@ class CalendarViewModel(
 
     @OptIn(ExperimentalAtomicApi::class)
     private fun initializeData() {
-        if (_isInitialized.compareAndSet(false, true)) {
+        if (isInitialized.compareAndSet(expectedValue = false, newValue = true)) {
             viewModelScope.launch {
                 try {
                     val initJobs =
@@ -191,31 +181,11 @@ class CalendarViewModel(
 
     private suspend fun initializeEvents() {
         runCatching {
-            eventRepository.getEventsForCalendar(emptyList(), startTime, endTime)
+            eventRepository.syncEventsForCalendar(emptyList(), startTime, endTime)
         }.onFailure { exception ->
             handleError("Failed to initialize events", exception)
         }
     }
-
-    fun toggleCalendarVisibility(calendar: Calendar) {
-        viewModelScope.launch {
-            runCatching {
-                val updatedCalendar = toggleCalendarVisibilityUseCase(calendar)
-                updateState { currentState ->
-                    val updatedCalendars =
-                        currentState.calendars.map { cal ->
-                            if (cal.id == calendar.id) updatedCalendar else cal
-                        }
-                    currentState.copy(calendars = updatedCalendars.toImmutableList())
-                }
-            }.onFailure { exception ->
-                handleError("Failed to toggle calendar visibility", exception)
-            }
-        }
-    }
-
-    // Event CRUD operations are now handled by EventViewModel
-    // This ViewModel focuses on data loading and calendar visibility
 
     private fun updateState(update: (CalendarUiState) -> CalendarUiState) {
         _uiState.update(update)
@@ -246,6 +216,6 @@ class CalendarViewModel(
     @OptIn(ExperimentalAtomicApi::class)
     override fun onCleared() {
         super.onCleared()
-        _isInitialized.store(false)
+        isInitialized.store(false)
     }
 }

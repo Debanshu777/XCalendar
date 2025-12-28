@@ -10,25 +10,19 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class CreateEventUseCase(
-    private val eventRepository: IEventRepository
+    private val eventRepository: IEventRepository,
 ) {
-    /**
-     * Creates a new event after validating the input.
-     * 
-     * @param event The event to create
-     * @return DomainResult.Success with Unit if successful, DomainResult.Error otherwise
-     */
-    suspend operator fun invoke(event: Event): DomainResult<Unit> {
-        return try {
+    suspend operator fun invoke(event: Event): DomainResult<Unit> =
+        try {
             // Validate event data before saving
             EventValidator.validate(
                 title = event.title,
                 startTime = event.startTime,
                 endTime = event.endTime,
                 calendarId = event.calendarId,
-                isAllDay = event.isAllDay
+                isAllDay = event.isAllDay,
             )
-            
+
             eventRepository.addEvent(event)
             DomainResult.Success(Unit)
         } catch (e: EventValidationException) {
@@ -36,6 +30,4 @@ class CreateEventUseCase(
         } catch (e: Exception) {
             DomainResult.Error(DomainError.Unknown(e.message ?: "Failed to create event"))
         }
-    }
 }
-

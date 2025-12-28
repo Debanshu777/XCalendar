@@ -37,7 +37,7 @@ class GetEventsForDateRangeUseCaseTest {
         private val events: List<Event> = emptyList()
     ) : IEventRepository {
         
-        override suspend fun getEventsForCalendar(
+        override suspend fun syncEventsForCalendar(
             calendarIds: List<String>,
             startTime: Long,
             endTime: Long

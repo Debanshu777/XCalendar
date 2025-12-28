@@ -10,32 +10,23 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class UpdateEventUseCase(
-    private val eventRepository: IEventRepository
+    private val eventRepository: IEventRepository,
 ) {
-    /**
-     * Updates an existing event after validating the input.
-     * 
-     * @param event The event to update
-     * @return DomainResult.Success with Unit if successful, DomainResult.Error otherwise
-     */
     suspend operator fun invoke(event: Event): DomainResult<Unit> {
         return try {
-            // Ensure event has a valid ID for update
             if (event.id.isBlank()) {
                 return DomainResult.Error(
-                    DomainError.ValidationError("Event ID cannot be empty for update operation")
+                    DomainError.ValidationError("Event ID cannot be empty for update operation"),
                 )
             }
-            
-            // Validate event data before updating
             EventValidator.validate(
                 title = event.title,
                 startTime = event.startTime,
                 endTime = event.endTime,
                 calendarId = event.calendarId,
-                isAllDay = event.isAllDay
+                isAllDay = event.isAllDay,
             )
-            
+
             eventRepository.updateEvent(event)
             DomainResult.Success(Unit)
         } catch (e: EventValidationException) {
@@ -45,4 +36,3 @@ class UpdateEventUseCase(
         }
     }
 }
-

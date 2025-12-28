@@ -4,7 +4,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import kotlinx.coroutines.flow.Flow
 
 interface IEventRepository {
-    suspend fun getEventsForCalendar(
+    suspend fun syncEventsForCalendar(
         calendarIds: List<String>,
         startTime: Long,
         endTime: Long,
@@ -22,4 +22,3 @@ interface IEventRepository {
 
     suspend fun deleteEvent(event: Event)
 }
-

@@ -12,4 +12,3 @@ interface ICalendarRepository {
 
     suspend fun deleteCalendar(calendar: Calendar)
 }
-
