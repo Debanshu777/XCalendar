@@ -22,6 +22,7 @@ fun MonthScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onDateClick: () -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -63,6 +64,7 @@ fun MonthScreen(
             month = month,
             events = events,
             holidays = holidays,
+            isVisible = isVisible,
             onDayClick = onSpecificDayClicked,
         )
     }

@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedEventElement
 import com.debanshu.xcalendar.ui.utils.DateTimeFormatter
 import org.jetbrains.compose.resources.painterResource
 import xcalendar.composeapp.generated.resources.Res
@@ -63,8 +65,9 @@ fun EventDetailsDialog(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Event title with color indicator
+            // Event title with color indicator - shared element for transition
             EventTitleRow(
+                eventId = event.id,
                 title = event.title,
                 color = event.color,
             )
@@ -154,28 +157,36 @@ private fun DetailsHeader(
 
 @Composable
 private fun EventTitleRow(
+    eventId: String,
     title: String,
     color: Int,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .sharedEventElement(
+                    eventId = eventId,
+                    type = SharedElementType.EventCard,
+                    isVisible = true,
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Color indicator
         Box(
-            modifier = Modifier
-                .width(16.dp)
-                .height(16.dp)
-                .background(
-                    Color(color),
-                    RoundedCornerShape(2.dp),
-                ),
+            modifier =
+                Modifier
+                    .width(16.dp)
+                    .height(16.dp)
+                    .background(
+                        Color(color),
+                        RoundedCornerShape(2.dp),
+                    ),
         )
-        
+
         Spacer(modifier = Modifier.width(16.dp))
-        
+
         Text(
             text = title,
             style = XCalendarTheme.typography.headlineSmall,

@@ -31,6 +31,9 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.components.EventTag
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedDateElement
+import com.debanshu.xcalendar.ui.transition.sharedEventElement
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -46,6 +49,7 @@ fun DayCell(
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     isCurrentMonth: Boolean,
+    isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
     itemSize: DpSize,
     isTopLeft: Boolean = false,
@@ -90,8 +94,13 @@ fun DayCell(
             modifier =
                 Modifier
                     .padding(top = XCalendarTheme.dimensions.spacing_4)
-                    .clip(MaterialShapes.Cookie9Sided.toShape())
                     .size(30.dp)
+                    .sharedDateElement(
+                        date = date,
+                        type = SharedElementType.DateCell,
+                        isVisible = isVisible,
+                    )
+                    .clip(MaterialShapes.Cookie9Sided.toShape())
                     .background(
                         when {
                             isToday -> XCalendarTheme.colorScheme.primary
@@ -129,6 +138,12 @@ fun DayCell(
             displayedEvents.forEach { event ->
                 Spacer(modifier = Modifier.height(2.dp))
                 EventTag(
+                    modifier =
+                        Modifier.sharedEventElement(
+                            eventId = event.id,
+                            type = SharedElementType.EventCard,
+                            isVisible = isVisible,
+                        ),
                     text = event.title,
                     color = Color(event.color),
                     textColor = XCalendarTheme.colorScheme.inverseOnSurface,

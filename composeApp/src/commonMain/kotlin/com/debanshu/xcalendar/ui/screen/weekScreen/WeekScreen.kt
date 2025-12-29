@@ -17,6 +17,7 @@ fun WeekScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
 ) {
@@ -25,6 +26,7 @@ fun WeekScreen(
         dateStateHolder = dateStateHolder,
         events = events,
         holidays = holidays,
+        isVisible = isVisible,
         onEventClick = onEventClick,
         numDays = 7,
         onDateClickCallback = onDateClickCallback,

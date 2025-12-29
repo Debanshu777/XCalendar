@@ -31,6 +31,9 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedDateElement
+import com.debanshu.xcalendar.ui.transition.sharedTimeColumn
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -54,6 +57,7 @@ internal fun BaseCalendarScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
     numDays: Int,
@@ -88,7 +92,12 @@ internal fun BaseCalendarScreen(
                     Column(
                         modifier =
                             Modifier
-                                .fillMaxSize(),
+                                .fillMaxSize()
+                                .sharedDateElement(
+                                    date = dateState.selectedDate,
+                                    type = SharedElementType.DayHeader,
+                                    isVisible = isVisible,
+                                ),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top,
                     ) {
@@ -108,7 +117,11 @@ internal fun BaseCalendarScreen(
                                 Modifier
                                     .padding(vertical = 4.dp)
                                     .size(30.dp)
-                                    .clip(MaterialShapes.Cookie9Sided.toShape())
+                                    .sharedDateElement(
+                                        date = dateState.selectedDate,
+                                        type = SharedElementType.DateCell,
+                                        isVisible = isVisible,
+                                    ).clip(MaterialShapes.Cookie9Sided.toShape())
                                     .background(
                                         when {
                                             isToday -> XCalendarTheme.colorScheme.primary
@@ -133,6 +146,7 @@ internal fun BaseCalendarScreen(
             TimeColumn(
                 modifier =
                     Modifier
+                        .sharedTimeColumn(isVisible = isVisible)
                         .background(XCalendarTheme.colorScheme.surfaceContainerLow)
                         .width(timeColumnWidth),
                 timeRange = timeRange,
@@ -143,6 +157,7 @@ internal fun BaseCalendarScreen(
             startDate = dateState.selectedDate,
             events = events,
             holidays = holidays,
+            isVisible = isVisible,
             onDayClick = { date ->
                 dateStateHolder.updateSelectedDateState(date)
                 onDateClickCallback()

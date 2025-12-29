@@ -33,6 +33,7 @@ fun MonthView(
     month: YearMonth,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -117,6 +118,7 @@ fun MonthView(
                         events = eventsByDate[date] ?: persistentListOf(),
                         holidays = holidaysByDate[date] ?: persistentListOf(),
                         isCurrentMonth = false,
+                        isVisible = isVisible,
                         onDayClick = onDayClick,
                         itemSize = itemSize,
                         isTopLeft = index == 0,
@@ -140,6 +142,7 @@ fun MonthView(
                     events = eventsByDate[date] ?: persistentListOf(),
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = true,
+                    isVisible = isVisible,
                     onDayClick = onDayClick,
                     itemSize =
                         if (cellIndex >= 35) {
@@ -167,6 +170,7 @@ fun MonthView(
                     events = eventsByDate[date] ?: persistentListOf(),
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = false,
+                    isVisible = isVisible,
                     onDayClick = onDayClick,
                     itemSize =
                         if (cellIndex >= 35) {

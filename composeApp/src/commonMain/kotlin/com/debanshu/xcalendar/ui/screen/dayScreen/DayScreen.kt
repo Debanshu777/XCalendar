@@ -17,6 +17,7 @@ fun DayScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
 ) {
     BaseCalendarScreen(
@@ -24,6 +25,7 @@ fun DayScreen(
         dateStateHolder = dateStateHolder,
         events = events,
         holidays = holidays,
+        isVisible = isVisible,
         onEventClick = onEventClick,
         numDays = 1,
         onDateClickCallback = {},

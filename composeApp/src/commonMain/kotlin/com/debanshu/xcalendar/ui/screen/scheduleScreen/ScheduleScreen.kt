@@ -36,6 +36,7 @@ fun ScheduleScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -200,6 +201,7 @@ fun ScheduleScreen(
                             date = item.date,
                             events = item.events,
                             holidays = item.holidays,
+                            isVisible = isVisible,
                             onEventClick = onEventClick,
                         )
                 }

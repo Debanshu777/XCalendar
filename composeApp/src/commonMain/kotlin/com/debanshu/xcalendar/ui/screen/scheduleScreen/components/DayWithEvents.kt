@@ -31,6 +31,7 @@ fun DayWithEvents(
     date: LocalDate,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
 ) {
     // Optimized: Cache date calculations to avoid repeated computations
@@ -111,6 +112,8 @@ fun DayWithEvents(
                     title = event.title,
                     color = Color(event.color),
                     onClick = { onEventClick(event) },
+                    eventId = event.id,
+                    isVisible = isVisible,
                     timeText = timeText,
                 )
             }

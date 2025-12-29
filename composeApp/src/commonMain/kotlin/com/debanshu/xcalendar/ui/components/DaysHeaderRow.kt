@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedDateElement
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -49,6 +51,7 @@ internal fun DaysHeaderRow(
     numDays: Int,
     currentDate: LocalDate,
     holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>,
+    isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     dynamicHeaderHeightState: MutableState<Int>?,
@@ -81,6 +84,11 @@ internal fun DaysHeaderRow(
                             .fillMaxHeight()
                             .weight(1f)
                             .padding(top = 8.dp)
+                            .sharedDateElement(
+                                date = date,
+                                type = SharedElementType.DayHeader,
+                                isVisible = isVisible,
+                            )
                             .clickable { onDayClick(date) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -92,8 +100,13 @@ internal fun DaysHeaderRow(
                         modifier =
                             Modifier
                                 .padding(vertical = XCalendarTheme.dimensions.spacing_4)
-                                .clip(MaterialShapes.Cookie9Sided.toShape())
                                 .size(30.dp)
+                                .sharedDateElement(
+                                    date = date,
+                                    type = SharedElementType.DateCell,
+                                    isVisible = isVisible,
+                                )
+                                .clip(MaterialShapes.Cookie9Sided.toShape())
                                 .background(
                                     when {
                                         isToday -> XCalendarTheme.colorScheme.primary
