@@ -39,13 +39,14 @@ internal fun CalendarTimeSection(
     modifier: Modifier = Modifier,
 ) {
     var isAllDay by remember { mutableStateOf(isAllDayInitial) }
-    
+
     // All-day toggle row
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     ) {
         Icon(
             painter = painterResource(Res.drawable.ic_clock),
@@ -68,13 +69,13 @@ internal fun CalendarTimeSection(
             onCheckedChange = {
                 isAllDay = !isAllDay
                 onAllDayChange(isAllDay)
-            }
+            },
         )
     }
 
     // Date and time display
     val dateLabel = formatDateLabel(selectedDate)
-    
+
     if (isAllDay) {
         TimeDisplayRow(
             label = dateLabel,
@@ -104,10 +105,11 @@ internal fun TimeDisplayRow(
     // Start time row
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(top = 8.dp, bottom = 8.dp, start = 52.dp, end = 16.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(top = 8.dp, bottom = 8.dp, start = 52.dp, end = 16.dp),
     ) {
         Text(
             text = label,
@@ -126,10 +128,11 @@ internal fun TimeDisplayRow(
     if (endTime != null) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable { onClick() }
-                .padding(top = 8.dp, bottom = 8.dp, start = 52.dp, end = 16.dp),
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .clickable { onClick() }
+                    .padding(top = 8.dp, bottom = 8.dp, start = 52.dp, end = 16.dp),
         ) {
             Text(
                 text = label,
@@ -148,7 +151,9 @@ internal fun TimeDisplayRow(
  * Formats a date for display in time section.
  */
 private fun formatDateLabel(date: LocalDate): String {
-    val month = date.month.name.lowercase().replaceFirstChar { it.titlecase() }
+    val month =
+        date.month.name
+            .lowercase()
+            .replaceFirstChar { it.titlecase() }
     return "$month ${date.dayOfMonth}, ${date.year}"
 }
-

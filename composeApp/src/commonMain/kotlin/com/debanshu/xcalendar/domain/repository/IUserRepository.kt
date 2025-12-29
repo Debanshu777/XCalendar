@@ -12,4 +12,3 @@ interface IUserRepository {
 
     suspend fun deleteUser(user: User)
 }
-

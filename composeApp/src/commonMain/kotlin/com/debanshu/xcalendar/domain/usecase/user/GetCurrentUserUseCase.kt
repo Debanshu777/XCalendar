@@ -10,3 +10,4 @@ class GetCurrentUserUseCase {
 
     operator fun invoke(): String = DEFAULT_USER_ID
 }
+

@@ -14,7 +14,9 @@ import com.debanshu.xcalendar.domain.usecase.holiday.GetHolidaysForYearUseCase
 import com.debanshu.xcalendar.domain.usecase.holiday.RefreshHolidaysUseCase
 import com.debanshu.xcalendar.domain.usecase.user.GetCurrentUserUseCase
 import com.debanshu.xcalendar.domain.util.DomainError
+import com.debanshu.xcalendar.ui.state.DateStateHolder
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,6 +27,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -38,6 +42,7 @@ class CalendarViewModel(
     private val userRepository: IUserRepository,
     private val calendarRepository: ICalendarRepository,
     private val eventRepository: IEventRepository,
+    private val dateStateHolder: DateStateHolder,
     getUserCalendarsUseCase: GetUserCalendarsUseCase,
     getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
     private val getHolidaysForYearUseCase: GetHolidaysForYearUseCase,
@@ -65,8 +70,22 @@ class CalendarViewModel(
                 replay = 1,
             )
 
+    // Combine holidays from current year, previous year, and next year to avoid blinking on year transitions
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val holidays =
-        getHolidaysForYearUseCase("IN", currentDate.year)
+        dateStateHolder.currentDateState
+            .map { it.selectedInViewMonth.year }
+            .distinctUntilChanged()
+            .flatMapLatest { year ->
+                // Combine holidays from adjacent years to ensure smooth transitions
+                combine(
+                    getHolidaysForYearUseCase("IN", year - 1),
+                    getHolidaysForYearUseCase("IN", year),
+                    getHolidaysForYearUseCase("IN", year + 1),
+                ) { prevYear, currentYear, nextYear ->
+                    (prevYear + currentYear + nextYear).distinctBy { it.date }
+                }
+            }
             .catch { exception ->
                 handleError("Failed to load holidays", exception)
                 emit(emptyList())
@@ -159,13 +178,35 @@ class CalendarViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun initializeHolidays() {
         runCatching {
-            getHolidaysForYearUseCase("IN", currentDate.year).collectLatest {
-                if (it.isEmpty()) {
-                    refreshHolidaysUseCase("IN", currentDate.year)
+            // Watch for year changes and refresh holidays for current and adjacent years
+            dateStateHolder.currentDateState
+                .map { it.selectedInViewMonth.year }
+                .distinctUntilChanged()
+                .flatMapLatest { year ->
+                    // Combine all three years to track which ones need refresh
+                    combine(
+                        getHolidaysForYearUseCase("IN", year - 1).map { (year - 1) to it },
+                        getHolidaysForYearUseCase("IN", year).map { year to it },
+                        getHolidaysForYearUseCase("IN", year + 1).map { (year + 1) to it },
+                    ) { prev, current, next -> listOf(prev, current, next) }
                 }
-            }
+                .collect { yearHolidayPairs ->
+                    yearHolidayPairs.forEach { (yr, holidays) ->
+                        if (holidays.isEmpty()) {
+                            // Launch in viewModelScope to avoid cancellation by flatMapLatest
+                            viewModelScope.launch {
+                                runCatching {
+                                    refreshHolidaysUseCase("IN", yr)
+                                }.onFailure { exception ->
+                                    AppLogger.w(exception) { "Failed to refresh holidays for year $yr" }
+                                }
+                            }
+                        }
+                    }
+                }
         }.onFailure { exception ->
             handleError("Failed to initialize holidays", exception)
         }

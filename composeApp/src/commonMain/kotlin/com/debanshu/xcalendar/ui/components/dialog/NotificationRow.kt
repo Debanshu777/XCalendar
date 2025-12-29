@@ -30,10 +30,11 @@ internal fun NotificationRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { /* Open reminder picker */ }
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable { /* Open reminder picker */ }
+                .padding(horizontal = 16.dp, vertical = 4.dp),
     ) {
         Icon(
             painter = painterResource(Res.drawable.ic_notifications),
@@ -61,8 +62,8 @@ internal fun NotificationRow(
 /**
  * Formats reminder time for display.
  */
-private fun formatReminderText(minutes: Int): String {
-    return when {
+private fun formatReminderText(minutes: Int): String =
+    when {
         minutes <= 0 -> "No reminder"
         minutes < 60 -> "$minutes minutes before"
         minutes == 60 -> "1 hour before"
@@ -70,7 +71,6 @@ private fun formatReminderText(minutes: Int): String {
         minutes == 1440 -> "1 day before"
         else -> "${minutes / 1440} days before"
     }
-}
 
 /**
  * Generic option row with icon and text.
@@ -84,10 +84,11 @@ internal fun EventOptionRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(horizontal = 16.dp, vertical = 4.dp),
     ) {
         Icon(
             painter = painterResource(icon),
@@ -103,4 +104,3 @@ internal fun EventOptionRow(
         )
     }
 }
-
