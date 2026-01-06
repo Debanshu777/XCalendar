@@ -7,9 +7,7 @@ data class EventWithReminders(
     @Embedded val event: EventEntity,
     @Relation(
         parentColumn = "id",
-        entityColumn = "eventId"
+        entityColumn = "eventId",
     )
-    val reminders: List<EventReminderEntity>
+    val reminders: List<EventReminderEntity>,
 )
-
-

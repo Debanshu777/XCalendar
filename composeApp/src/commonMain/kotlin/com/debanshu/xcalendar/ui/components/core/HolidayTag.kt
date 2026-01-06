@@ -17,12 +17,12 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 
 /**
  * Reusable holiday tag component for displaying holiday names.
- * 
+ *
  * Used consistently across:
  * - DaysHeaderRow (Week/3-day view)
  * - DayCell (Month view)
  * - CalendarTopAppBar (Mini calendar)
- * 
+ *
  * @param name The holiday name to display
  * @param modifier Modifier for the tag
  * @param compact Whether to use compact styling (smaller font, less padding)
@@ -36,22 +36,23 @@ fun HolidayTag(
 ) {
     Text(
         text = name,
-        style = if (compact) {
-            XCalendarTheme.typography.labelSmallEmphasized.copy(fontSize = 8.sp)
-        } else {
-            XCalendarTheme.typography.labelMedium
-        },
+        style =
+            if (compact) {
+                XCalendarTheme.typography.labelSmallEmphasized.copy(fontSize = 8.sp)
+            } else {
+                XCalendarTheme.typography.labelMedium
+            },
         textAlign = TextAlign.Start,
         maxLines = 1,
         color = XCalendarColors.onHoliday,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                XCalendarColors.holiday,
-                RoundedCornerShape(if (compact) 4.dp else 8.dp)
-            )
-            .padding(if (compact) 2.dp else 8.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(
+                    XCalendarColors.holiday,
+                    RoundedCornerShape(if (compact) 4.dp else 8.dp),
+                ).padding(if (compact) 2.dp else 8.dp),
     )
 }
 
@@ -69,14 +70,12 @@ fun ScheduleHolidayTag(
         maxLines = 1,
         color = XCalendarColors.scheduleHoliday,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                XCalendarColors.scheduleHolidayContainer,
-                RoundedCornerShape(4.dp)
-            )
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(
+                    XCalendarColors.scheduleHolidayContainer,
+                    RoundedCornerShape(4.dp),
+                ).padding(horizontal = 12.dp, vertical = 8.dp),
     )
 }
-
-

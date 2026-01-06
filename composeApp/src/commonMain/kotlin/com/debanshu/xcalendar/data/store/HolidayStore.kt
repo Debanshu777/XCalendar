@@ -62,7 +62,7 @@ object HolidayStoreFactory {
             val (startDate, endDate) = getDateRangeForYear(key.year)
             holidayDao.getHolidaysInRange(startDate, endDate).map { entities ->
                 entities
-                    .filter { it.countryCode == key.countryCode.lowercase() }
+                    .filter { it.countryCode.equals(key.countryCode, ignoreCase = true) }
                     .map { it.asHoliday() }
             }
         },

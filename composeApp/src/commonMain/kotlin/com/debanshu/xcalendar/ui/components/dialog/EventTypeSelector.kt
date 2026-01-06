@@ -44,34 +44,32 @@ internal fun EventTypeSelector(
         itemsIndexed(EventType.entries.toTypedArray()) { index, type ->
             val isSelected = selectedType == type
             Box(
-                modifier = Modifier
-                    .padding(
-                        start = if (index == 0) 54.dp else 0.dp,
-                        end = if (index == EventType.entries.size - 1) 16.dp else 0.dp,
-                    )
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        if (isSelected) {
-                            XCalendarTheme.colorScheme.primary
-                        } else {
-                            XCalendarTheme.colorScheme.surfaceVariant
-                        },
-                    )
-                    .clickable { onTypeSelected(type) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier =
+                    Modifier
+                        .padding(
+                            start = if (index == 0) 54.dp else 0.dp,
+                            end = if (index == EventType.entries.size - 1) 16.dp else 0.dp,
+                        ).clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (isSelected) {
+                                XCalendarTheme.colorScheme.primary
+                            } else {
+                                XCalendarTheme.colorScheme.surfaceVariant
+                            },
+                        ).clickable { onTypeSelected(type) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Text(
                     text = type.displayName,
-                    color = if (isSelected) {
-                        XCalendarTheme.colorScheme.onPrimary
-                    } else {
-                        XCalendarTheme.colorScheme.onSurfaceVariant
-                    },
+                    color =
+                        if (isSelected) {
+                            XCalendarTheme.colorScheme.onPrimary
+                        } else {
+                            XCalendarTheme.colorScheme.onSurfaceVariant
+                        },
                     style = XCalendarTheme.typography.bodyMedium,
                 )
             }
         }
     }
 }
-
-

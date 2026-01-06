@@ -4,6 +4,7 @@ import com.debanshu.xcalendar.data.store.HolidayKey
 import com.debanshu.xcalendar.domain.model.Holiday
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 import org.mobilenativefoundation.store.store5.Store
@@ -31,27 +32,18 @@ class HolidayRepository(
     override suspend fun updateHolidays(
         countryCode: String,
         year: Int,
-    ) = safeCallOrThrow("updateHolidays($countryCode, $year)") {
+    ): Unit = safeCallOrThrow("updateHolidays($countryCode, $year)") {
         val key = HolidayKey(countryCode, year)
-        // Force a fresh fetch from the network using stream with skipCache
-        val request = StoreReadRequest.fresh(key)
-        holidayStore.stream(request).collect { response ->
-            when (response) {
-                is StoreReadResponse.Data -> {
-                    logDebug { "Successfully refreshed holidays for $countryCode, $year: ${response.value.size} holidays" }
-                    return@collect
-                }
-                is StoreReadResponse.Error.Exception -> {
-                    throw response.error
-                }
-                is StoreReadResponse.Error.Message -> {
-                    throw RepositoryException(response.message)
-                }
-                else -> {
-                    // Loading, NoNewData, etc. - continue collecting
-                }
+        // Force a fresh fetch from the network
+        // Use filterIsInstance + first() to exit after the first successful data emission
+        // This prevents hanging since Store5's stream() returns a hot Flow
+        holidayStore.stream(StoreReadRequest.fresh(key))
+            .filterIsInstance<StoreReadResponse.Data<List<Holiday>>>()
+            .first()
+            .also { response ->
+                logDebug { "Successfully refreshed holidays for $countryCode, $year: ${response.value.size} holidays" }
             }
-        }
+        Unit
     }
 
     /**

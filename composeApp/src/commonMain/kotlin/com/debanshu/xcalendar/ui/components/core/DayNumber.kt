@@ -19,13 +19,13 @@ import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 
 /**
  * Reusable day number component that displays a day with optional "today" highlighting.
- * 
+ *
  * Used consistently across:
  * - DayCell (Month view)
  * - BaseCalendarScreen (Day view)
  * - DaysHeaderRow (Week/3-day view headers)
  * - CalendarTopAppBar (Mini calendar)
- * 
+ *
  * @param day The day number to display (1-31)
  * @param isToday Whether this day is today (shows primary background)
  * @param isCurrentMonth Whether this day belongs to the current month (affects text color)
@@ -44,27 +44,29 @@ fun DayNumber(
     size: Dp = 30.dp,
 ) {
     Box(
-        modifier = modifier
-            .clip(MaterialShapes.Cookie9Sided.toShape())
-            .size(size)
-            .background(
-                when {
-                    isToday -> XCalendarTheme.colorScheme.primary
-                    isSelected -> XCalendarTheme.colorScheme.primaryContainer
-                    else -> Color.Transparent
-                }
-            ),
+        modifier =
+            modifier
+                .clip(MaterialShapes.Cookie9Sided.toShape())
+                .size(size)
+                .background(
+                    when {
+                        isToday -> XCalendarTheme.colorScheme.primary
+                        isSelected -> XCalendarTheme.colorScheme.primaryContainer
+                        else -> Color.Transparent
+                    },
+                ),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = day.toString(),
             style = XCalendarTheme.typography.labelSmall,
-            color = when {
-                isToday -> XCalendarTheme.colorScheme.inverseOnSurface
-                isSelected -> XCalendarTheme.colorScheme.onPrimaryContainer
-                isCurrentMonth -> XCalendarTheme.colorScheme.onSurface
-                else -> XCalendarTheme.colorScheme.onSurfaceVariant
-            },
+            color =
+                when {
+                    isToday -> XCalendarTheme.colorScheme.inverseOnSurface
+                    isSelected -> XCalendarTheme.colorScheme.onPrimaryContainer
+                    isCurrentMonth -> XCalendarTheme.colorScheme.onSurface
+                    else -> XCalendarTheme.colorScheme.onSurfaceVariant
+                },
             textAlign = TextAlign.Center,
         )
     }
@@ -82,26 +84,26 @@ fun DayNumberLarge(
     size: Dp = 30.dp,
 ) {
     Box(
-        modifier = modifier
-            .clip(MaterialShapes.Cookie9Sided.toShape())
-            .size(size)
-            .background(
-                when {
-                    isToday -> XCalendarTheme.colorScheme.primary
-                    else -> Color.Transparent
-                }
-            ),
+        modifier =
+            modifier
+                .clip(MaterialShapes.Cookie9Sided.toShape())
+                .size(size)
+                .background(
+                    when {
+                        isToday -> XCalendarTheme.colorScheme.primary
+                        else -> Color.Transparent
+                    },
+                ),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = day.toString(),
             style = XCalendarTheme.typography.bodyMedium,
-            color = when {
-                isToday -> XCalendarTheme.colorScheme.inverseOnSurface
-                else -> XCalendarTheme.colorScheme.onSurface
-            },
+            color =
+                when {
+                    isToday -> XCalendarTheme.colorScheme.inverseOnSurface
+                    else -> XCalendarTheme.colorScheme.onSurface
+                },
         )
     }
 }
-
-

@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -80,7 +77,6 @@ private fun CalendarApp(
     val eventUiState by eventViewModel.uiState.collectAsState()
     val dataState by dateStateHolder.currentDateState.collectAsState()
     val backStack = rememberNavBackStack(config, NavigableScreen.Month)
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showAddBottomSheet by remember { mutableStateOf(false) }
 
     // Use EventViewModel as single source of truth for selected event
@@ -152,46 +148,32 @@ private fun CalendarApp(
             )
         }
         if (showAddBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showAddBottomSheet = false },
-                sheetState = sheetState,
-                properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
-            ) {
-                calendarUiState.accounts.firstOrNull()?.let {
-                    AddEventDialog(
-                        user = it,
-                        calendars = visibleCalendars.toImmutableList(),
-                        selectedDate = dataState.currentDate,
-                        onSave = { event ->
-                            eventViewModel.addEvent(event)
-                            showAddBottomSheet = false
-                        },
-                        onDismiss = {
-                            showAddBottomSheet = false
-                        },
-                    )
-                }
-            }
-        }
-
-        if (showDetailsBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    eventViewModel.clearSelectedEvent()
-                },
-                sheetState = sheetState,
-                properties = ModalBottomSheetProperties(shouldDismissOnBackPress = true),
-            ) {
-                EventDetailsDialog(
-                    event = selectedEvent,
-                    onEdit = { editedEvent ->
-                        eventViewModel.editEvent(editedEvent)
+            calendarUiState.accounts.firstOrNull()?.let {
+                AddEventDialog(
+                    user = it,
+                    calendars = visibleCalendars.toImmutableList(),
+                    selectedDate = dataState.currentDate,
+                    onSave = { event ->
+                        eventViewModel.addEvent(event)
+                        showAddBottomSheet = false
                     },
                     onDismiss = {
-                        eventViewModel.clearSelectedEvent()
+                        showAddBottomSheet = false
                     },
                 )
             }
+        }
+
+        if (showDetailsBottomSheet && selectedEvent != null) {
+            EventDetailsDialog(
+                event = selectedEvent,
+                onEdit = { editedEvent ->
+                    eventViewModel.editEvent(editedEvent)
+                },
+                onDismiss = {
+                    eventViewModel.clearSelectedEvent()
+                },
+            )
         }
     }
 }
