@@ -37,6 +37,22 @@ actual fun createGlassRenderEffect(
         )
         shaderBuilder.uniform("absorptionDensity", params.absorptionDensity)
 
+        // Color replacement uniforms
+        shaderBuilder.uniform(
+            "sourceColor",
+            params.sourceColor?.r ?: 0f,
+            params.sourceColor?.g ?: 0f,
+            params.sourceColor?.b ?: 0f,
+        )
+        shaderBuilder.uniform(
+            "targetColor",
+            params.targetColor?.r ?: 0f,
+            params.targetColor?.g ?: 0f,
+            params.targetColor?.b ?: 0f,
+        )
+        shaderBuilder.uniform("colorTolerance", params.colorTolerance)
+        shaderBuilder.uniform("colorReplaceEnabled", if (params.colorReplaceEnabled) 1f else 0f)
+
         ImageFilter.makeRuntimeShader(
             runtimeShaderBuilder = shaderBuilder,
             shaderNames = arrayOf("content"),

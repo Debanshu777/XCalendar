@@ -21,6 +21,10 @@ object Constant {
     uniform float  frostedGlassBlurRadius;
     uniform float3 absorptionColor;
     uniform float  absorptionDensity;
+    uniform float3 sourceColor;
+    uniform float3 targetColor;
+    uniform float  colorTolerance;
+    uniform float  colorReplaceEnabled;
     
     const float PI = 3.14159265359;
     const float HALF_PI = 1.57079632679;
@@ -95,6 +99,21 @@ object Constant {
         float R0 = ((1.0 - ior) / (1.0 + ior));
         R0 *= R0;
         return R0 + (1.0 - R0) * pow(1.0 - cosTheta, 5.0);
+    }
+    
+    // Color replacement - tints bright pixels toward target color
+    // Uses brightness-based blending: white/bright pixels get tinted most
+    half3 replaceColor(half3 color, vec3 source, vec3 target, float tolerance) {
+        // Calculate brightness (luminance) of the pixel
+        float brightness = dot(vec3(color), vec3(0.299, 0.587, 0.114));
+        
+        // Only tint bright pixels (above threshold)
+        // tolerance controls the brightness threshold (higher = more selective)
+        float threshold = 1.0 - tolerance;
+        float tintStrength = smoothstep(threshold, 1.0, brightness);
+        
+        // Blend from original color toward target color based on brightness
+        return mix(color, half3(target), tintStrength);
     }
     
     half4 main(float2 fragCoord) {
@@ -209,6 +228,12 @@ object Constant {
         }
         
         half4 reflectedColor = content.eval(reflectCoord);
+        
+        // Color replacement - apply BEFORE mixing with reflections/highlights
+        // Tints bright pixels (icons/text) toward the target color
+        if (colorReplaceEnabled > 0.5) {
+            refractedColor.rgb = replaceColor(refractedColor.rgb, sourceColor, targetColor, colorTolerance);
+        }
         
         // Specular highlight
         float spec = ggxSpecular(normal3d, LIGHT_DIR, VIEW_DIR, 0.08);

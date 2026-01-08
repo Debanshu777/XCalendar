@@ -45,6 +45,8 @@ interface EventDao {
     @Transaction
     suspend fun insertEventWithReminders(event: EventEntity, reminders: List<EventReminderEntity>) {
         upsertEvent(event)
+        // Delete existing reminders first to prevent orphans when reminders change
+        deleteEventReminders(event.id)
         reminders.forEach { reminder ->
             insertEventReminder(reminder)
         }

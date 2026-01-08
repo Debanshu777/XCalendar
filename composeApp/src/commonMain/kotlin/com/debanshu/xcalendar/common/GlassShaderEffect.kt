@@ -19,6 +19,16 @@ data class AbsorptionColor(
 }
 
 /**
+ * RGB color values for color replacement effect.
+ * Values range from 0.0 to 1.0 per channel.
+ */
+data class ReplacementColor(
+    val r: Float,
+    val g: Float,
+    val b: Float,
+)
+
+/**
  * Parameters for the glass shader effect.
  *
  * @param width Normalized width of the glass rectangle (0..1)
@@ -35,6 +45,9 @@ data class AbsorptionColor(
  * @param frostedBlurRadius Blur amount for frosted glass effect
  * @param absorptionColor Beer-Lambert absorption coefficients
  * @param absorptionDensity How strongly light is absorbed
+ * @param sourceColor Color to detect for replacement (null = disabled)
+ * @param targetColor Color to replace source with (null = disabled)
+ * @param colorTolerance How close a color must be to source to be replaced (0..1)
  */
 data class GlassShaderParams(
     val width: Float = 0.5f,
@@ -51,7 +64,15 @@ data class GlassShaderParams(
     val frostedBlurRadius: Float = 0.0f,
     val absorptionColor: AbsorptionColor = AbsorptionColor.CLEAR,
     val absorptionDensity: Float = 0.0f,
+    val sourceColor: ReplacementColor? = null,
+    val targetColor: ReplacementColor? = null,
+    val colorTolerance: Float = 0.15f,
 ) {
+    /**
+     * Whether color replacement is enabled (both source and target must be set).
+     */
+    val colorReplaceEnabled: Boolean
+        get() = sourceColor != null && targetColor != null
     companion object {
         /**
          * Apple Fitness-style magnifying lens effect.

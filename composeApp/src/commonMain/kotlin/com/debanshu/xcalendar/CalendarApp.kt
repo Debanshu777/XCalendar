@@ -1,11 +1,9 @@
 package com.debanshu.xcalendar
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -66,7 +64,6 @@ fun CalendarApp() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun CalendarApp(
     calendarViewModel: CalendarViewModel,
@@ -140,7 +137,7 @@ private fun CalendarApp(
                     Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = paddingValues.calculateBottomPadding()),
-                selectedView = backStack.lastOrNull() as NavigableScreen,
+                selectedView = backStack.lastOrNull() as? NavigableScreen ?: NavigableScreen.Month,
                 onViewSelect = { view ->
                     backStack.replaceLast(view)
                 },
