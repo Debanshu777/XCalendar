@@ -4,13 +4,15 @@ import com.debanshu.xcalendar.data.remoteDataSource.error.DataError
 import com.debanshu.xcalendar.data.remoteDataSource.model.calendar.CalendarResponseItem
 import com.debanshu.xcalendar.data.remoteDataSource.model.calendar.EventResponseItem
 import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
 class RemoteCalendarApiService(
     client: HttpClient,
+    json: Json,
 ) {
-    private val clientWrapper = ClientWrapper(client)
+    private val clientWrapper = ClientWrapper(client, json)
     private val baseUrl = "https://raw.githubusercontent.com/Debanshu777/XCalendar/main/"
 
     suspend fun fetchCalendarsForUser(userId: String): Result<List<CalendarResponseItem>, DataError> =

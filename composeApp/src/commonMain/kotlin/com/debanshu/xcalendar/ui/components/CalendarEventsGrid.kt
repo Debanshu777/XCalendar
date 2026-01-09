@@ -25,11 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
-import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedDayColumn
+import com.debanshu.xcalendar.ui.transition.sharedEventElement
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -41,132 +42,160 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+/**
+ * Calendar events grid with column-first layout for shared element transitions.
+ * Each day column is a shared element that animates when transitioning between
+ * Week/ThreeDay/Day views - columns for the same date expand/contract.
+ */
 @OptIn(ExperimentalTime::class)
 @Composable
 internal fun CalendarEventsGrid(
     startDate: LocalDate,
     numDays: Int,
     eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
+    isVisible: Boolean = true,
     timeRange: IntRange,
     hourHeightDp: Float,
     onEventClick: (Event) -> Unit,
     currentDate: LocalDate,
     scrollState: ScrollState,
 ) {
-    val sharedElementScope = LocalSharedTransitionScope.current
     val dates =
         List(numDays) { index ->
             startDate.plus(DatePeriod(days = index))
         }
 
-    with(sharedElementScope) {
-        BoxWithConstraints(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .background(XCalendarTheme.colorScheme.surfaceContainerLow),
+    val totalHeight = timeRange.count() * hourHeightDp
+
+    BoxWithConstraints(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .background(XCalendarTheme.colorScheme.surfaceContainerLow),
+    ) {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val currentMinute = now.hour * 60 + now.minute
+
+        // Column-first layout: Each day column is a shared element
+        Row(
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            val dayColumnWidth = maxWidth / numDays
-            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            val currentMinute = now.hour * 60 + now.minute
-
-            Column {
-                timeRange.forEach { time ->
-                    Row(
-                        Modifier
-                            .sharedBounds(
-                                rememberSharedContentState("DAYS_COLUMN_$time"),
-                                animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                            ).fillMaxWidth()
-                            .height(hourHeightDp.dp),
-                    ) {
-                        repeat(numDays) { index ->
-                            Box(
-                                Modifier
-                                    .sharedBounds(
-                                        rememberSharedContentState("DAYS_COLUMN_${time}_$index"),
-                                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                    ).weight(1f)
-                                    .border(
-                                        width = 2.dp,
-                                        color = XCalendarTheme.colorScheme.surfaceContainerLow,
-                                        shape = RoundedCornerShape(10.dp),
-                                    ).fillMaxHeight()
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (dates.any { it == currentDate }) {
-                val dayIndex = dates.indexOfFirst { it == currentDate }
-                if (dayIndex >= 0) {
-                    val offsetX = dayColumnWidth * dayIndex
-                    val offsetY = (currentMinute / 60f * hourHeightDp).dp
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .sharedElement(
-                                    rememberSharedContentState("TIME_LINE"),
-                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                                ).offset(x = offsetX, y = offsetY)
-                                .width(dayColumnWidth)
-                                .height(2.dp)
-                                .background(XCalendarTheme.colorScheme.primary),
-                    )
-                }
-            }
-
-            // Process events by date using pre-calculated mapping
             dates.forEachIndexed { dayIndex, date ->
                 val dayEvents = eventsByDate[date] ?: persistentListOf()
+                val isCurrentDay = date == currentDate
 
-                // Group overlapping events with caching
-                val eventGroups = remember(dayEvents) { groupOverlappingEvents(dayEvents) }
+                // Each day column with shared element transition
+                DayColumn(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(totalHeight.dp)
+                            .sharedDayColumn(
+                                date = date,
+                                isVisible = isVisible,
+                            ),
+                    date = date,
+                    events = dayEvents,
+                    timeRange = timeRange,
+                    hourHeightDp = hourHeightDp,
+                    isCurrentDay = isCurrentDay,
+                    currentMinute = currentMinute,
+                    isVisible = isVisible,
+                    onEventClick = onEventClick,
+                )
+            }
+        }
+    }
+}
 
-                eventGroups.forEach { (_, group) ->
-                    val totalOverlapping = group.size
-
-                    group.forEachIndexed { _, event ->
-                        val eventStart =
-                            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                        val eventEnd =
-                            event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                        val hour = eventStart.hour
-                        val minute = eventStart.minute
-
-                        if (hour in timeRange) {
-                            val durationMinutes =
-                                if (eventStart.date == eventEnd.date) {
-                                    (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
-                                } else {
-                                    (24 - hour) * 60 - minute
-                                }
-
-                            val topOffset =
-                                (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
-                            val eventHeight = (durationMinutes / 60f) * hourHeightDp
-
-                            // Calculate width and horizontal position based on overlap
-                            EventItem(
-                                event = event,
-                                onClick = { onEventClick(event) },
-                                modifier =
-                                    Modifier
-                                        .offset(
-                                            x = dayColumnWidth * dayIndex,
-                                            y = topOffset.dp,
-                                        ).width(dayColumnWidth)
-                                        .height(eventHeight.dp.coerceAtLeast(30.dp))
-                                        .padding(1.dp),
-                                isOverlapping = totalOverlapping > 1,
+/**
+ * A single day column in the calendar grid.
+ * Contains time slot cells and events for that day.
+ */
+@Composable
+private fun DayColumn(
+    modifier: Modifier = Modifier,
+    date: LocalDate,
+    events: ImmutableList<Event>,
+    timeRange: IntRange,
+    hourHeightDp: Float,
+    isCurrentDay: Boolean,
+    currentMinute: Int,
+    isVisible: Boolean,
+    onEventClick: (Event) -> Unit,
+) {
+    Box(modifier = modifier) {
+        // Background time slot cells
+        Column(modifier = Modifier.fillMaxSize()) {
+            timeRange.forEach { _ ->
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(hourHeightDp.dp)
+                            .border(
+                                width = 2.dp,
+                                color = XCalendarTheme.colorScheme.surfaceContainerLow,
+                                shape = RoundedCornerShape(10.dp),
                             )
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
+                )
+            }
+        }
+
+        // Current time indicator line
+        if (isCurrentDay) {
+            val offsetY = (currentMinute / 60f * hourHeightDp).dp
+            Box(
+                modifier =
+                    Modifier
+                        .offset(y = offsetY)
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(XCalendarTheme.colorScheme.primary),
+            )
+        }
+
+        // Events overlay
+        val eventGroups = remember(events) { groupOverlappingEvents(events) }
+
+        eventGroups.forEach { (_, group) ->
+            val totalOverlapping = group.size
+
+            group.forEachIndexed { _, event ->
+                val eventStart =
+                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                val eventEnd =
+                    event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                val hour = eventStart.hour
+                val minute = eventStart.minute
+
+                if (hour in timeRange) {
+                    val durationMinutes =
+                        if (eventStart.date == eventEnd.date) {
+                            (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
+                        } else {
+                            (24 - hour) * 60 - minute
                         }
-                    }
+
+                    val topOffset =
+                        (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
+                    val eventHeight = (durationMinutes / 60f) * hourHeightDp
+
+                    EventItem(
+                        event = event,
+                        onClick = { onEventClick(event) },
+                        modifier =
+                            Modifier
+                                .offset(y = topOffset.dp)
+                                .fillMaxWidth()
+                                .height(eventHeight.dp.coerceAtLeast(30.dp))
+                                .padding(1.dp),
+                        isOverlapping = totalOverlapping > 1,
+                        isVisible = isVisible,
+                    )
                 }
             }
         }
@@ -206,10 +235,16 @@ private fun EventItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isOverlapping: Boolean = false,
+    isVisible: Boolean = true,
 ) {
     Box(
         modifier =
             modifier
+                .sharedEventElement(
+                    eventId = event.id,
+                    type = SharedElementType.EventCard,
+                    isVisible = isVisible,
+                )
                 .clip(RoundedCornerShape(4.dp))
                 .border(1.dp, color = Color(event.color))
                 .background(Color(event.color).copy(alpha = if (isOverlapping) 0.7f else 0.9f))

@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.testTag
 import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
-import com.debanshu.xcalendar.domain.states.dateState.DateStateHolder
+import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.components.SwipeablePager
 import com.debanshu.xcalendar.ui.screen.monthScreen.components.MonthView
 import kotlinx.collections.immutable.ImmutableList
@@ -22,6 +22,7 @@ fun MonthScreen(
     dateStateHolder: DateStateHolder,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onDateClick: () -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -63,6 +64,7 @@ fun MonthScreen(
             month = month,
             events = events,
             holidays = holidays,
+            isVisible = isVisible,
             onDayClick = onSpecificDayClicked,
         )
     }

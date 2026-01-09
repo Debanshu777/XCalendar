@@ -33,6 +33,7 @@ fun MonthView(
     month: YearMonth,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -63,31 +64,52 @@ fun MonthView(
                 }.toImmutableMap()
         }
 
-    val prevMonth = if (month.month.number == 1) Month(12) else Month(month.month.number - 1)
-    val prevYear = if (month.month.number == 1) month.year - 1 else month.year
-    val daysInPrevMonth = prevMonth.lengthOfMonth(prevYear.isLeap())
-    val nextMonth = if (month.month.number == 12) Month(1) else Month(month.month.number + 1)
-    val nextYear = if (month.month.number == 12) month.year + 1 else month.year
+    // Cache month calculations
+    val (prevMonth, prevYear, daysInPrevMonth, nextMonth, nextYear) =
+        remember(month) {
+            val pm = if (month.month.number == 1) Month(12) else Month(month.month.number - 1)
+            val py = if (month.month.number == 1) month.year - 1 else month.year
+            val dpm = pm.lengthOfMonth(py.isLeap())
+            val nm = if (month.month.number == 12) Month(1) else Month(month.month.number + 1)
+            val ny = if (month.month.number == 12) month.year + 1 else month.year
+            MonthCalculations(pm, py, dpm, nm, ny)
+        }
+
     val gridState = rememberLazyGridState()
+
     BoxWithConstraints(
         propagateMinConstraints = true,
     ) {
+        // Cache item size to avoid recalculation
         val itemSize =
-            DpSize(
-                maxWidth.div(7),
-                (maxHeight - 50.dp).div(6),
-            )
+            remember(maxWidth, maxHeight) {
+                DpSize(
+                    maxWidth.div(7),
+                    (maxHeight - 50.dp).div(6),
+                )
+            }
+
         LazyVerticalGrid(
             modifier = modifier.background(color = XCalendarTheme.colorScheme.surfaceContainerLow),
             state = gridState,
             columns = GridCells.Fixed(7),
             userScrollEnabled = false,
         ) {
-            item(span = { GridItemSpan(7) }) {
+            item(
+                key = "weekday_header",
+                span = { GridItemSpan(7) },
+            ) {
                 WeekdayHeader()
             }
+
             if (firstDayOfWeek > 0 && !skipPreviousPadding) {
-                items(key = { day -> "prev_$day" }, count = firstDayOfWeek) { index ->
+                items(
+                    count = firstDayOfWeek,
+                    key = { index ->
+                        val ordinal = daysInPrevMonth - (firstDayOfWeek - index - 1)
+                        "prev_${prevYear}_${prevMonth.number}_$ordinal"
+                    },
+                ) { index ->
                     val ordinal = daysInPrevMonth - (firstDayOfWeek - index - 1)
                     val date = LocalDate(prevYear, prevMonth, ordinal)
                     DayCell(
@@ -96,17 +118,21 @@ fun MonthView(
                         events = eventsByDate[date] ?: persistentListOf(),
                         holidays = holidaysByDate[date] ?: persistentListOf(),
                         isCurrentMonth = false,
+                        isVisible = isVisible,
                         onDayClick = onDayClick,
                         itemSize = itemSize,
                         isTopLeft = index == 0,
                         isTopRight = index == 6,
-                        isBottomLeft = index == 35,
-                        isBottomRight = index == 41,
+                        isBottomLeft = false,
+                        isBottomRight = false,
                     )
                 }
             }
 
-            items(key = { day -> "current_$day" }, count = daysInMonth) { day ->
+            items(
+                count = daysInMonth,
+                key = { day -> "current_${month.year}_${month.month.number}_${day + 1}" },
+            ) { day ->
                 val date = LocalDate(month.year, month.month, day + 1)
                 val currentMonthStartIndex = if (skipPreviousPadding) 0 else firstDayOfWeek
                 val cellIndex = currentMonthStartIndex + day
@@ -116,12 +142,14 @@ fun MonthView(
                     events = eventsByDate[date] ?: persistentListOf(),
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = true,
+                    isVisible = isVisible,
                     onDayClick = onDayClick,
-                    itemSize = if (cellIndex >= 35) {
-                        itemSize.copy(height = itemSize.height + 70.dp)
-                    } else {
-                        itemSize
-                    },
+                    itemSize =
+                        if (cellIndex >= 35) {
+                            itemSize.copy(height = itemSize.height + 70.dp)
+                        } else {
+                            itemSize
+                        },
                     isTopLeft = cellIndex == 0,
                     isTopRight = cellIndex == 6,
                     isBottomLeft = cellIndex == 35,
@@ -129,7 +157,10 @@ fun MonthView(
                 )
             }
 
-            items(key = { day -> "next_$day" }, count = remainingCells) { day ->
+            items(
+                count = remainingCells,
+                key = { day -> "next_${nextYear}_${nextMonth.number}_${day + 1}" },
+            ) { day ->
                 val date = LocalDate(nextYear, nextMonth, day + 1)
                 val cellIndex = totalDaysDisplayed + day
 
@@ -139,18 +170,28 @@ fun MonthView(
                     events = eventsByDate[date] ?: persistentListOf(),
                     holidays = holidaysByDate[date] ?: persistentListOf(),
                     isCurrentMonth = false,
+                    isVisible = isVisible,
                     onDayClick = onDayClick,
-                    itemSize = if (cellIndex >= 35) {
-                        itemSize.copy(height = itemSize.height + 70.dp)
-                    } else {
-                        itemSize
-                    },
-                    isTopLeft = cellIndex == 0,
-                    isTopRight = cellIndex == 6,
-                    isBottomLeft = cellIndex == 35,
-                    isBottomRight = cellIndex == 41,
+                    itemSize =
+                        if (cellIndex >= 35) {
+                            itemSize.copy(height = itemSize.height + 70.dp)
+                        } else {
+                            itemSize
+                        },
+                    isTopLeft = false,
+                    isTopRight = false,
+                    isBottomLeft = false,
+                    isBottomRight = false,
                 )
             }
         }
     }
 }
+
+private data class MonthCalculations(
+    val prevMonth: Month,
+    val prevYear: Int,
+    val daysInPrevMonth: Int,
+    val nextMonth: Month,
+    val nextYear: Int,
+)

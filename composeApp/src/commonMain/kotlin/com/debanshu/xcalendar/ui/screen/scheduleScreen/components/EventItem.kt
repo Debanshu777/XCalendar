@@ -15,34 +15,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.transition.SharedElementType
+import com.debanshu.xcalendar.ui.transition.sharedEventElement
 
 @Composable
 fun EventItem(
     title: String,
     color: Color,
     onClick: () -> Unit,
-    timeText: String? = null
+    modifier: Modifier = Modifier,
+    eventId: String? = null,
+    isVisible: Boolean = true,
+    timeText: String? = null,
 ) {
     // Optimized: Pre-calculate colors to avoid repeated alpha calculations
     val backgroundColor = remember(color) { color.copy(alpha = 0.15f) }
     val timeTextColor = remember(color) { color.copy(alpha = 0.7f) }
 
+    // Apply shared element modifier only if eventId is provided
+    val surfaceModifier =
+        if (eventId != null) {
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp)
+                .sharedEventElement(
+                    eventId = eventId,
+                    type = SharedElementType.EventCard,
+                    isVisible = isVisible,
+                )
+                .clickable(onClick = onClick)
+        } else {
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp)
+                .clickable(onClick = onClick)
+        }
+
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .clickable(onClick = onClick),
+        modifier = surfaceModifier,
         color = backgroundColor,
-        shape = RoundedCornerShape(4.dp)
+        shape = RoundedCornerShape(4.dp),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
             Text(
                 text = title,
                 style = XCalendarTheme.typography.bodyMedium,
                 color = color,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
 
             timeText?.let {
@@ -50,7 +71,7 @@ fun EventItem(
                     text = it,
                     style = XCalendarTheme.typography.labelSmall,
                     color = timeTextColor,
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
                 )
             }
         }

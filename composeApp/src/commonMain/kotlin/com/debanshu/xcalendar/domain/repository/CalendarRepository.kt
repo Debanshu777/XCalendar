@@ -10,35 +10,40 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
-@Single
+@Single(binds = [ICalendarRepository::class])
 class CalendarRepository(
     private val calendarDao: CalendarDao,
     private val apiService: RemoteCalendarApiService,
-) {
-    suspend fun getCalendersForUser(userId: String) {
+) : BaseRepository(), ICalendarRepository {
+    
+    override suspend fun refreshCalendarsForUser(userId: String) = safeCallOrThrow("refreshCalendarsForUser($userId)") {
         when (val apiCalendars = apiService.fetchCalendarsForUser(userId)) {
             is Result.Error -> {
-                println("HEREEEEEEE" + apiCalendars.error.toString())
+                throw RepositoryException("Failed to fetch calendars: ${apiCalendars.error}")
             }
-
             is Result.Success -> {
-                println("HEREEEEEEE 2" + apiCalendars.toString())
                 val calendars = apiCalendars.data.map { it.asCalendar() }
                 upsertCalendar(calendars)
             }
         }
     }
 
-    fun getCalendarsForUser(userId: String): Flow<List<Calendar>> =
-        calendarDao
-            .getCalendarsByUserId(userId)
-            .map { entities -> entities.map { it.asCalendar() } }
+    override fun getCalendarsForUser(userId: String): Flow<List<Calendar>> =
+        safeFlow(
+            flowName = "getCalendarsForUser($userId)",
+            defaultValue = emptyList(),
+            flow = calendarDao
+                .getCalendarsByUserId(userId)
+                .map { entities -> entities.map { it.asCalendar() } }
+        )
 
-    suspend fun upsertCalendar(calendars: List<Calendar>) {
-        calendarDao.upsertCalendar(calendars.map { it.asCalendarEntity() })
-    }
+    override suspend fun upsertCalendar(calendars: List<Calendar>) =
+        safeCallOrThrow("upsertCalendar(${calendars.size} calendars)") {
+            calendarDao.upsertCalendar(calendars.map { it.asCalendarEntity() })
+        }
 
-    suspend fun deleteCalendar(calendar: Calendar) {
-        calendarDao.deleteCalendar(calendar.asCalendarEntity())
-    }
+    override suspend fun deleteCalendar(calendar: Calendar) =
+        safeCallOrThrow("deleteCalendar(${calendar.id})") {
+            calendarDao.deleteCalendar(calendar.asCalendarEntity())
+        }
 }
