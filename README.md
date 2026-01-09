@@ -9,30 +9,35 @@ XCalendar is a feature-rich calendar application that provides multiple viewing 
 ## 📱 Screenshots & Demo
 
 ### **App Overview**
-| Feature | Android | iOS |
-|---------|---------|-----|
-| **App Demo** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android.gif" width="200" height="400" alt="Android Demo"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios.gif" width="200" height="400" alt="iOS Demo"> |
+| Android | iOS | Desktop                                                                                                                                  |
+|---------|-----|------------------------------------------------------------------------------------------------------------------------------------------|
+|<img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android.gif" width="200" height="400" alt="Android Demo"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios.gif" width="200" height="400" alt="iOS Demo"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop.gif" width="400" height="400" alt="Desktop Demo"> |
 
 ### **Calendar Views**
-| View | Android | iOS |
-|------|---------|-----|
-| **Month View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_month.png" width="200" height="400" alt="Android Month"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_month.png" width="200" height="400" alt="iOS Month"> |
-| **Week View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_week.png" width="200" height="400" alt="Android Week"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_week.png" width="200" height="400" alt="iOS Week"> |
-| **Day View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_day.png" width="200" height="400" alt="Android Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_day.png" width="200" height="400" alt="iOS Day"> |
-| **3-Day View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_three_day.png" width="200" height="400" alt="Android 3-Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_three_day.png" width="200" height="400" alt="iOS 3-Day"> |
-| **Schedule View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_schedule.png" width="200" height="400" alt="Android Schedule"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_schedule.png" width="200" height="400" alt="iOS Schedule"> |
+| View | Android | iOS | Desktop |
+|------|---------|-----|---------|
+| **Month View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_month.png" width="200" height="400" alt="Android Month"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_month.png" width="200" height="400" alt="iOS Month"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_month.png" width="600" height="400" alt="Desktop Month"> |
+| **Week View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_week.png" width="200" height="400" alt="Android Week"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_week.png" width="200" height="400" alt="iOS Week"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_week.png" width="600" height="400" alt="Desktop Week"> |
+| **Day View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_day.png" width="200" height="400" alt="Android Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_day.png" width="200" height="400" alt="iOS Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_day.png" width="600" height="400" alt="Desktop Day"> |
+| **3-Day View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_three_day.png" width="200" height="400" alt="Android 3-Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_three_day.png" width="200" height="400" alt="iOS 3-Day"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_three_day.png" width="600" height="400" alt="Desktop 3-Day"> |
+| **Schedule View** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_schedule.png" width="200" height="400" alt="Android Schedule"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_schedule.png" width="200" height="400" alt="iOS Schedule"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_schedule.png" width="600" height="400" alt="Desktop Schedule"> |
 
 ### **Event Management**
-| Feature | Android | iOS |
-|---------|---------|-----|
-| **Add Event** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_add_event.png" width="200" height="400" alt="Android Add Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_add_event.png" width="200" height="400" alt="iOS Add Event"> |
-| **View Event** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_view_event.png" width="200" height="400" alt="Android View Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_view_event.png" width="200" height="400" alt="iOS View Event"> |
+| Feature | Android | iOS | Desktop |
+|---------|---------|-----|---------|
+| **Add Event** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_add_event.png" width="200" height="400" alt="Android Add Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_add_event.png" width="200" height="400" alt="iOS Add Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_add_event.png" width="600" height="400" alt="Desktop Add Event"> |
+| **View Event** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_view_event.png" width="200" height="400" alt="Android View Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_view_event.png" width="200" height="400" alt="iOS View Event"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_view_event.png" width="600" height="400" alt="Desktop View Event"> |
 
 ### **Navigation & UI**
-| Component | Android | iOS |
-|-----------|---------|-----|
-| **App Bar** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_app_bar.png" width="200" height="400" alt="Android App Bar"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_app_bar.png" width="200" height="400" alt="iOS App Bar"> |
-| **Sidebar** | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_sidebar.png" width="200" height="400" alt="Android Sidebar"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_sidebar.png" width="200" height="400" alt="iOS Sidebar"> |
+### **App Bar** 
+| Android | iOS | Desktop |
+|---------|-----|---------|
+| <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/android_app_bar.png" width="200" height="400" alt="Android App Bar"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/ios_app_bar.png" width="200" height="400" alt="iOS App Bar"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/desktop_app_bar.png" width="600" height="400" alt="Desktop App Bar"> |
+
+### **Bottom Bar**
+| Static | Animated |
+|--------|----------|
+| <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/bottom_bar.png" width="400" alt="Bottom Bar"> | <img src="https://github.com/Debanshu777/XCalendar/raw/main/assets/screenshots/bottom_bar_gif.gif" width="400" alt="Bottom Bar Animation"> |
 
 ## ✨ Key Features
 
@@ -82,31 +87,33 @@ XCalendar is a feature-rich calendar application that provides multiple viewing 
 
 | Category | Technology | Version |
 |----------|------------|---------|
-| **Language** | Kotlin | 2.2.21 |
-| **UI Framework** | Compose Multiplatform | 1.10.0-beta02 |
+| **Language** | Kotlin | 2.3.0 |
+| **UI Framework** | Compose Multiplatform | 1.10.0-rc02 |
 | **UI Design** | Material 3 Expressive | 1.10.0-alpha05 |
 | **Database** | Room | 2.8.4 |
 | **SQLite** | SQLite Bundled | 2.6.2 |
-| **Networking** | Ktor Client | 3.3.2 |
+| **Networking** | Ktor Client | 3.3.3 |
 | **DI Framework** | Koin | 4.1.1 |
 | **DI Compiler** | Koin KSP | 2.3.1 |
-| **Navigation** | Navigation3 | 1.0.0-alpha05 |
+| **Navigation** | Navigation3 | 1.0.0-alpha06 |
 | **Date/Time** | kotlinx-datetime | 0.7.1 |
-| **Image Loading** | Landscapist Coil3 | 2.6.1 |
+| **Image Loading** | Landscapist Coil3 | 2.8.2 |
 | **Dynamic Colors** | MaterialKolor | 4.0.5 |
 | **Caching** | Store5 | 5.1.0-alpha07 |
-| **Adaptive UI** | Compose Adaptive | 1.3.0-alpha02 |
+| **Adaptive UI** | Compose Adaptive | 1.3.0-alpha03 |
 | **Build Config** | BuildKonfig | 0.17.1 |
 | **Collections** | kotlinx-collections-immutable | 0.4.0 |
-| **Build System** | Gradle (AGP) | 8.13.1 |
+| **Logging** | Kermit | 2.0.8 |
+| **Build System** | Gradle (AGP) | 8.13.2 |
+| **Android SDK** | Compile/Target SDK | 36 |
 
 ### **Platform-Specific Dependencies**
 
 | Platform | HTTP Client | Additional |
 |----------|-------------|------------|
-| Android | Ktor OkHttp | Koin Android, Activity Compose |
+| Android | Ktor OkHttp | Koin Android, Activity Compose 1.12.2 |
 | iOS | Ktor Darwin | - |
-| Desktop | Ktor OkHttp | Kotlinx Coroutines Swing |
+| Desktop | Ktor OkHttp | Kotlinx Coroutines Swing 1.10.2 |
 
 ### **Project Structure**
 
@@ -122,21 +129,28 @@ XCalendar/
 │   └── src/
 │       ├── 📁 commonMain/kotlin/com/debanshu/xcalendar/
 │       │   ├── CalendarApp.kt          # Main app composable
-│       │   ├── common/                 # Extensions, utilities, mappers
+│       │   ├── common/                 # Extensions, utilities, mappers, logging
 │       │   ├── data/
 │       │   │   ├── localDataSource/    # Room DB, DAOs, entities
-│       │   │   └── remoteDataSource/   # Ktor APIs, models
+│       │   │   ├── remoteDataSource/   # Ktor APIs, models, error handling
+│       │   │   └── store/              # Store5 caching layer
 │       │   ├── di/                     # Koin DI modules
 │       │   ├── domain/
 │       │   │   ├── model/              # Domain models
 │       │   │   ├── repository/         # Data repositories
-│       │   │   └── states/             # UI state management
+│       │   │   ├── states/             # UI state management
+│       │   │   ├── usecase/            # Use cases (calendar, event, holiday, user)
+│       │   │   └── util/               # Domain utilities & error mapping
 │       │   └── ui/
 │       │       ├── CalendarViewModel.kt
 │       │       ├── components/         # Reusable UI components
 │       │       ├── navigation/         # Navigation3 setup
 │       │       ├── screen/             # Calendar view screens
-│       │       └── theme/              # Material3 Expressive theme
+│       │       ├── state/              # State holders (Date, Schedule)
+│       │       ├── theme/              # Material3 Expressive theme
+│       │       ├── transition/         # Shared element transitions
+│       │       ├── utils/              # UI utilities & formatters
+│       │       └── viewmodel/          # Feature-specific ViewModels
 │       ├── 📁 androidMain/             # Android-specific code
 │       ├── 📁 iosMain/                 # iOS-specific code
 │       └── 📁 desktopMain/             # Desktop-specific code
@@ -201,6 +215,7 @@ data class Holiday(
 | EventEntity | events | calendars.id (CASCADE) |
 | EventReminderEntity | event_reminders | events.id |
 | HolidayEntity | holidays | - |
+| SyncFailureEntity | sync_failures | - |
 
 **Storage Locations:**
 - **Android**: `app_data/databases/calendar.db`
@@ -216,6 +231,8 @@ data class Holiday(
 - **Dynamic Data**: Holiday information fetched from Calendarific API (when API key is configured)
 - **Local Storage**: Room database for offline data persistence
 - **API Integration**: Ktor client for remote data fetching
+- **Caching Layer**: Store5 for efficient data caching with bookkeeping
+- **Logging**: Kermit multiplatform logging for debugging
 
 ### **Key Components**
 
@@ -225,6 +242,9 @@ data class Holiday(
 - **CalendarBottomNavigationBar**: View switcher with FAB for adding events
 - **ScheduleStateHolder**: Infinite scroll pagination for schedule view
 - **Modal Bottom Sheets**: Add/Edit event dialogs
+- **EventViewModel**: Feature-specific ViewModel for event operations
+- **Store5 Caching**: Event and Holiday stores with bookkeeping and validation
+- **Use Cases**: Clean architecture use cases for calendar, event, holiday, and user operations
 
 ## 🚀 Getting Started
 
@@ -232,7 +252,7 @@ data class Holiday(
 
 - **JDK 23** (required for JVM target 23)
 - **Android Studio Ladybug** (2024.2.1) or later
-- **Kotlin 2.2.21+**
+- **Kotlin 2.3.0+**
 - **Xcode 15+** (for iOS builds, macOS only)
 
 ### **Installation**
@@ -337,14 +357,19 @@ CalendarApp (Main Container)
 
 | Component | Purpose |
 |-----------|---------|
-| `CalendarViewModel` | Main UI state, CRUD operations |
+| `CalendarViewModel` | Main UI state, calendar and user operations |
+| `EventViewModel` | Event CRUD operations and state |
 | `DateStateHolder` | Current date, selected date, view month |
 | `ScheduleStateHolder` | Infinite scroll pagination |
 | `CalendarUiState` | Immutable state snapshot |
 
 **Data Flow:**
 ```
-Repository (Room + Ktor API)
+Data Sources (Room + Ktor API)
+       ↓ Store5 (caching + bookkeeping)
+Repository (domain mapping)
+       ↓ Flow<List<T>>
+Use Cases (business logic)
        ↓ Flow<List<T>>
 ViewModel (combine, debounce)
        ↓ StateFlow<CalendarUiState>
@@ -442,6 +467,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Dynamic theming with [MaterialKolor](https://github.com/jordond/MaterialKolor)
 - Holiday data from [Calendarific](https://calendarific.com)
 - Navigation with [Navigation3](https://developer.android.com/jetpack/androidx/releases/navigation3)
+- Caching with [Store5](https://github.com/MobileNativeFoundation/Store)
+- Logging with [Kermit](https://github.com/touchlab/Kermit)
 
 ---
 

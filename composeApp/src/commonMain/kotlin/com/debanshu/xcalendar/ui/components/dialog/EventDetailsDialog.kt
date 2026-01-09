@@ -26,8 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
-import com.debanshu.xcalendar.ui.transition.SharedElementType
-import com.debanshu.xcalendar.ui.transition.sharedEventElement
 import com.debanshu.xcalendar.ui.utils.DateTimeFormatter
 import org.jetbrains.compose.resources.painterResource
 import xcalendar.composeapp.generated.resources.Res
@@ -165,12 +163,7 @@ private fun EventTitleRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .sharedEventElement(
-                    eventId = eventId,
-                    type = SharedElementType.EventCard,
-                    isVisible = true,
-                ),
+                .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Color indicator
