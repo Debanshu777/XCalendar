@@ -157,3 +157,4 @@ private fun formatDateLabel(date: LocalDate): String {
             .replaceFirstChar { it.titlecase() }
     return "$month ${date.dayOfMonth}, ${date.year}"
 }
+

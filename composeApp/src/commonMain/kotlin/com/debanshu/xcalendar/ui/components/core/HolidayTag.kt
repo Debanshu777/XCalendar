@@ -79,3 +79,4 @@ fun ScheduleHolidayTag(
                 ).padding(horizontal = 12.dp, vertical = 8.dp),
     )
 }
+

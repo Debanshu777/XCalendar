@@ -7,7 +7,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
@@ -17,7 +17,16 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
+    android {
+        namespace = "com.debanshu.xcalendar"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        androidResources.enable = true
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_23)
+        }
+    }
+    jvm("desktop") {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_23)
         }
@@ -36,7 +45,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
     ).forEach { iosTarget ->
@@ -45,7 +53,6 @@ kotlin {
             isStatic = true
         }
     }
-    jvm("desktop")
 
     room {
         schemaDirectory("$projectDir/schemas")
@@ -55,7 +62,6 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
         }
@@ -69,8 +75,6 @@ kotlin {
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
             implementation(project.dependencies.platform(libs.ktor))
-            implementation(project.dependencies.platform(libs.koin.bom))
-            implementation(project.dependencies.platform(libs.koin.annotations.bom))
 
             implementation(libs.landscapist.coil3)
             implementation(libs.kotlinx.datetime)
@@ -101,7 +105,7 @@ kotlin {
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
-        
+
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
@@ -115,16 +119,23 @@ kotlin {
 
 dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp.compiler)
-    listOf(
-        "kspAndroid",
-        "kspIosSimulatorArm64",
-        "kspIosX64",
-        "kspIosArm64",
-        "kspDesktop",
-    ).forEach {
-        add(it, libs.room.compiler)
-        add(it, libs.koin.ksp.compiler)
-    }
+}
+
+// KSP creates per-target / per-source-set configurations like 'kspAndroid',
+// 'kspKotlinDesktop', 'kspKotlinIosArm64', etc. Add Room and Koin processors
+// to those — but skip the metadata config (only Koin runs there) and skip
+// non-source-set configs like the bare 'ksp' or 'kspPluginClasspath'.
+val kspSourceSetConfigs = setOf(
+    "kspAndroid", "kspAndroidMain",
+    "kspKotlinDesktop", "kspDesktop",
+    "kspKotlinIosArm64", "kspKotlinIosSimulatorArm64",
+    "kspIosArm64", "kspIosSimulatorArm64",
+)
+configurations.matching { it.name in kspSourceSetConfigs }.configureEach {
+    val cfgName = name
+    dependencies.add(project.dependencies.create(libs.room.compiler.get()))
+    dependencies.add(project.dependencies.create(libs.koin.ksp.compiler.get()))
+    logger.info("Added Room + Koin KSP processors to configuration $cfgName")
 }
 
 ksp {
@@ -150,42 +161,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         "-P",
         "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping",
     )
-}
-
-android {
-    namespace = "com.debanshu.xcalendar"
-    compileSdk =
-        libs.versions.android.compileSdk
-            .get()
-            .toInt()
-
-    defaultConfig {
-        applicationId = "com.debanshu.xcalendar"
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
-        targetSdk =
-            libs.versions.android.targetSdk
-                .get()
-                .toInt()
-        versionCode = 1
-        versionName = "1.0"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_23
-        targetCompatibility = JavaVersion.VERSION_23
-    }
 }
 
 buildkonfig {
