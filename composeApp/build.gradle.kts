@@ -96,6 +96,7 @@ kotlin {
             implementation(libs.navigation3.viewmodel)
 
             implementation(libs.material3.adaptive)
+            implementation(libs.shaderx)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

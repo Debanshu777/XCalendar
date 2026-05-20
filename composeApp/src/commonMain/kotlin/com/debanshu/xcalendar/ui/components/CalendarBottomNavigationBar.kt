@@ -54,10 +54,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.debanshu.xcalendar.common.GlassShaderParams
-import com.debanshu.xcalendar.common.ReplacementColor
+import com.debanshu.shaderlab.shaderx.compose.rememberRenderEffect
+import com.debanshu.xcalendar.common.GlassEffect
 import com.debanshu.xcalendar.common.applyIf
-import com.debanshu.xcalendar.common.createGlassRenderEffect
 import com.debanshu.xcalendar.common.noRippleClickable
 import com.debanshu.xcalendar.ui.navigation.NavigableScreen
 import com.debanshu.xcalendar.ui.theme.LocalSharedTransitionScope
@@ -92,6 +91,8 @@ private object NavBarAnimationSpecs {
     val clickTransition = tween<Float>(800, easing = FastOutSlowInEasing)
     val fluidStartTween = tween<Float>(100)
 }
+
+private val GLASS_EFFECT_PLACEHOLDER = GlassEffect()
 
 private sealed interface AnimationPhase {
     data object Idle : AnimationPhase
@@ -176,44 +177,52 @@ private fun rememberGlassEffect(input: GlassEffectInput): RenderEffect? {
     val glassStretchX = state.glassStretchX
     val glassStretchY = state.glassStretchY
 
-    return remember(
-        navBarSize,
-        phase,
-        indicatorOffset,
-        dragOffset,
-        indicatorWidthPx,
-        indicatorScale,
-        glassStretchX,
-        glassStretchY,
-        onSurfaceColor,
-        primaryColor,
-    ) {
-        if (!phase.showGlassEffect || navBarSize.width <= 0 || indicatorWidthPx <= 0f) return@remember null
+    val enabled = phase.showGlassEffect && navBarSize.width > 0 && indicatorWidthPx > 0f
 
-        val effectOffset = if (phase is AnimationPhase.Dragging) dragOffset else indicatorOffset
-        val centerX = (effectOffset + indicatorWidthPx / 2f) / navBarSize.width
-        val glassWidth = (indicatorWidthPx / navBarSize.width) * 1.1f * indicatorScale * glassStretchX
-        val glassHeight = indicatorScale * glassStretchY
-        val cornerRadius = glassHeight * 0.5f
+    val effect =
+        remember(
+            enabled,
+            navBarSize,
+            phase,
+            indicatorOffset,
+            dragOffset,
+            indicatorWidthPx,
+            indicatorScale,
+            glassStretchX,
+            glassStretchY,
+            onSurfaceColor,
+            primaryColor,
+        ) {
+            if (!enabled) return@remember null
 
-        createGlassRenderEffect(
-            width = navBarSize.width.toFloat(),
-            height = navBarSize.height.toFloat(),
-            params =
-                GlassShaderParams.waterDroplet().copy(
-                    width = glassWidth,
-                    height = glassHeight,
-                    centerX = centerX,
-                    centerY = 0.5f,
-                    cornerRadius = cornerRadius,
-                    thickness = 0.1f,
-                    bevelWidth = 0.25f,
-                    sourceColor = ReplacementColor(onSurfaceColor.red, onSurfaceColor.green, onSurfaceColor.blue),
-                    targetColor = ReplacementColor(primaryColor.red, primaryColor.green, primaryColor.blue),
-                    colorTolerance = 0.5f,
-                ),
-        )
-    }
+            val effectOffset = if (phase is AnimationPhase.Dragging) dragOffset else indicatorOffset
+            val centerX = (effectOffset + indicatorWidthPx / 2f) / navBarSize.width
+            val glassWidth = (indicatorWidthPx / navBarSize.width) * 1.1f * indicatorScale * glassStretchX
+            val glassHeight = indicatorScale * glassStretchY
+            val cornerRadius = glassHeight * 0.5f
+
+            GlassEffect(
+                rectWidth = glassWidth,
+                rectHeight = glassHeight,
+                centerX = centerX,
+                centerY = 0.5f,
+                cornerRadius = cornerRadius,
+                thickness = 0.1f,
+                bevelWidth = 0.25f,
+                sourceR = onSurfaceColor.red,
+                sourceG = onSurfaceColor.green,
+                sourceB = onSurfaceColor.blue,
+                targetR = primaryColor.red,
+                targetG = primaryColor.green,
+                targetB = primaryColor.blue,
+                colorTolerance = 0.5f,
+                colorReplaceEnabled = true,
+            )
+        }
+
+    val w = if (effect != null) navBarSize.width.toFloat() else 0f
+    val h = if (effect != null) navBarSize.height.toFloat() else 0f
+    return rememberRenderEffect(effect ?: GLASS_EFFECT_PLACEHOLDER, w, h)
 }
 
 private fun Modifier.indicatorDragGesture(

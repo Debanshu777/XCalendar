@@ -1,30 +1,31 @@
 [versions]
 agp = "9.1.1"
 android-compileSdk = "37"
-android-minSdk = "30"
+android-minSdk = "33"
 android-targetSdk = "36"
-adaptive = "1.3.0-alpha07"
+adaptive = "1.3.0-beta01"
 androidx-activityCompose = "1.13.0"
 androidx-lifecycle = "2.10.0"
 coil3 = "2.9.7"
-compose-multiplatform = "1.10.3"
+compose-multiplatform = "1.11.0"
 kotlin = "2.3.21"
 kotlinxCollectionsImmutable = "0.4.0"
 material3Version = "1.10.0-alpha05"
 room_version = "2.8.4"
 ksp = "2.3.4"
 sqlite = "2.6.2"
-ktor-bom = "3.4.3"
+ktor-bom = "3.5.0"
 koin-bom = "4.2.1"
-koin-annotations-bom = "2.1.0"
-koin-annotations = "2.1.0"
-kotlinx-datetime = "0.7.1"
+koin-annotations-bom = "2.3.1"
+koin-annotations = "2.3.1"
+kotlinx-datetime = "0.8.0"
 navigation = "1.1.1"
 materialKolor = "4.1.1"
-config = "0.18.0"
-kotlinx-coroutines = "1.10.2"
+config = "0.21.2"
+kotlinx-coroutines = "1.11.0"
 store = "5.1.0-alpha08"
 kermit = "2.1.0"
+shaderx = "0.1.3"
 
 [libraries]
 androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
@@ -50,7 +51,7 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin-bom
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin-bom" }
 koin-annotations-bom = { module = "io.insert-koin:koin-annotations-bom", version.ref = "koin-annotations-bom" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
-koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations-bom" }
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
@@ -65,6 +66,7 @@ navigation3-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-v
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+shaderx = { module = "io.github.debanshu777:shaderx", version.ref = "shaderx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -1,12 +1,113 @@
 package com.debanshu.xcalendar.common
 
-object Constant {
-    const val SHADER_SRC = """
+import androidx.compose.runtime.Immutable
+import com.debanshu.shaderlab.shaderx.effect.RuntimeShaderEffect
+import com.debanshu.shaderlab.shaderx.parameter.ParameterSpec
+import com.debanshu.shaderlab.shaderx.parameter.ParameterValue
+import com.debanshu.shaderlab.shaderx.uniform.FloatUniform
+import com.debanshu.shaderlab.shaderx.uniform.Uniform
+
+/**
+ * Glass refraction shader effect.
+ *
+ * Wraps a custom AGSL/SkSL shader producing rounded-rectangle refraction with chromatic
+ * aberration, frosted blur, Beer-Lambert absorption, GGX specular highlights and optional
+ * brightness-based color replacement. Driven through ShaderX so platform-specific shader
+ * compilation, LRU caching and RenderEffect creation are handled by the library.
+ *
+ * @property rectWidth Normalized width of the glass rectangle (0..1).
+ * @property rectHeight Normalized height of the glass rectangle (0..1).
+ * @property centerX Normalized X position of the rectangle center (0..1).
+ * @property centerY Normalized Y position of the rectangle center (0..1).
+ * @property cornerRadius Corner radius of the rounded rectangle (normalized).
+ * @property ior Index of refraction (1.0 = air, 1.33 = water, 1.52 = glass).
+ * @property highlightStrength Specular highlight intensity.
+ * @property bevelWidth Width of the rounded edge bevel.
+ * @property thickness Optical thickness controlling distortion magnitude.
+ * @property shadowIntensity Cast shadow darkness (0..1).
+ * @property chromaticAberration Color fringing strength at edges.
+ * @property frostedBlurRadius Blur amount for the frosted glass effect.
+ * @property absorptionR Red channel of the Beer-Lambert absorption color (0..1).
+ * @property absorptionG Green channel of the Beer-Lambert absorption color (0..1).
+ * @property absorptionB Blue channel of the Beer-Lambert absorption color (0..1).
+ * @property absorptionDensity Beer-Lambert absorption density.
+ * @property sourceR Red channel of the brightness-tint source reference color (0..1).
+ * @property sourceG Green channel of the brightness-tint source reference color (0..1).
+ * @property sourceB Blue channel of the brightness-tint source reference color (0..1).
+ * @property targetR Red channel of the brightness-tint target color (0..1).
+ * @property targetG Green channel of the brightness-tint target color (0..1).
+ * @property targetB Blue channel of the brightness-tint target color (0..1).
+ * @property colorTolerance Brightness threshold controlling how strongly bright pixels are tinted (0..1).
+ * @property colorReplaceEnabled Whether color replacement is applied.
+ */
+@Immutable
+data class GlassEffect(
+    val rectWidth: Float = 0.5f,
+    val rectHeight: Float = 0.3f,
+    val centerX: Float = 0.5f,
+    val centerY: Float = 0.5f,
+    val cornerRadius: Float = 0.05f,
+    val ior: Float = 1.33f,
+    val highlightStrength: Float = 0.8f,
+    val bevelWidth: Float = 0.02f,
+    val thickness: Float = 0.02f,
+    val shadowIntensity: Float = 0.3f,
+    val chromaticAberration: Float = 0.001f,
+    val frostedBlurRadius: Float = 0.0f,
+    val absorptionR: Float = 1.0f,
+    val absorptionG: Float = 1.0f,
+    val absorptionB: Float = 1.0f,
+    val absorptionDensity: Float = 0.0f,
+    val sourceR: Float = 0f,
+    val sourceG: Float = 0f,
+    val sourceB: Float = 0f,
+    val targetR: Float = 0f,
+    val targetG: Float = 0f,
+    val targetB: Float = 0f,
+    val colorTolerance: Float = 0.15f,
+    val colorReplaceEnabled: Boolean = false,
+) : RuntimeShaderEffect {
+    override val id: String = "xcalendar_glass"
+    override val displayName: String = "Glass"
+    override val parameters: List<ParameterSpec> = emptyList()
+    override val shaderSource: String = GLASS_SHADER_SOURCE
+
+    override fun buildUniforms(
+        width: Float,
+        height: Float,
+    ): List<Uniform> =
+        listOf(
+            FloatUniform("iResolution", width, height),
+            FloatUniform("rectSize", rectWidth, rectHeight),
+            FloatUniform("center", centerX, centerY),
+            FloatUniform("cornerRadius", cornerRadius),
+            FloatUniform("ior", ior),
+            FloatUniform("highlightStrength", highlightStrength),
+            FloatUniform("bevelWidth", bevelWidth),
+            FloatUniform("thickness", thickness),
+            FloatUniform("shadowIntensity", shadowIntensity),
+            FloatUniform("chromaticAberrationStrength", chromaticAberration),
+            FloatUniform("frostedGlassBlurRadius", frostedBlurRadius),
+            FloatUniform("absorptionColor", absorptionR, absorptionG, absorptionB),
+            FloatUniform("absorptionDensity", absorptionDensity),
+            FloatUniform("sourceColor", sourceR, sourceG, sourceB),
+            FloatUniform("targetColor", targetR, targetG, targetB),
+            FloatUniform("colorTolerance", colorTolerance),
+            FloatUniform("colorReplaceEnabled", if (colorReplaceEnabled) 1f else 0f),
+        )
+
+    override fun withTypedParameter(
+        parameterId: String,
+        value: ParameterValue,
+    ): RuntimeShaderEffect = this
+}
+
+private const val GLASS_SHADER_SOURCE = """
     // ============================================================================
     // Clean Glass Shader - Apple Fitness Style
     // Focus: Magnification + Color Fringing at edges (NO dark rim)
     // ============================================================================
-    
+
     uniform float2 iResolution;
     uniform shader content;
     uniform float2 rectSize;
@@ -25,13 +126,13 @@ object Constant {
     uniform float3 targetColor;
     uniform float  colorTolerance;
     uniform float  colorReplaceEnabled;
-    
+
     const float PI = 3.14159265359;
     const float HALF_PI = 1.57079632679;
     const vec3 LIGHT_DIR = vec3(0.40824829, 0.40824829, 0.81649658);
     const vec3 VIEW_DIR = vec3(0.0, 0.0, -1.0);
     const vec3 NEG_VIEW_DIR = vec3(0.0, 0.0, 1.0);
-    
+
     // Rounded Rectangle SDF
     float sdRoundedRect(float2 p, float2 halfSize, float r) {
         float maxR = min(halfSize.x, halfSize.y);
@@ -39,7 +140,7 @@ object Constant {
         float2 q = abs(p) - halfSize + r;
         return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
     }
-    
+
     // Gradient of Rounded Rectangle SDF
     float2 gradRoundedRect(float2 p, float2 halfSize, float r) {
         float maxR = min(halfSize.x, halfSize.y);
@@ -56,15 +157,15 @@ object Constant {
         grad *= sign(p + 0.0001);
         return grad;
     }
-    
+
     // Blur sampling
     half4 sampleBlurred(float2 coord, float blurRadius) {
         if (blurRadius <= 0.0) return content.eval(coord);
-        
+
         const float GOLDEN_ANGLE = 2.39996323;
         half4 color = content.eval(coord) * 0.16;
         float totalWeight = 0.16;
-        
+
         float r1 = blurRadius * 0.33;
         for (int i = 0; i < 4; i++) {
             float angle = float(i) * GOLDEN_ANGLE;
@@ -72,7 +173,7 @@ object Constant {
             color += content.eval(coord + offset) * 0.14;
             totalWeight += 0.14;
         }
-        
+
         float r2 = blurRadius * 0.8;
         for (int i = 0; i < 8; i++) {
             float angle = float(i) * GOLDEN_ANGLE + 0.5;
@@ -80,10 +181,10 @@ object Constant {
             color += content.eval(coord + offset) * 0.07;
             totalWeight += 0.07;
         }
-        
+
         return color / totalWeight;
     }
-    
+
     // GGX Specular
     float ggxSpecular(vec3 normal, vec3 lightDir, vec3 viewDir, float roughness) {
         vec3 halfVec = normalize(lightDir - viewDir);
@@ -93,124 +194,124 @@ object Constant {
         float denom = NdotH * NdotH * (alpha2 - 1.0) + 1.0;
         return alpha2 / (PI * denom * denom + 0.0001);
     }
-    
+
     // Fresnel
     float fresnel(float cosTheta, float ior) {
         float R0 = ((1.0 - ior) / (1.0 + ior));
         R0 *= R0;
         return R0 + (1.0 - R0) * pow(1.0 - cosTheta, 5.0);
     }
-    
+
     // Color replacement - tints bright pixels toward target color
     // Uses brightness-based blending: white/bright pixels get tinted most
     half3 replaceColor(half3 color, vec3 source, vec3 target, float tolerance) {
         // Calculate brightness (luminance) of the pixel
         float brightness = dot(vec3(color), vec3(0.299, 0.587, 0.114));
-        
+
         // Only tint bright pixels (above threshold)
         // tolerance controls the brightness threshold (higher = more selective)
         float threshold = 1.0 - tolerance;
         float tintStrength = smoothstep(threshold, 1.0, brightness);
-        
+
         // Blend from original color toward target color based on brightness
         return mix(color, half3(target), tintStrength);
     }
-    
+
     half4 main(float2 fragCoord) {
         float2 uv = fragCoord / iResolution;
         float aspectRatio = iResolution.x / iResolution.y;
         float2 p = uv - center;
-        
+
         float2 halfSize = rectSize * 0.5;
         halfSize.x *= aspectRatio;
-        
+
         float2 pAspect = p;
         pAspect.x *= aspectRatio;
         float r = cornerRadius * aspectRatio;
-        
+
         float sdf = sdRoundedRect(pAspect, halfSize, r);
         float2 grad = gradRoundedRect(pAspect, halfSize, r);
-        
+
         float distFromEdge = -sdf;
         float maxInnerDist = min(halfSize.x, halfSize.y) - r;
         float normalizedDist = clamp(distFromEdge / max(maxInnerDist, 0.001), 0.0, 1.0);
-        
+
         // Soft shadow behind glass
         float2 shadowDir = normalize(LIGHT_DIR.xy * float2(aspectRatio, 1.0));
         float2 shadowP = pAspect - shadowDir * 0.03;
         float shadowSdf = sdRoundedRect(shadowP, halfSize, r);
         float shadow = (1.0 - smoothstep(-0.05, 0.08, shadowSdf)) * shadowIntensity * 0.5;
-        
+
         half4 bgColor = content.eval(fragCoord);
         half4 backgroundWithShadow = half4(bgColor.rgb * (1.0 - shadow), bgColor.a);
-        
+
         // Early exit outside glass
         if (sdf > 0.015) return backgroundWithShadow;
-        
+
         // Edge proximity (0 = center, 1 = edge)
         float edgeProximity = 1.0 - normalizedDist;
-        
+
         // Bevel for 3D normal
         float bevelT = smoothstep(bevelWidth, 0.0, distFromEdge);
         float zComp = cos(bevelT * HALF_PI);
         float xyMag = sin(bevelT * HALF_PI);
         vec3 normal3d = normalize(vec3(grad * xyMag, zComp));
         float cosTheta = abs(dot(NEG_VIEW_DIR, normal3d));
-        
+
         // Refraction
         float eta = 1.0 / ior;
         float k = 1.0 - eta * eta * (1.0 - cosTheta * cosTheta);
-        vec3 refractedRay = (k >= 0.0) 
+        vec3 refractedRay = (k >= 0.0)
             ? eta * VIEW_DIR + (eta * cosTheta - sqrt(max(k, 0.0))) * normal3d
             : reflect(VIEW_DIR, normal3d);
         refractedRay = normalize(refractedRay);
-        
+
         // ========================================
         // Distortion - Convex Lens Magnification
         // ========================================
         float distortionScale = thickness * iResolution.y * 2.5;
-        
+
         // Smooth magnification curve
         float centerMag = pow(1.0 - edgeProximity, 2.0) * thickness * 12.0;
         float edgeCurve = pow(edgeProximity, 2.0) * smoothstep(0.0, 0.7, edgeProximity);
         float rimCurve = smoothstep(0.5, 1.0, edgeProximity) * edgeProximity;
-        
+
         float distortMag = distortionScale * (bevelT * 0.6 + edgeCurve * 4.0 + rimCurve * 3.0);
         distortMag += centerMag * iResolution.y * 0.06;
-        
+
         // Radial pull toward center
         float radialMag = (edgeCurve * 2.5 + rimCurve * 1.5) * distortionScale;
         float2 radialDistort = -grad * radialMag * 0.6;
-        
+
         float2 baseRefractCoord = fragCoord + refractedRay.xy * distortMag + radialDistort;
         float2 reflectCoord = fragCoord + reflect(VIEW_DIR, normal3d).xy * distortMag * 0.4;
-        
+
         // ========================================
         // Chromatic Aberration - Color Fringe at Edge
         // This is the key visual for the glass rim (NOT darkening)
         // ========================================
         float blurPx = frostedGlassBlurRadius * iResolution.y;
         half4 refractedColor;
-        
+
         // Chromatic aberration increases toward edge
         float edgeCA = smoothstep(0.4, 1.0, edgeProximity);
         float caAmount = chromaticAberrationStrength * (1.0 + edgeCA * 6.0);
-        
+
         if (caAmount > 0.0003) {
             float2 caDir = normalize(grad + 0.0001);
             float caMag = caAmount * iResolution.y * (0.4 + edgeCA * 2.0);
-            
+
             // RGB channel separation for color fringe
             float2 rOffset = caDir * caMag;
             float2 bOffset = -caDir * caMag;
-            
+
             half4 rSample = sampleBlurred(baseRefractCoord + rOffset, blurPx);
             half4 gSample = sampleBlurred(baseRefractCoord, blurPx);
             half4 bSample = sampleBlurred(baseRefractCoord + bOffset, blurPx);
-            
+
             // Blend strength increases at edge
             float blend = 0.15 + edgeCA * 0.7;
-            
+
             refractedColor.r = mix(gSample.r, rSample.r, blend);
             refractedColor.g = gSample.g;
             refractedColor.b = mix(gSample.b, bSample.b, blend);
@@ -218,7 +319,7 @@ object Constant {
         } else {
             refractedColor = sampleBlurred(baseRefractCoord, blurPx);
         }
-        
+
         // Optional tinting (very subtle)
         if (absorptionDensity > 0.0) {
             vec3 absorption = vec3(1.0) - absorptionColor;
@@ -226,31 +327,30 @@ object Constant {
             half3 transmittance = half3(exp(-absorption * pathLen * absorptionDensity));
             refractedColor.rgb *= transmittance;
         }
-        
+
         half4 reflectedColor = content.eval(reflectCoord);
-        
+
         // Color replacement - apply BEFORE mixing with reflections/highlights
         // Tints bright pixels (icons/text) toward the target color
         if (colorReplaceEnabled > 0.5) {
             refractedColor.rgb = replaceColor(refractedColor.rgb, sourceColor, targetColor, colorTolerance);
         }
-        
+
         // Specular highlight
         float spec = ggxSpecular(normal3d, LIGHT_DIR, VIEW_DIR, 0.08);
         float fresnelVal = fresnel(cosTheta, ior);
         half3 highlight = half3(1.0, 0.99, 0.97) * spec * highlightStrength * bevelT;
-        
+
         // Combine: refraction + reflection + highlight
         half3 glassColor = mix(refractedColor.rgb, reflectedColor.rgb, fresnelVal * 0.3);
         glassColor += highlight;
-        
+
         // NO rim darkening - just clean glass
         half4 glassResult = half4(glassColor, refractedColor.a);
-        
+
         // Smooth edge blend
         float edgeBlend = smoothstep(0.01, -0.005, sdf);
-        
+
         return mix(backgroundWithShadow, glassResult, edgeBlend);
     }
 """
-}
