@@ -13,7 +13,9 @@ class HolidayApiService(
     json: Json,
 ) {
     private val clientWrapper = ClientWrapper(client, json)
-    private val baseUrl = "https://calendarific.com/api/v2/holidays"
+    // Externalised via BuildKonfig (audit F37). Defaults to Calendarific
+    // production endpoint; override per build via local.properties.
+    private val baseUrl = BuildKonfig.HOLIDAY_API_BASE_URL
 
     suspend fun getHolidays(
         countryCode: String,

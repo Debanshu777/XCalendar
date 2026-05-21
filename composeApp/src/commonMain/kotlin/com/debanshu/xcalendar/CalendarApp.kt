@@ -3,16 +3,18 @@ package com.debanshu.xcalendar
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.NavKey
@@ -33,6 +35,7 @@ import com.debanshu.xcalendar.ui.viewmodel.EventViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import com.debanshu.xcalendar.di.UserSessionScopeHolder
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -52,8 +55,9 @@ private val config =
 
 @Composable
 fun CalendarApp() {
-    val calendarViewModel = koinViewModel<CalendarViewModel>()
-    val eventViewModel = koinViewModel<EventViewModel>()
+    val userSessionScopeHolder = koinInject<UserSessionScopeHolder>()
+    val calendarViewModel = koinViewModel<CalendarViewModel>(scope = userSessionScopeHolder.scope)
+    val eventViewModel = koinViewModel<EventViewModel>(scope = userSessionScopeHolder.scope)
     val dateStateHolder = koinInject<DateStateHolder>()
     XCalendarTheme {
         CalendarApp(
@@ -70,25 +74,29 @@ private fun CalendarApp(
     eventViewModel: EventViewModel,
     dateStateHolder: DateStateHolder,
 ) {
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val eventUiState by eventViewModel.uiState.collectAsState()
-    val dataState by dateStateHolder.currentDateState.collectAsState()
+    val accounts by calendarViewModel.accounts.collectAsStateWithLifecycle()
+    val calendars by calendarViewModel.calendars.collectAsStateWithLifecycle()
+    val events by calendarViewModel.events.collectAsStateWithLifecycle()
+    val holidays by calendarViewModel.holidays.collectAsStateWithLifecycle()
+    val eventsByDate by calendarViewModel.eventsByDate.collectAsStateWithLifecycle()
+    val holidaysByDate by calendarViewModel.holidaysByDate.collectAsStateWithLifecycle()
+    val calendarError by calendarViewModel.calendarError.collectAsStateWithLifecycle()
+    val isLoading by calendarViewModel.isLoading.collectAsStateWithLifecycle()
+    val eventUiState by eventViewModel.uiState.collectAsStateWithLifecycle()
+    val dataState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(config, NavigableScreen.Month)
     var showAddBottomSheet by remember { mutableStateOf(false) }
 
     // Use EventViewModel as single source of truth for selected event
     // The details sheet visibility is derived from whether an event is selected
     val selectedEvent = eventUiState.selectedEvent
-    val showDetailsBottomSheet = selectedEvent != null
 
-    val visibleCalendars by remember(calendarUiState.calendars) {
-        derivedStateOf { calendarUiState.calendars.filter { it.isVisible } }
+    val visibleCalendars by remember(calendars) {
+        derivedStateOf { calendars.filter { it.isVisible } }
     }
-    val events = remember(calendarUiState.events) { calendarUiState.events }
-    val holidays = remember(calendarUiState.holidays) { calendarUiState.holidays }
 
     // Combine error messages from both ViewModels
-    val displayError = calendarUiState.displayError ?: eventUiState.errorMessage
+    val displayError = calendarError?.message ?: eventUiState.errorMessage
 
     Scaffold(
         containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
@@ -102,8 +110,8 @@ private fun CalendarApp(
                     dateStateHolder.updateSelectedDateState(date)
                     backStack.add(NavigableScreen.Day)
                 },
-                events = events,
-                holidays = holidays,
+                eventsByDate = eventsByDate,
+                holidaysByDate = holidaysByDate,
             )
         },
         snackbarHost = {
@@ -117,35 +125,46 @@ private fun CalendarApp(
         },
     ) { paddingValues ->
         Box {
-            NavigationHost(
-                modifier =
-                    Modifier.padding(
-                        top = paddingValues.calculateTopPadding(),
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
-                backStack = backStack,
-                dateStateHolder = dateStateHolder,
-                events = events,
-                holidays = holidays,
-                onEventClick = { event ->
-                    eventViewModel.selectEvent(event)
-                },
-            )
-            CalendarBottomNavigationBar(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
-                selectedView = backStack.lastOrNull() as? NavigableScreen ?: NavigableScreen.Month,
-                onViewSelect = { view ->
-                    backStack.replaceLast(view)
-                },
-                onAddClick = { showAddBottomSheet = true },
-            )
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                NavigationHost(
+                    modifier =
+                        Modifier.padding(
+                            top = paddingValues.calculateTopPadding(),
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
+                    backStack = backStack,
+                    dateStateHolder = dateStateHolder,
+                    eventsByDate = eventsByDate,
+                    holidaysByDate = holidaysByDate,
+                    onEventClick = { event ->
+                        eventViewModel.selectEvent(event)
+                    },
+                )
+                CalendarBottomNavigationBar(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = paddingValues.calculateBottomPadding()),
+                    selectedView = backStack.lastOrNull() as? NavigableScreen ?: NavigableScreen.Month,
+                    onViewSelect = { view ->
+                        backStack.replaceLast(view)
+                    },
+                    onAddClick = { showAddBottomSheet = true },
+                )
+            }
         }
         if (showAddBottomSheet) {
-            calendarUiState.accounts.firstOrNull()?.let {
+            accounts.firstOrNull()?.let {
                 AddEventDialog(
                     user = it,
                     calendars = visibleCalendars.toImmutableList(),
@@ -161,7 +180,7 @@ private fun CalendarApp(
             }
         }
 
-        if (showDetailsBottomSheet && selectedEvent != null) {
+        if (selectedEvent != null) {
             EventDetailsDialog(
                 event = selectedEvent,
                 onEdit = { editedEvent ->

@@ -4,106 +4,130 @@ import androidx.compose.runtime.mutableStateListOf
 import com.debanshu.xcalendar.common.isLeap
 import com.debanshu.xcalendar.common.lengthOfMonth
 import com.debanshu.xcalendar.common.model.YearMonth
-import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.DayEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.WeekHeader
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 
 /**
  * Manages the state for the schedule screen with optimized lazy loading.
- * 
+ *
  * Features:
  * - Dynamic pagination (load more months as user scrolls)
  * - Event and holiday caching for performance
  * - Maintains scroll position during pagination
- * 
+ *
+ * Thread safety:
+ * [_items] is a Compose `SnapshotStateList`, which is snapshot-safe but NOT
+ * thread-safe. All mutating operations ([loadMoreBackward], [loadMoreForward],
+ * [refreshItems]) are serialised through [mutex] so concurrent pagination /
+ * refresh calls from `ScheduleScreen` cannot interleave and corrupt the list.
+ *
  * @property initialMonth The month to start from (typically current month)
- * @property getEvents Lambda to get current events list
- * @property getHolidays Lambda to get current holidays list
+ * @property getEventsByDate Lambda to get current events grouped by date
+ * @property getHolidaysByDate Lambda to get current holidays grouped by date
  */
 class ScheduleStateHolder(
-    initialMonth: YearMonth,
-    private val getEvents: () -> List<Event>,
-    private val getHolidays: () -> List<Holiday>,
+    private val initialMonth: YearMonth,
+    private val getEventsByDate: () -> EventsByDate,
+    private val getHolidaysByDate: () -> HolidaysByDate,
 ) {
     private val _items = mutableStateListOf<ScheduleItem>()
     val items: List<ScheduleItem> = _items
 
     private val monthRange = ScheduleState(initialMonth, initialRange = 3)
-    val initialScrollIndex: Int
+    var initialScrollIndex: Int = 0
+        private set
 
-    // Cache for optimized event and holiday filtering
-    private val eventCache = mutableMapOf<LocalDate, List<Event>>()
-    private val holidayCache = mutableMapOf<LocalDate, List<Holiday>>()
+    // Serialises mutation of [_items] and [monthRange]. See class-level thread-safety note.
+    private val mutex = Mutex()
 
-    init {
-        val initialItems = createScheduleItemsForMonthRange(
-            monthRange.getMonths(),
-            getEvents(),
-            getHolidays(),
-        )
-        _items.addAll(initialItems)
+    /**
+     * Initializes the schedule items asynchronously off the main thread.
+     * Should be called once after construction.
+     */
+    suspend fun initialize() = mutex.withLock {
+        val initialItems = withContext(Dispatchers.Default) {
+            createScheduleItemsForMonthRange(
+                monthRange.getMonths(),
+                getEventsByDate(),
+                getHolidaysByDate(),
+            )
+        }
 
-        initialScrollIndex = _items
+        val scrollIndex = initialItems
             .indexOfFirst { item ->
                 item is MonthHeader &&
                     item.yearMonth.year == initialMonth.year &&
                     item.yearMonth.month == initialMonth.month
             }
             .coerceAtLeast(0)
+
+        _items.addAll(initialItems)
+        initialScrollIndex = scrollIndex
     }
 
     /**
      * Loads more items at the beginning of the list.
      * @return Number of new items added
      */
-    fun loadMoreBackward(): Int {
+    suspend fun loadMoreBackward(): Int = mutex.withLock {
         monthRange.expandBackward()
         val newMonths = monthRange.getLastAddedMonthsBackward()
-        val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
+        val newItems = withContext(Dispatchers.Default) {
+            createScheduleItemsForMonthRange(newMonths, getEventsByDate(), getHolidaysByDate())
+        }
 
         if (newItems.isNotEmpty()) {
             _items.addAll(0, newItems)
-            return newItems.size
+            newItems.size
+        } else {
+            0
         }
-        return 0
     }
 
     /**
      * Loads more items at the end of the list.
      * @return Number of new items added
      */
-    fun loadMoreForward(): Int {
+    suspend fun loadMoreForward(): Int = mutex.withLock {
         monthRange.expandForward()
         val newMonths = monthRange.getLastAddedMonthsForward()
-        val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
+        val newItems = withContext(Dispatchers.Default) {
+            createScheduleItemsForMonthRange(newMonths, getEventsByDate(), getHolidaysByDate())
+        }
 
         if (newItems.isNotEmpty()) {
             _items.addAll(newItems)
-            return newItems.size
+            newItems.size
+        } else {
+            0
         }
-        return 0
     }
 
     /**
      * Refreshes all items with current events and holidays data.
-     * Clears caches and regenerates the entire list while maintaining pagination state.
+     * Regenerates the entire list while maintaining pagination state.
      */
-    fun refreshItems() {
-        eventCache.clear()
-        holidayCache.clear()
-
-        val refreshedItems = createScheduleItemsForMonthRange(
-            monthRange.getMonths(),
-            getEvents(),
-            getHolidays()
-        )
+    suspend fun refreshItems() = mutex.withLock {
+        val refreshedItems = withContext(Dispatchers.Default) {
+            createScheduleItemsForMonthRange(
+                monthRange.getMonths(),
+                getEventsByDate(),
+                getHolidaysByDate()
+            )
+        }
 
         _items.clear()
         _items.addAll(refreshedItems)
@@ -111,19 +135,10 @@ class ScheduleStateHolder(
 
     private fun createScheduleItemsForMonthRange(
         months: List<YearMonth>,
-        allEvents: List<Event>,
-        allHolidays: List<Holiday>,
+        eventsByDate: EventsByDate,
+        holidaysByDate: HolidaysByDate,
     ): List<ScheduleItem> {
         val items = mutableListOf<ScheduleItem>()
-
-        // Pre-calculate date ranges for events and holidays
-        val eventDateMap = allEvents.groupBy { event ->
-            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        }
-
-        val holidayDateMap = allHolidays.groupBy { holiday ->
-            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        }
 
         months.forEach { yearMonth ->
             items.add(MonthHeader(yearMonth))
@@ -136,13 +151,8 @@ class ScheduleStateHolder(
                     items.add(WeekHeader(week.first(), week.last()))
 
                     week.forEach { date ->
-                        val dayEvents = eventCache.getOrPut(date) {
-                            eventDateMap[date] ?: emptyList()
-                        }.toImmutableList()
-
-                        val dayHolidays = holidayCache.getOrPut(date) {
-                            holidayDateMap[date] ?: emptyList()
-                        }.toImmutableList()
+                        val dayEvents = eventsByDate[date]
+                        val dayHolidays = holidaysByDate[date]
 
                         if (dayEvents.isNotEmpty() || dayHolidays.isNotEmpty()) {
                             items.add(DayEvents(date, dayEvents, dayHolidays))
@@ -166,4 +176,3 @@ class ScheduleStateHolder(
         const val THRESHOLD = 10
     }
 }
-

@@ -9,11 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.datetime.DatePeriod
@@ -47,8 +47,8 @@ import kotlinx.datetime.plus
 internal fun SwipeableCalendarView(
     modifier: Modifier = Modifier,
     startDate: LocalDate,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
     onEventClick: (Event) -> Unit,
@@ -62,26 +62,6 @@ internal fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
-    val eventsByDate =
-        remember(events) {
-            events
-                .groupBy { event ->
-                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                }.mapValues {
-                    it.value.toImmutableList()
-                }.toImmutableMap()
-        }
-
-    val holidaysByDate =
-        remember(holidays) {
-            holidays
-                .groupBy { holiday ->
-                    holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                }.mapValues {
-                    it.value.toImmutableList()
-                }.toImmutableMap()
-        }
-
     SwipeablePager(
         modifier = modifier.fillMaxHeight(),
         currentReference = startDate,
@@ -94,6 +74,7 @@ internal fun SwipeableCalendarView(
             baseDate.plus(DatePeriod(days = offset))
         },
         onReferenceChange = onDateRangeChange,
+        beyondViewportPageCount = 0,
     ) { pageStartDate ->
         CalendarContent(
             startDate = pageStartDate,
@@ -117,8 +98,8 @@ internal fun SwipeableCalendarView(
 private fun CalendarContent(
     startDate: LocalDate,
     numDays: Int,
-    eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
-    holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     timeRange: IntRange,
     hourHeightDp: Float,

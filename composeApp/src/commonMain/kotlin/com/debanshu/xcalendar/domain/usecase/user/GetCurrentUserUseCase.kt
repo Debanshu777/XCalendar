@@ -1,13 +1,9 @@
 package com.debanshu.xcalendar.domain.usecase.user
 
+import com.debanshu.xcalendar.di.DEFAULT_USER_SESSION_ID
 import org.koin.core.annotation.Factory
 
 @Factory
 class GetCurrentUserUseCase {
-    companion object {
-        private const val DEFAULT_USER_ID = "user_id"
-    }
-
-    operator fun invoke(): String = DEFAULT_USER_ID
+    operator fun invoke(): String = DEFAULT_USER_SESSION_ID
 }
-

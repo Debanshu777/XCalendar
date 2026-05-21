@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateStateHolder
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.components.BaseCalendarScreen
 import kotlinx.collections.immutable.ImmutableList
 
@@ -15,8 +17,8 @@ import kotlinx.collections.immutable.ImmutableList
 fun WeekScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
@@ -24,8 +26,8 @@ fun WeekScreen(
     BaseCalendarScreen(
         modifier = modifier,
         dateStateHolder = dateStateHolder,
-        events = events,
-        holidays = holidays,
+        eventsByDate = eventsByDate,
+        holidaysByDate = holidaysByDate,
         isVisible = isVisible,
         onEventClick = onEventClick,
         numDays = 7,

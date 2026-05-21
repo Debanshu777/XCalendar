@@ -2,6 +2,7 @@ package com.debanshu.xcalendar.ui.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,6 +98,7 @@ private fun CalendarList(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         itemsIndexed(calendars) { index, calendar ->
+            val rowInteraction = remember(calendar.id) { MutableInteractionSource() }
             val isSelected = selectedCalendarId == calendar.id
 
             Row(
@@ -118,7 +120,7 @@ private fun CalendarList(
                                 },
                             RoundedCornerShape(8.dp),
                         ).padding(8.dp)
-                        .noRippleClickable { onCalendarSelected(calendar.id) },
+                        .noRippleClickable(rowInteraction) { onCalendarSelected(calendar.id) },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Color indicator

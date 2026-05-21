@@ -6,9 +6,7 @@ import com.debanshu.xcalendar.domain.util.DomainError
 import com.debanshu.xcalendar.domain.util.DomainResult
 import com.debanshu.xcalendar.domain.util.EventValidationException
 import com.debanshu.xcalendar.domain.util.EventValidator
-import org.koin.core.annotation.Factory
 
-@Factory
 class UpdateEventUseCase(
     private val eventRepository: IEventRepository,
 ) {

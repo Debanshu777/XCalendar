@@ -10,6 +10,8 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.screen.dayScreen.DayScreen
 import com.debanshu.xcalendar.ui.screen.monthScreen.MonthScreen
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleScreen
@@ -23,8 +25,8 @@ fun NavigationHost(
     modifier: Modifier,
     backStack: NavBackStack<NavKey>,
     dateStateHolder: DateStateHolder,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     onEventClick: (Event) -> Unit,
 ) {
     // Track current screen for shared element visibility
@@ -44,8 +46,8 @@ fun NavigationHost(
                 entry(NavigableScreen.Month) {
                     MonthScreen(
                         dateStateHolder = dateStateHolder,
-                        events = events,
-                        holidays = holidays,
+                        eventsByDate = eventsByDate,
+                        holidaysByDate = holidaysByDate,
                         isVisible = currentScreen == NavigableScreen.Month,
                         onDateClick = {
                             backStack.add(NavigableScreen.Day)
@@ -55,8 +57,8 @@ fun NavigationHost(
                 entry(NavigableScreen.Week) {
                     WeekScreen(
                         dateStateHolder = dateStateHolder,
-                        events = events,
-                        holidays = holidays,
+                        eventsByDate = eventsByDate,
+                        holidaysByDate = holidaysByDate,
                         isVisible = currentScreen == NavigableScreen.Week,
                         onEventClick = onEventClick,
                         onDateClickCallback = {
@@ -67,8 +69,8 @@ fun NavigationHost(
                 entry(NavigableScreen.Day) {
                     DayScreen(
                         dateStateHolder = dateStateHolder,
-                        events = events,
-                        holidays = holidays,
+                        eventsByDate = eventsByDate,
+                        holidaysByDate = holidaysByDate,
                         isVisible = currentScreen == NavigableScreen.Day,
                         onEventClick = onEventClick,
                     )
@@ -76,8 +78,8 @@ fun NavigationHost(
                 entry(NavigableScreen.ThreeDay) {
                     ThreeDayScreen(
                         dateStateHolder = dateStateHolder,
-                        events = events,
-                        holidays = holidays,
+                        eventsByDate = eventsByDate,
+                        holidaysByDate = holidaysByDate,
                         isVisible = currentScreen == NavigableScreen.ThreeDay,
                         onEventClick = onEventClick,
                         onDateClickCallback = {
@@ -88,8 +90,8 @@ fun NavigationHost(
                 entry(NavigableScreen.Schedule) {
                     ScheduleScreen(
                         dateStateHolder = dateStateHolder,
-                        events = events,
-                        holidays = holidays,
+                        eventsByDate = eventsByDate,
+                        holidaysByDate = holidaysByDate,
                         isVisible = currentScreen == NavigableScreen.Schedule,
                         onEventClick = onEventClick,
                     )

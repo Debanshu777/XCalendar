@@ -10,6 +10,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
+/**
+ * Repository for user calendars.
+ *
+ * **Why no Store5**: calendar metadata for this app is small, mutates only
+ * via the explicit `refreshCalendarsForUser` call, and has no
+ * background-fetch / TTL / coalescing requirements (audit F21). The Room
+ * DAO is the source of truth; the remote API is a one-shot refresh that
+ * upserts into it. Adding a Store5 layer here would buy us nothing and
+ * add a layer of indirection for tests and DI. Revisit only if/when
+ * calendars gain real-time push or per-key TTL semantics like events do.
+ */
 @Single(binds = [ICalendarRepository::class])
 class CalendarRepository(
     private val calendarDao: CalendarDao,

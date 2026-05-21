@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 data class EventUiState(
     val selectedEvent: Event? = null,
@@ -21,7 +20,6 @@ data class EventUiState(
     val errorMessage: String? = null,
 )
 
-@KoinViewModel
 class EventViewModel(
     private val createEventUseCase: CreateEventUseCase,
     private val updateEventUseCase: UpdateEventUseCase,

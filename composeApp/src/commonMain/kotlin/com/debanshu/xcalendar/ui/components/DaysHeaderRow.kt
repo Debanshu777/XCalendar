@@ -28,18 +28,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedDateElement
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -50,12 +49,13 @@ internal fun DaysHeaderRow(
     startDate: LocalDate,
     numDays: Int,
     currentDate: LocalDate,
-    holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     dynamicHeaderHeightState: MutableState<Int>?,
 ) {
+    val cookieDateShape = MaterialShapes.Cookie9Sided.toShape()
     val dates =
         List(numDays) { index ->
             startDate.plus(DatePeriod(days = index))
@@ -67,16 +67,22 @@ internal fun DaysHeaderRow(
                 .background(XCalendarTheme.colorScheme.surfaceContainerLow)
                 .height(IntrinsicSize.Min)
                 .heightIn(min = 60.dp)
-                .onGloballyPositioned {
-                    if (dynamicHeaderHeightState != null) {
-                        dynamicHeaderHeightState.value = it.size.height
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    val h = placeable.height
+                    val state = dynamicHeaderHeightState
+                    if (state != null && state.value != h) {
+                        state.value = h
+                    }
+                    layout(placeable.width, h) {
+                        placeable.placeRelative(0, 0)
                     }
                 },
     ) {
         if (numDays > 1) {
             dates.forEach { date ->
                 val isToday = date == currentDate
-                val currentDayHolidays = holidaysByDate[date] ?: persistentListOf()
+                val currentDayHolidays = holidaysByDate[date]
 
                 Column(
                     modifier =
@@ -106,7 +112,7 @@ internal fun DaysHeaderRow(
                                     type = SharedElementType.DateCell,
                                     isVisible = isVisible,
                                 )
-                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .clip(cookieDateShape)
                                 .background(
                                     when {
                                         isToday -> XCalendarTheme.colorScheme.primary
@@ -159,7 +165,7 @@ internal fun DaysHeaderRow(
                 }
             }
         } else {
-            val currentDayHolidays = holidaysByDate[dates.first()] ?: emptyList()
+            val currentDayHolidays = holidaysByDate[dates.first()]
             var holidaysExpanded by remember { mutableStateOf(false) }
             Column(
                 modifier =

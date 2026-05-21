@@ -12,6 +12,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +63,8 @@ import com.debanshu.xcalendar.common.toSentenceCase
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateState
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.ImmutableList
@@ -72,8 +76,6 @@ import org.jetbrains.compose.resources.painterResource
 import xcalendar.composeapp.generated.resources.Res
 import xcalendar.composeapp.generated.resources.ic_arrow_drop_down
 import xcalendar.composeapp.generated.resources.ic_search
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -82,12 +84,15 @@ internal fun CalendarTopAppBar(
     dateState: DateState,
     onSelectToday: () -> Unit,
     onDayClick: (LocalDate) -> Unit,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
 ) {
+    val cookieDateShape = MaterialShapes.Cookie9Sided.toShape()
     val showYear = dateState.selectedInViewMonth.year != dateState.currentDate.year
     val rotationAngle = remember { Animatable(0f) }
+    val monthTitleRowInteraction = remember { MutableInteractionSource() }
     var monthDropdownState by remember { mutableStateOf<TopBarCalendarView>(TopBarCalendarView.NoView) }
+    var hasPlayedRotationAnimation by rememberSaveable { mutableStateOf(false) }
     val rotationDegree by animateFloatAsState(
         targetValue =
             if (monthDropdownState != TopBarCalendarView.NoView) {
@@ -112,10 +117,13 @@ internal fun CalendarTopAppBar(
     }
 
     LaunchedEffect(Unit) {
-        rotationAngle.animateTo(
-            targetValue = 360f,
-            animationSpec = tween(durationMillis = 2000, easing = LinearEasing),
-        )
+        if (!hasPlayedRotationAnimation) {
+            rotationAngle.animateTo(
+                targetValue = 360f,
+                animationSpec = tween(durationMillis = 2000, easing = LinearEasing),
+            )
+            hasPlayedRotationAnimation = true
+        }
     }
 
     Column(
@@ -138,7 +146,7 @@ internal fun CalendarTopAppBar(
             title = {
                 Row(
                     modifier =
-                        Modifier.noRippleClickable {
+                        Modifier.noRippleClickable(monthTitleRowInteraction) {
                             monthDropdownState =
                                 if (monthDropdownState != TopBarCalendarView.NoView) {
                                     TopBarCalendarView.NoView
@@ -188,7 +196,7 @@ internal fun CalendarTopAppBar(
                         modifier =
                             Modifier
                                 .graphicsLayer { rotationZ = rotationAngle.value }
-                                .clip(MaterialShapes.Cookie9Sided.toShape())
+                                .clip(cookieDateShape)
                                 .size(24.dp)
                                 .background(XCalendarTheme.colorScheme.secondary),
                         contentAlignment = Alignment.Center,
@@ -224,8 +232,9 @@ internal fun CalendarTopAppBar(
                             dateState
                                 .selectedInViewMonth.month,
                         ),
-                    events = events,
-                    holidays = holidays,
+                    today = dateState.currentDate,
+                    eventsByDate = eventsByDate,
+                    holidaysByDate = holidaysByDate,
                     onDayClick = onDayClick,
                 )
             }
@@ -238,8 +247,9 @@ internal fun CalendarTopAppBar(
 @Composable
 private fun TopBarMonthView(
     month: YearMonth,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    today: LocalDate,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
@@ -252,24 +262,23 @@ private fun TopBarMonthView(
             TopAppBarWeekdayHeader()
         }
 
-        items(firstDayOfWeek) {
+        items(
+            count = firstDayOfWeek,
+            key = { it }
+        ) {
             TopAppBarEmptyPagingDayCell()
         }
 
-        items(daysInMonth) { day ->
+        items(
+            count = daysInMonth,
+            key = { day -> day }
+        ) { day ->
             val date = LocalDate(month.year, month.month, day + 1)
             TopAppBarDayCell(
                 date = date,
-                events =
-                    events
-                        .filter { event ->
-                            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                        }.toImmutableList(),
-                holidays =
-                    holidays
-                        .filter { holiday ->
-                            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                        }.toImmutableList(),
+                today = today,
+                events = eventsByDate[date],
+                holidays = holidaysByDate[date],
                 onDayClick = onDayClick,
             )
         }
@@ -298,19 +307,14 @@ private fun TopAppBarWeekdayHeader() {
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 private fun TopAppBarDayCell(
     date: LocalDate,
+    today: LocalDate,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     onDayClick: (LocalDate) -> Unit,
 ) {
-    val today =
-        Clock.System
-            .now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
     val isToday = date == today
     Column(
         modifier = Modifier.aspectRatio(1f),

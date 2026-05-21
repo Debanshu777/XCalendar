@@ -1,12 +1,12 @@
 package com.debanshu.xcalendar.domain.repository
 
 import com.debanshu.xcalendar.data.store.HolidayKey
+import com.debanshu.xcalendar.data.store.StoreHolidayValidator
 import com.debanshu.xcalendar.domain.model.Holiday
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.koin.core.annotation.Single
 import org.mobilenativefoundation.store.store5.Store
 import org.mobilenativefoundation.store.store5.StoreReadRequest
 import org.mobilenativefoundation.store.store5.StoreReadResponse
@@ -20,9 +20,9 @@ import org.mobilenativefoundation.store.store5.StoreReadResponse
  * - Request deduplication (multiple requesters share the same network call)
  * - Offline-first: serves cached data while refreshing from network
  */
-@Single(binds = [IHolidayRepository::class])
 class HolidayRepository(
     private val holidayStore: Store<HolidayKey, List<Holiday>>,
+    private val holidayValidator: StoreHolidayValidator,
 ) : BaseRepository(), IHolidayRepository {
 
     /**
@@ -48,22 +48,25 @@ class HolidayRepository(
 
     /**
      * Gets holidays for a specific year and country.
-     * 
-     * Store5 automatically:
-     * - Returns cached data immediately if available
-     * - Fetches from network in the background
-     * - Updates the cache and emits new data
+     *
+     * Refresh decision is delegated to [StoreHolidayValidator.isStale] so we only
+     * hit the network when the 24h TTL has elapsed (or the key has never
+     * been fetched). This also covers the empty-cache case, which previously
+     * required a duplicate "refresh-on-empty" chain in `CalendarViewModel`
+     * (audit F5 + F7). The Fetcher itself is the single source of truth for
+     * "this key needs network."
      */
     override fun getHolidaysForYear(
         countryCode: String,
         year: Int,
     ): Flow<List<Holiday>> {
         val key = HolidayKey(countryCode, year)
-        
+        val shouldRefresh = holidayValidator.isStale(key)
+
         return safeFlow(
             flowName = "getHolidaysForYear($countryCode, $year)",
             defaultValue = emptyList(),
-            flow = holidayStore.stream(StoreReadRequest.cached(key, refresh = true))
+            flow = holidayStore.stream(StoreReadRequest.cached(key, refresh = shouldRefresh))
                 .filterIsInstance<StoreReadResponse.Data<List<Holiday>>>()
                 .map { it.value }
         )

@@ -1,6 +1,5 @@
 package com.debanshu.xcalendar.ui.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,9 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateStateHolder
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedDateElement
@@ -40,13 +41,13 @@ import kotlinx.collections.immutable.ImmutableList
  * Base calendar screen that provides common structure for day, three-day, and week views.
  *
  * Optimized with caching and efficient state management:
- * - Caches events and holidays to avoid repeated processing
+ * - Uses precomputed date-grouped maps to avoid repeated processing
  * - Optimized state management for smooth interactions
  * - Efficient date state handling
  *
  * @param dateStateHolder The date state holder
- * @param events The list of events to display
- * @param holidays The list of holidays to display
+ * @param eventsByDate The events grouped by date
+ * @param holidaysByDate The holidays grouped by date
  * @param onEventClick Callback for when an event is clicked
  * @param numDays The number of days to display (1 for day view, 3 for three-day view, 7 for week view)
  */
@@ -55,14 +56,15 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun BaseCalendarScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
     onDateClickCallback: () -> Unit,
     numDays: Int,
 ) {
-    val dateState by dateStateHolder.currentDateState.collectAsState()
+    val cookieDateShape = MaterialShapes.Cookie9Sided.toShape()
+    val dateState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
     val verticalScrollState = rememberScrollState()
     val timeColumnWidth = 60.dp
     val timeRange = 0..23
@@ -85,8 +87,7 @@ internal fun BaseCalendarScreen(
                     Modifier
                         .height(heightDp)
                         .width(timeColumnWidth)
-                        .background(color = XCalendarTheme.colorScheme.surfaceContainerLow)
-                        .animateContentSize(),
+                        .background(color = XCalendarTheme.colorScheme.surfaceContainerLow),
             ) {
                 if (numDays == 1) {
                     Column(
@@ -121,7 +122,7 @@ internal fun BaseCalendarScreen(
                                         date = dateState.selectedDate,
                                         type = SharedElementType.DateCell,
                                         isVisible = isVisible,
-                                    ).clip(MaterialShapes.Cookie9Sided.toShape())
+                                    ).clip(cookieDateShape)
                                     .background(
                                         when {
                                             isToday -> XCalendarTheme.colorScheme.primary
@@ -155,8 +156,8 @@ internal fun BaseCalendarScreen(
         }
         SwipeableCalendarView(
             startDate = dateState.selectedDate,
-            events = events,
-            holidays = holidays,
+            eventsByDate = eventsByDate,
+            holidaysByDate = holidaysByDate,
             isVisible = isVisible,
             onDayClick = { date ->
                 dateStateHolder.updateSelectedDateState(date)

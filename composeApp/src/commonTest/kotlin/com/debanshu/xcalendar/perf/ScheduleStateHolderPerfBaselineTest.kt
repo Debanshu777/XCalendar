@@ -3,6 +3,13 @@ package com.debanshu.xcalendar.perf
 import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.test.TestDataFactory
 import com.debanshu.xcalendar.ui.state.ScheduleStateHolder
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
+import com.debanshu.xcalendar.common.toLocalDateTime
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.datetime.TimeZone
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
@@ -26,18 +33,41 @@ import kotlin.time.TimeSource
 @OptIn(ExperimentalTime::class)
 class ScheduleStateHolderPerfBaselineTest {
 
+    private fun createEventsByDate(events: List<com.debanshu.xcalendar.domain.model.Event>): EventsByDate {
+        return EventsByDate(
+            events.groupBy { event ->
+                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            }.mapValues { (_, eventList) ->
+                eventList.toImmutableList()
+            }.toImmutableMap()
+        )
+    }
+
+    private fun createHolidaysByDate(holidays: List<com.debanshu.xcalendar.domain.model.Holiday>): HolidaysByDate {
+        return HolidaysByDate(
+            holidays.groupBy { holiday ->
+                holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            }.mapValues { (_, holidayList) ->
+                holidayList.toImmutableList()
+            }.toImmutableMap()
+        )
+    }
+
     @Test
-    fun `init 12-month window with 500 events completes within budget`() {
+    fun `init 12-month window with 500 events completes within budget`() = runTest {
         val initialMonth = YearMonth(2026, 1)
         val events = TestDataFactory.createEvents(count = 500)
         val holidays = TestDataFactory.createHolidays(count = 30)
+        val eventsByDate = createEventsByDate(events)
+        val holidaysByDate = createHolidaysByDate(holidays)
 
         val start = TimeSource.Monotonic.markNow()
         val holder = ScheduleStateHolder(
             initialMonth = initialMonth,
-            getEvents = { events },
-            getHolidays = { holidays },
+            getEventsByDate = { eventsByDate },
+            getHolidaysByDate = { holidaysByDate },
         )
+        holder.initialize()
         val elapsed = start.elapsedNow()
 
         // Sanity: items were generated.
@@ -51,15 +81,18 @@ class ScheduleStateHolderPerfBaselineTest {
     }
 
     @Test
-    fun `loadMoreForward 6 months stays within budget`() {
+    fun `loadMoreForward 6 months stays within budget`() = runTest {
         val initialMonth = YearMonth(2026, 1)
         val events = TestDataFactory.createEvents(count = 500)
         val holidays = TestDataFactory.createHolidays(count = 30)
+        val eventsByDate = createEventsByDate(events)
+        val holidaysByDate = createHolidaysByDate(holidays)
         val holder = ScheduleStateHolder(
             initialMonth = initialMonth,
-            getEvents = { events },
-            getHolidays = { holidays },
+            getEventsByDate = { eventsByDate },
+            getHolidaysByDate = { holidaysByDate },
         )
+        holder.initialize()
 
         val start = TimeSource.Monotonic.markNow()
         repeat(6) { holder.loadMoreForward() }
@@ -73,18 +106,22 @@ class ScheduleStateHolderPerfBaselineTest {
     }
 
     @Test
-    fun `refreshItems with 1000 events stays within budget`() {
+    fun `refreshItems with 1000 events stays within budget`() = runTest {
         val initialMonth = YearMonth(2026, 1)
         var events = TestDataFactory.createEvents(count = 1000)
         val holidays = TestDataFactory.createHolidays(count = 30)
+        var eventsByDate = createEventsByDate(events)
+        val holidaysByDate = createHolidaysByDate(holidays)
         val holder = ScheduleStateHolder(
             initialMonth = initialMonth,
-            getEvents = { events },
-            getHolidays = { holidays },
+            getEventsByDate = { eventsByDate },
+            getHolidaysByDate = { holidaysByDate },
         )
+        holder.initialize()
 
         // Mutate event set and refresh.
         events = TestDataFactory.createEvents(count = 1000, startFromTimestamp = 1_800_000_000_000L)
+        eventsByDate = createEventsByDate(events)
 
         val start = TimeSource.Monotonic.markNow()
         holder.refreshItems()

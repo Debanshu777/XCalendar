@@ -34,6 +34,7 @@ internal fun <T> SwipeablePager(
     calculateOffset: (current: T, base: T) -> Int,
     pageToReference: (baseReference: T, initialPage: Int, page: Int) -> T,
     onReferenceChange: (T) -> Unit,
+    beyondViewportPageCount: Int = 1,
     content: @Composable (reference: T) -> Unit,
 ) {
     val totalPages = 10000
@@ -86,6 +87,7 @@ internal fun <T> SwipeablePager(
 
     HorizontalPager(
         state = pagerState,
+        beyondViewportPageCount = beyondViewportPageCount,
     ) { page ->
         val reference = pageConverter(page)
         content(reference)

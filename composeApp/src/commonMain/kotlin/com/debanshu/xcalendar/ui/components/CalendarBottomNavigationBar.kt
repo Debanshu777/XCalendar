@@ -8,6 +8,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -170,6 +171,12 @@ private data class GlassEffectInput(
 private fun rememberGlassEffect(input: GlassEffectInput): RenderEffect? {
     val (navBarSize, state, onSurfaceColor, primaryColor) = input
     val phase = state.phase.value
+
+    // Skip expensive shader computation entirely when idle
+    if (!phase.showGlassEffect || navBarSize.width <= 0 || state.indicatorWidthPx.value <= 0f) {
+        return null
+    }
+
     val indicatorOffset = state.indicatorOffset.value
     val dragOffset = state.dragOffset.value
     val indicatorWidthPx = state.indicatorWidthPx.value
@@ -177,11 +184,8 @@ private fun rememberGlassEffect(input: GlassEffectInput): RenderEffect? {
     val glassStretchX = state.glassStretchX
     val glassStretchY = state.glassStretchY
 
-    val enabled = phase.showGlassEffect && navBarSize.width > 0 && indicatorWidthPx > 0f
-
     val effect =
         remember(
-            enabled,
             navBarSize,
             phase,
             indicatorOffset,
@@ -193,8 +197,6 @@ private fun rememberGlassEffect(input: GlassEffectInput): RenderEffect? {
             onSurfaceColor,
             primaryColor,
         ) {
-            if (!enabled) return@remember null
-
             val effectOffset = if (phase is AnimationPhase.Dragging) dragOffset else indicatorOffset
             val centerX = (effectOffset + indicatorWidthPx / 2f) / navBarSize.width
             val glassWidth = (indicatorWidthPx / navBarSize.width) * 1.1f * indicatorScale * glassStretchX
@@ -220,9 +222,9 @@ private fun rememberGlassEffect(input: GlassEffectInput): RenderEffect? {
             )
         }
 
-    val w = if (effect != null) navBarSize.width.toFloat() else 0f
-    val h = if (effect != null) navBarSize.height.toFloat() else 0f
-    return rememberRenderEffect(effect ?: GLASS_EFFECT_PLACEHOLDER, w, h)
+    val w = navBarSize.width.toFloat()
+    val h = navBarSize.height.toFloat()
+    return rememberRenderEffect(effect, w, h)
 }
 
 private fun Modifier.indicatorDragGesture(
@@ -481,12 +483,13 @@ private fun RowScope.BottomNavItem(
     icon: DrawableResource,
     label: String,
 ) {
+    val clickInteraction = remember { MutableInteractionSource() }
     val tintColor = if (showBackground) XCalendarTheme.colorScheme.primary else XCalendarTheme.colorScheme.onSurface
 
     Column(
         modifier =
             modifier
-                .noRippleClickable(onClick = onClick)
+                .noRippleClickable(clickInteraction, onClick = onClick)
                 .weight(1f)
                 .fillMaxHeight()
                 .applyIf(showBackground) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -14,6 +15,10 @@ import kotlinx.datetime.LocalDate
 
 @Composable
 fun WeekHeader(startDate: LocalDate, endDate: LocalDate) {
+    val title =
+        remember(startDate, endDate) {
+            "${startDate.day} – ${endDate.day} ${endDate.month.name.take(3)}".uppercase()
+        }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -21,8 +26,7 @@ fun WeekHeader(startDate: LocalDate, endDate: LocalDate) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "${startDate.day} – ${endDate.day} ${endDate.month.name.take(3)}"
-                .uppercase(),
+            text = title,
             style = XCalendarTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             color = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.7f)

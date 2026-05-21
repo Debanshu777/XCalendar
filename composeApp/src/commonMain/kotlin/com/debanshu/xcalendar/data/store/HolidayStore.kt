@@ -4,6 +4,7 @@ package com.debanshu.xcalendar.data.store
 
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.common.DateRangeHelper
+import com.debanshu.xcalendar.common.ioDispatcher
 import com.debanshu.xcalendar.common.model.asHoliday
 import com.debanshu.xcalendar.common.model.asHolidayEntity
 import com.debanshu.xcalendar.data.localDataSource.HolidayDao
@@ -11,6 +12,7 @@ import com.debanshu.xcalendar.data.remoteDataSource.HolidayApiService
 import com.debanshu.xcalendar.data.remoteDataSource.Result
 import com.debanshu.xcalendar.domain.model.Holiday
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.mobilenativefoundation.store.store5.Fetcher
 import org.mobilenativefoundation.store.store5.SourceOfTruth
 import org.mobilenativefoundation.store.store5.Store
@@ -26,31 +28,36 @@ object HolidayStoreFactory {
 
     fun create(
         holidayApiService: HolidayApiService,
-        holidayDao: HolidayDao
+        holidayDao: HolidayDao,
+        holidayValidator: StoreHolidayValidator,
     ): Store<HolidayKey, List<Holiday>> {
         return StoreBuilder.from(
-            fetcher = createFetcher(holidayApiService),
+            fetcher = createFetcher(holidayApiService, holidayValidator),
             sourceOfTruth = createSourceOfTruth(holidayDao)
         )
-            .validator(HolidayValidator.create())
+            .validator(holidayValidator.create())
             .build()
     }
 
     private fun createFetcher(
-        holidayApiService: HolidayApiService
+        holidayApiService: HolidayApiService,
+        holidayValidator: StoreHolidayValidator,
     ): Fetcher<HolidayKey, List<Holiday>> = Fetcher.of { key ->
         AppLogger.d { "Fetching holidays for ${key.countryCode}, year ${key.year}" }
-        when (val response = holidayApiService.getHolidays(key.countryCode, key.year)) {
-            is Result.Error -> {
-                AppLogger.e { "Failed to fetch holidays: ${response.error}" }
-                throw StoreException("Failed to fetch holidays: ${response.error}")
-            }
-            is Result.Success -> {
-                AppLogger.d { "Fetched ${response.data.response.holidays.size} holidays" }
-                // Record the fetch time for cache freshness tracking
-                HolidayValidator.recordFetch(key)
-                // Convert network model to domain model
-                response.data.response.holidays.map { it.asHoliday() }
+        // Network call onto platform IO dispatcher (see F8 in audit).
+        withContext(ioDispatcher) {
+            when (val response = holidayApiService.getHolidays(key.countryCode, key.year)) {
+                is Result.Error -> {
+                    AppLogger.e { "Failed to fetch holidays: ${response.error}" }
+                    throw StoreException("Failed to fetch holidays: ${response.error}")
+                }
+                is Result.Success -> {
+                    AppLogger.d { "Fetched ${response.data.response.holidays.size} holidays" }
+                    // Record the fetch time for cache freshness tracking
+                    holidayValidator.recordFetch(key)
+                    // Convert network model to domain model
+                    response.data.response.holidays.map { it.asHoliday() }
+                }
             }
         }
     }

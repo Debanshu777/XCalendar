@@ -2,7 +2,6 @@ package com.debanshu.xcalendar.data.store
 
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.data.localDataSource.SyncFailureDao
-import com.debanshu.xcalendar.data.localDataSource.model.SyncFailureEntity
 import org.mobilenativefoundation.store.store5.Bookkeeper
 
 /**
@@ -15,6 +14,10 @@ object KeyTypes {
 
 /**
  * Creates a Bookkeeper for EventKey that tracks failed sync operations.
+ *
+ * `setLastFailedSync` uses [SyncFailureDao.recordFailure] — a single
+ * `INSERT … ON CONFLICT DO UPDATE` statement — so concurrent failure reports
+ * for the same key cannot race and lose increments (audit F6).
  */
 object EventBookkeeperFactory {
     fun create(syncFailureDao: SyncFailureDao): Bookkeeper<EventKey> =
@@ -27,20 +30,12 @@ object EventBookkeeperFactory {
             setLastFailedSync = { key, timestamp ->
                 val keyString = serializeEventKey(key)
                 try {
-                    val existing = syncFailureDao.getFailure(keyString)
-                    if (existing != null) {
-                        syncFailureDao.incrementFailureCount(keyString, timestamp, null)
-                    } else {
-                        syncFailureDao.insertFailure(
-                            SyncFailureEntity(
-                                key = keyString,
-                                keyType = KeyTypes.EVENT_KEY,
-                                timestamp = timestamp,
-                                failureCount = 1,
-                                lastErrorMessage = null,
-                            ),
-                        )
-                    }
+                    syncFailureDao.recordFailure(
+                        key = keyString,
+                        keyType = KeyTypes.EVENT_KEY,
+                        timestamp = timestamp,
+                        errorMessage = null,
+                    )
                     AppLogger.d { "Recorded sync failure for EventKey: $key" }
                     true
                 } catch (e: Exception) {
@@ -76,6 +71,8 @@ object EventBookkeeperFactory {
 
 /**
  * Creates a Bookkeeper for SingleEventKey that tracks failed sync operations.
+ *
+ * Uses the same atomic upsert path as [EventBookkeeperFactory] — see F6.
  */
 object SingleEventBookkeeperFactory {
     fun create(syncFailureDao: SyncFailureDao): Bookkeeper<SingleEventKey> =
@@ -86,20 +83,12 @@ object SingleEventBookkeeperFactory {
             },
             setLastFailedSync = { key, timestamp ->
                 try {
-                    val existing = syncFailureDao.getFailure(key.eventId)
-                    if (existing != null) {
-                        syncFailureDao.incrementFailureCount(key.eventId, timestamp, null)
-                    } else {
-                        syncFailureDao.insertFailure(
-                            SyncFailureEntity(
-                                key = key.eventId,
-                                keyType = KeyTypes.SINGLE_EVENT_KEY,
-                                timestamp = timestamp,
-                                failureCount = 1,
-                                lastErrorMessage = null,
-                            ),
-                        )
-                    }
+                    syncFailureDao.recordFailure(
+                        key = key.eventId,
+                        keyType = KeyTypes.SINGLE_EVENT_KEY,
+                        timestamp = timestamp,
+                        errorMessage = null,
+                    )
                     AppLogger.d { "Recorded sync failure for SingleEventKey: ${key.eventId}" }
                     true
                 } catch (e: Exception) {

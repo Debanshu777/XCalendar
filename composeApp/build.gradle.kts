@@ -19,8 +19,14 @@ plugins {
 kotlin {
     android {
         namespace = "com.debanshu.xcalendar"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
         androidResources.enable = true
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_23)
@@ -135,16 +141,26 @@ dependencies {
 // 'kspKotlinDesktop', 'kspKotlinIosArm64', etc. Add Room and Koin processors
 // to those — but skip the metadata config (only Koin runs there) and skip
 // non-source-set configs like the bare 'ksp' or 'kspPluginClasspath'.
-val kspSourceSetConfigs = setOf(
-    "kspAndroid", "kspAndroidMain",
-    "kspKotlinDesktop", "kspDesktop",
-    "kspKotlinIosArm64", "kspKotlinIosSimulatorArm64",
-    "kspIosArm64", "kspIosSimulatorArm64",
-)
+val kspSourceSetConfigs =
+    setOf(
+        "kspAndroid",
+        "kspAndroidMain",
+        "kspKotlinDesktop",
+        "kspDesktop",
+        "kspKotlinIosArm64",
+        "kspKotlinIosSimulatorArm64",
+        "kspIosArm64",
+        "kspIosSimulatorArm64",
+    )
 configurations.matching { it.name in kspSourceSetConfigs }.configureEach {
     val cfgName = name
     dependencies.add(project.dependencies.create(libs.room.compiler.get()))
-    dependencies.add(project.dependencies.create(libs.koin.ksp.compiler.get()))
+    dependencies.add(
+        project.dependencies.create(
+            libs.koin.ksp.compiler
+                .get(),
+        ),
+    )
     logger.info("Added Room + Koin KSP processors to configuration $cfgName")
 }
 
@@ -189,6 +205,18 @@ buildkonfig {
             FieldSpec.Type.STRING,
             "API_KEY",
             localProperties["API_KEY"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "CALENDAR_API_BASE_URL",
+            localProperties["CALENDAR_API_BASE_URL"]?.toString()
+                ?: "https://raw.githubusercontent.com/Debanshu777/XCalendar/main/",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "HOLIDAY_API_BASE_URL",
+            localProperties["HOLIDAY_API_BASE_URL"]?.toString()
+                ?: "https://calendarific.com/api/v2/holidays",
         )
     }
 }

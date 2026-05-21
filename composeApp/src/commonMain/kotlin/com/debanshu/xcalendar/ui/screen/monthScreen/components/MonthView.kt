@@ -6,6 +6,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -14,12 +17,12 @@ import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.common.isLeap
 import com.debanshu.xcalendar.common.lengthOfMonth
 import com.debanshu.xcalendar.common.model.YearMonth
-import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.datetime.LocalDate
@@ -27,15 +30,18 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MonthView(
     modifier: Modifier,
     month: YearMonth,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    today: LocalDate,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
 ) {
+    val dateBadgeShape = MaterialShapes.Cookie9Sided.toShape()
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.ordinal + 1
     val daysInMonth = month.month.lengthOfMonth(month.year.isLeap())
@@ -43,26 +49,6 @@ fun MonthView(
     val skipPreviousPadding = firstDayOfWeek >= 7
     val totalDaysDisplayed = if (skipPreviousPadding) daysInMonth else firstDayOfWeek + daysInMonth
     val remainingCells = 42 - totalDaysDisplayed
-
-    val eventsByDate =
-        remember(month.year, month.month, events) {
-            events
-                .groupBy { event ->
-                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                }.mapValues {
-                    it.value.toImmutableList()
-                }.toImmutableMap()
-        }
-
-    val holidaysByDate =
-        remember(month.year, month.month, holidays) {
-            holidays
-                .groupBy { holiday ->
-                    holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                }.mapValues {
-                    it.value.toImmutableList()
-                }.toImmutableMap()
-        }
 
     // Cache month calculations
     val (prevMonth, prevYear, daysInPrevMonth, nextMonth, nextYear) =
@@ -98,8 +84,9 @@ fun MonthView(
             item(
                 key = "weekday_header",
                 span = { GridItemSpan(7) },
+                contentType = "weekday_header",
             ) {
-                WeekdayHeader()
+                WeekdayHeader(today = today)
             }
 
             if (firstDayOfWeek > 0 && !skipPreviousPadding) {
@@ -109,14 +96,17 @@ fun MonthView(
                         val ordinal = daysInPrevMonth - (firstDayOfWeek - index - 1)
                         "prev_${prevYear}_${prevMonth.number}_$ordinal"
                     },
+                    contentType = { "day_cell" },
                 ) { index ->
                     val ordinal = daysInPrevMonth - (firstDayOfWeek - index - 1)
                     val date = LocalDate(prevYear, prevMonth, ordinal)
                     DayCell(
                         modifier = Modifier,
                         date = date,
-                        events = eventsByDate[date] ?: persistentListOf(),
-                        holidays = holidaysByDate[date] ?: persistentListOf(),
+                        today = today,
+                        dateBadgeShape = dateBadgeShape,
+                        events = eventsByDate[date],
+                        holidays = holidaysByDate[date],
                         isCurrentMonth = false,
                         isVisible = isVisible,
                         onDayClick = onDayClick,
@@ -132,6 +122,7 @@ fun MonthView(
             items(
                 count = daysInMonth,
                 key = { day -> "current_${month.year}_${month.month.number}_${day + 1}" },
+                contentType = { "day_cell" },
             ) { day ->
                 val date = LocalDate(month.year, month.month, day + 1)
                 val currentMonthStartIndex = if (skipPreviousPadding) 0 else firstDayOfWeek
@@ -139,8 +130,10 @@ fun MonthView(
                 DayCell(
                     modifier = Modifier,
                     date = date,
-                    events = eventsByDate[date] ?: persistentListOf(),
-                    holidays = holidaysByDate[date] ?: persistentListOf(),
+                    today = today,
+                    dateBadgeShape = dateBadgeShape,
+                    events = eventsByDate[date],
+                    holidays = holidaysByDate[date],
                     isCurrentMonth = true,
                     isVisible = isVisible,
                     onDayClick = onDayClick,
@@ -160,6 +153,7 @@ fun MonthView(
             items(
                 count = remainingCells,
                 key = { day -> "next_${nextYear}_${nextMonth.number}_${day + 1}" },
+                contentType = { "day_cell" },
             ) { day ->
                 val date = LocalDate(nextYear, nextMonth, day + 1)
                 val cellIndex = totalDaysDisplayed + day
@@ -167,8 +161,10 @@ fun MonthView(
                 DayCell(
                     modifier = Modifier,
                     date = date,
-                    events = eventsByDate[date] ?: persistentListOf(),
-                    holidays = holidaysByDate[date] ?: persistentListOf(),
+                    today = today,
+                    dateBadgeShape = dateBadgeShape,
+                    events = eventsByDate[date],
+                    holidays = holidaysByDate[date],
                     isCurrentMonth = false,
                     isVisible = isVisible,
                     onDayClick = onDayClick,

@@ -1,6 +1,7 @@
 package com.debanshu.xcalendar.data.store
 
 import com.debanshu.xcalendar.common.AppLogger
+import com.debanshu.xcalendar.common.ioDispatcher
 import com.debanshu.xcalendar.common.model.asEntity
 import com.debanshu.xcalendar.common.model.asEvent
 import com.debanshu.xcalendar.data.localDataSource.EventDao
@@ -10,6 +11,7 @@ import com.debanshu.xcalendar.data.remoteDataSource.Result
 import com.debanshu.xcalendar.domain.model.Event
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.mobilenativefoundation.store.store5.Bookkeeper
 import org.mobilenativefoundation.store.store5.Converter
 import org.mobilenativefoundation.store.store5.Fetcher
@@ -30,14 +32,15 @@ object EventStoreFactory {
     fun create(
         apiService: RemoteCalendarApiService,
         eventDao: EventDao,
-        bookkeeper: Bookkeeper<EventKey>
+        bookkeeper: Bookkeeper<EventKey>,
+        eventValidator: StoreEventValidator,
     ): MutableStore<EventKey, List<Event>> {
         return MutableStoreBuilder.from(
-            fetcher = createFetcher(apiService),
+            fetcher = createFetcher(apiService, eventValidator),
             sourceOfTruth = createSourceOfTruth(eventDao),
             converter = createEventListConverter()
         )
-            .validator(EventValidator.create())
+            .validator(eventValidator.create())
             .build(
                 updater = createUpdater(apiService),
                 bookkeeper = bookkeeper
@@ -51,22 +54,29 @@ object EventStoreFactory {
             .build()
 
     private fun createFetcher(
-        apiService: RemoteCalendarApiService
+        apiService: RemoteCalendarApiService,
+        eventValidator: StoreEventValidator,
     ): Fetcher<EventKey, List<Event>> = Fetcher.of { key ->
         AppLogger.d { "Fetching events for user ${key.userId}, range ${key.startTime}-${key.endTime}" }
-        when (val response = apiService.fetchEventsForCalendar(
-            calendarIds = emptyList(),
-            startTime = key.startTime,
-            endTime = key.endTime
-        )) {
-            is Result.Error -> {
-                AppLogger.e { "Failed to fetch events: ${response.error}" }
-                throw StoreException("Failed to fetch events: ${response.error}")
-            }
-            is Result.Success -> {
-                AppLogger.d { "Fetched ${response.data.size} events" }
-                EventValidator.recordFetch(key)
-                response.data.map { it.asEvent() }
+        // Force network + JSON parse onto the platform IO dispatcher. On native
+        // (iOS) this is Dispatchers.Default since KMP has no IO; on JVM it is
+        // Dispatchers.IO. Without this the call ran on whatever dispatcher
+        // Store5 routed through (often the compute pool) — see F1/F8.
+        withContext(ioDispatcher) {
+            when (val response = apiService.fetchEventsForCalendar(
+                calendarIds = emptyList(),
+                startTime = key.startTime,
+                endTime = key.endTime
+            )) {
+                is Result.Error -> {
+                    AppLogger.e { "Failed to fetch events: ${response.error}" }
+                    throw StoreException("Failed to fetch events: ${response.error}")
+                }
+                is Result.Success -> {
+                    AppLogger.d { "Fetched ${response.data.size} events" }
+                    eventValidator.recordFetch(key)
+                    response.data.map { it.asEvent() }
+                }
             }
         }
     }
@@ -153,9 +163,14 @@ object SingleEventStoreFactory {
         eventDao: EventDao
     ): Fetcher<SingleEventKey, Event> = Fetcher.of { key ->
         AppLogger.d { "Fetching single event: ${key.eventId}" }
-        val entity = eventDao.getEventById(key.eventId)
-            ?: throw StoreException("Event not found: ${key.eventId}")
-        entity.asEvent()
+        // DB read on IO dispatcher. Room itself dispatches its query coroutines
+        // internally, but the surrounding suspend body still runs wherever
+        // Store5 invoked it.
+        withContext(ioDispatcher) {
+            val entity = eventDao.getEventById(key.eventId)
+                ?: throw StoreException("Event not found: ${key.eventId}")
+            entity.asEvent()
+        }
     }
 
     private fun createSourceOfTruth(

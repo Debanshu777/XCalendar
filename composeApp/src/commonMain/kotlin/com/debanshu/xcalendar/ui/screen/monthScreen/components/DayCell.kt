@@ -2,6 +2,7 @@ package com.debanshu.xcalendar.ui.screen.monthScreen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,18 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -36,16 +35,14 @@ import com.debanshu.xcalendar.ui.transition.sharedDateElement
 import com.debanshu.xcalendar.ui.transition.sharedEventElement
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DayCell(
     modifier: Modifier,
     date: LocalDate,
+    today: LocalDate,
+    dateBadgeShape: Shape,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     isCurrentMonth: Boolean,
@@ -57,22 +54,19 @@ fun DayCell(
     isBottomLeft: Boolean = false,
     isBottomRight: Boolean = false,
 ) {
-    val today =
-        Clock.System
-            .now()
-            .toLocalDateTime(TimeZone.currentSystemDefault())
-            .date
+    val clickInteractionSource = remember { MutableInteractionSource() }
     val isToday = date == today
     val maxEventsToShow = 3
     val displayedEvents = events.take(maxEventsToShow)
-    val cornerRadius = 16.dp
-    val cellShape =
+    val cellShape = remember(isTopLeft, isTopRight, isBottomLeft, isBottomRight) {
+        val cornerRadius = 16.dp
         RoundedCornerShape(
             topStart = if (isTopLeft) cornerRadius else 8.dp,
             topEnd = if (isTopRight) cornerRadius else 8.dp,
             bottomStart = if (isBottomLeft) cornerRadius else 8.dp,
             bottomEnd = if (isBottomRight) cornerRadius else 8.dp,
         )
+    }
 
     Column(
         modifier =
@@ -82,11 +76,10 @@ fun DayCell(
                     color = XCalendarTheme.colorScheme.surfaceContainerLow,
                     shape = cellShape,
                 ).size(itemSize)
-                .noRippleClickable { onDayClick(date) }
+                .noRippleClickable(clickInteractionSource) { onDayClick(date) }
                 .clip(cellShape)
                 .background(XCalendarTheme.colorScheme.surfaceContainerHigh)
-                .padding(2.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -100,7 +93,7 @@ fun DayCell(
                         type = SharedElementType.DateCell,
                         isVisible = isVisible,
                     )
-                    .clip(MaterialShapes.Cookie9Sided.toShape())
+                    .clip(dateBadgeShape)
                     .background(
                         when {
                             isToday -> XCalendarTheme.colorScheme.primary

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,27 +23,17 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun DayWithEvents(
     date: LocalDate,
+    today: LocalDate,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     isVisible: Boolean = true,
     onEventClick: (Event) -> Unit,
 ) {
-    // Optimized: Cache date calculations to avoid repeated computations
-    val today =
-        remember {
-            Clock.System
-                .now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
-        }
-    val isToday = remember(date) { date == today }
+    val isToday = remember(date, today) { date == today }
 
     // Optimized: Pre-calculate day of week string
     val dayOfWeekText =
@@ -96,26 +87,28 @@ fun DayWithEvents(
 
             // All events with consistent styling - optimized with stable keys
             events.forEach { event ->
-                val timeText =
-                    remember(event) {
-                        if (!event.isAllDay) {
-                            val startDateTime =
-                                event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                            val endDateTime = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                            formatTimeRange(startDateTime, endDateTime)
-                        } else {
-                            null
+                key(event.id) {
+                    val timeText =
+                        remember(event) {
+                            if (!event.isAllDay) {
+                                val startDateTime =
+                                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                                val endDateTime = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
+                                formatTimeRange(startDateTime, endDateTime)
+                            } else {
+                                null
+                            }
                         }
-                    }
 
-                EventItem(
-                    title = event.title,
-                    color = Color(event.color),
-                    onClick = { onEventClick(event) },
-                    eventId = event.id,
-                    isVisible = isVisible,
-                    timeText = timeText,
-                )
+                    EventItem(
+                        title = event.title,
+                        color = Color(event.color),
+                        onClick = { onEventClick(event) },
+                        eventId = event.id,
+                        isVisible = isVisible,
+                        timeText = timeText,
+                    )
+                }
             }
         }
     }

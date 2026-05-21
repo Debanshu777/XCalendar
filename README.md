@@ -357,13 +357,11 @@ CalendarApp (Main Container)
 
 | Component | Purpose |
 |-----------|---------|
-| `CalendarViewModel` | Main UI state, calendar and user operations |
+| `CalendarViewModel` | Per-slice `StateFlow`s (`accounts`, `calendars`, `events`, `holidays`, `isLoading`, `calendarError`) so UI collects only what it needs |
+| `CalendarSessionState` | Loading + error for the calendar shell (kept separate from list flows) |
 | `EventViewModel` | Event CRUD operations and state |
 | `DateStateHolder` | Current date, selected date, view month |
 | `ScheduleStateHolder` | Infinite scroll pagination |
-| `CalendarUiState` | Immutable state snapshot |
-
-**Data Flow:**
 ```
 Data Sources (Room + Ktor API)
        ↓ Store5 (caching + bookkeeping)
@@ -371,9 +369,9 @@ Repository (domain mapping)
        ↓ Flow<List<T>>
 Use Cases (business logic)
        ↓ Flow<List<T>>
-ViewModel (combine, debounce)
-       ↓ StateFlow<CalendarUiState>
-UI Composables (collectAsState)
+ViewModel (per-slice stateIn + distinctUntilChanged)
+       ↓ StateFlow<ImmutableList<T>> / CalendarSessionState
+UI Composables (collectAsStateWithLifecycle)
 ```
 
 ## 🔧 Configuration & Customization

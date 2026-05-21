@@ -52,6 +52,20 @@ interface EventDao {
         }
     }
 
+    /**
+     * Atomically delete an event and its reminder rows.
+     *
+     * Wrapping both DAO calls in a single Room `@Transaction` prevents the
+     * cache/DB desync window where the parent `events` row is removed but
+     * orphan `event_reminders` rows remain after a partial failure — see
+     * audit F22.
+     */
+    @Transaction
+    suspend fun deleteEventWithReminders(event: EventEntity) {
+        deleteEventReminders(event.id)
+        deleteEvent(event)
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEventReminder(reminder: EventReminderEntity)
 

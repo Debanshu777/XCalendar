@@ -1,5 +1,7 @@
 package com.debanshu.xcalendar.domain.util
 
+import androidx.compose.runtime.Immutable
+
 /**
  * A sealed class representing the result of a domain operation.
  * Use this for operations that can fail and need to propagate errors to the UI.
@@ -12,6 +14,7 @@ sealed class DomainResult<out T> {
 /**
  * Domain-level errors that can be shown to users.
  */
+@Immutable
 sealed class DomainError(val message: String) {
     // Network errors
     data object NoInternet : DomainError("No internet connection. Please check your network.")

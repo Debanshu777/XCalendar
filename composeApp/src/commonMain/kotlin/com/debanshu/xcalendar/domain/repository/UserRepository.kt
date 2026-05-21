@@ -8,6 +8,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 
+/**
+ * Repository for the local user record.
+ *
+ * **Why no Store5**: the app is single-user and currently has no remote
+ * user-profile API — `getUserFromApi` synthesises a dummy user and writes
+ * it to the local `UserDao` (audit F21). Room is the source of truth. A
+ * Store5 layer here would add coalescing/TTL/Bookkeeper machinery for a
+ * code path that never touches the network. Revisit when a real auth
+ * backend ships and user data needs cache-with-refresh semantics; until
+ * then this stays a thin DAO wrapper.
+ */
 @Single(binds = [IUserRepository::class])
 class UserRepository(
     private val userDao: UserDao,

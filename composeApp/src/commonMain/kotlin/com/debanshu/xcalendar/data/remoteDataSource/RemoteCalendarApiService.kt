@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.data.remoteDataSource
 
+import com.debanshu.xcalendar.BuildKonfig
 import com.debanshu.xcalendar.data.remoteDataSource.error.DataError
 import com.debanshu.xcalendar.data.remoteDataSource.model.calendar.CalendarResponseItem
 import com.debanshu.xcalendar.data.remoteDataSource.model.calendar.EventResponseItem
@@ -13,7 +14,9 @@ class RemoteCalendarApiService(
     json: Json,
 ) {
     private val clientWrapper = ClientWrapper(client, json)
-    private val baseUrl = "https://raw.githubusercontent.com/Debanshu777/XCalendar/main/"
+    // Externalised via BuildKonfig — defaults to the demo GitHub raw asset
+    // but can be overridden in local.properties / CI per build (audit F37).
+    private val baseUrl = BuildKonfig.CALENDAR_API_BASE_URL
 
     suspend fun fetchCalendarsForUser(userId: String): Result<List<CalendarResponseItem>, DataError> =
         clientWrapper.networkGetUsecase<List<CalendarResponseItem>>(

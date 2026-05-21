@@ -191,24 +191,65 @@ object DateRangeHelper {
     
     /**
      * Get the full date range for queries centered on current date.
-     * 
+     *
      * @param monthsRange Number of months before and after current date
      */
     fun getDateRange(monthsRange: Int = DEFAULT_MONTH_RANGE): DateRange {
         val currentDate = getCurrentDate()
         val timeZone = getCurrentTimeZone()
-        
+
         val startTime = currentDate
             .minus(DatePeriod(months = monthsRange))
             .atStartOfDayIn(timeZone)
             .toEpochMilliseconds()
-            
+
         val endTime = currentDate
             .plus(DatePeriod(months = monthsRange))
             .atStartOfDayIn(timeZone)
             .toEpochMilliseconds()
-        
+
         return DateRange(currentDate, startTime, endTime)
+    }
+
+    /**
+     * Month-bucketed query range — both boundaries snap to the first day of
+     * a calendar month. Within the same calendar month the returned pair is
+     * stable regardless of which day "today" is, so Store5 cache hits across
+     * day-to-day panning instead of missing on every shift (audit F28).
+     *
+     * Boundaries:
+     * - start = first day of (today_month - monthsBack)
+     * - end   = first day of (today_month + monthsForward + 1)
+     *
+     * The +1 on the end keeps the window inclusive of the last full month
+     * the caller asked for, matching the semantics of [getDateRange].
+     *
+     * Crossing into a new month or year shifts the bucket and forces a
+     * single refetch — acceptable and bounded.
+     */
+    fun getMonthBucketRange(
+        monthsBack: Int = DEFAULT_MONTH_RANGE,
+        monthsForward: Int = DEFAULT_MONTH_RANGE,
+    ): Pair<Long, Long> = getMonthBucketRangeFor(getCurrentDate(), monthsBack, monthsForward)
+
+    /**
+     * Testable overload — exposed for unit tests that need to drive the
+     * "today" anchor deterministically. Production code should call
+     * [getMonthBucketRange] (no-arg) which reads the system clock.
+     */
+    internal fun getMonthBucketRangeFor(
+        today: LocalDate,
+        monthsBack: Int = DEFAULT_MONTH_RANGE,
+        monthsForward: Int = DEFAULT_MONTH_RANGE,
+    ): Pair<Long, Long> {
+        val tz = getCurrentTimeZone()
+        val monthStart = LocalDate(today.year, today.month, 1)
+        val startBucket = monthStart.minus(DatePeriod(months = monthsBack))
+        val endBucket = monthStart.plus(DatePeriod(months = monthsForward + 1))
+        return Pair(
+            startBucket.atStartOfDayIn(tz).toEpochMilliseconds(),
+            endBucket.atStartOfDayIn(tz).toEpochMilliseconds(),
+        )
     }
     
     /**

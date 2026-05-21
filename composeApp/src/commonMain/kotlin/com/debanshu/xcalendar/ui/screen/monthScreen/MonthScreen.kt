@@ -1,15 +1,17 @@
 package com.debanshu.xcalendar.ui.screen.monthScreen
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateStateHolder
+import com.debanshu.xcalendar.ui.model.EventsByDate
+import com.debanshu.xcalendar.ui.model.HolidaysByDate
 import com.debanshu.xcalendar.ui.components.SwipeablePager
 import com.debanshu.xcalendar.ui.screen.monthScreen.components.MonthView
 import kotlinx.collections.immutable.ImmutableList
@@ -20,12 +22,12 @@ import kotlinx.datetime.number
 fun MonthScreen(
     modifier: Modifier = Modifier,
     dateStateHolder: DateStateHolder,
-    events: ImmutableList<Event>,
-    holidays: ImmutableList<Holiday>,
+    eventsByDate: EventsByDate,
+    holidaysByDate: HolidaysByDate,
     isVisible: Boolean = true,
     onDateClick: () -> Unit,
 ) {
-    val dateState by dateStateHolder.currentDateState.collectAsState()
+    val dateState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
 
     // Create stable callbacks to prevent unnecessary recompositions
     val onSpecificDayClicked =
@@ -62,8 +64,9 @@ fun MonthScreen(
         MonthView(
             modifier = Modifier.testTag("MonthView_$month"),
             month = month,
-            events = events,
-            holidays = holidays,
+            today = dateState.currentDate,
+            eventsByDate = eventsByDate,
+            holidaysByDate = holidaysByDate,
             isVisible = isVisible,
             onDayClick = onSpecificDayClicked,
         )
