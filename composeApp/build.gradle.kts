@@ -97,6 +97,7 @@ kotlin {
 
             implementation(libs.material3.adaptive)
             implementation(libs.shaderx)
+            implementation(libs.atomicfu)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -110,6 +111,14 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+        }
+
+        // JVM-only debug agent for coroutines (DebugProbes / dumpCoroutines).
+        // Native targets are unsupported by kotlinx-coroutines-debug.
+        named("desktopTest") {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.debug)
+            }
         }
     }
 

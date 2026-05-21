@@ -1,0 +1,409 @@
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.CalendarApp()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.CalendarApp(
+  unstable calendarViewModel: CalendarViewModel
+  unstable eventViewModel: EventViewModel
+  unstable dateStateHolder: DateStateHolder
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.BaseCalendarScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+  stable onDateClickCallback: Function0<Unit>
+  stable numDays: Int
+)
+fun com.debanshu.xcalendar.ui.components.rememberNavBarState()
+fun com.debanshu.xcalendar.ui.components.rememberGlassEffect(
+  stable input: GlassEffectInput
+): RenderEffect?
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.CalendarBottomNavigationBar(
+  stable modifier: Modifier? = @static <expression>
+  selectedView: NavigableScreen
+  stable onViewSelect: Function1<NavigableScreen, Unit>
+  stable onAddClick: Function0<Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.BottomNavItem(
+  stable <this>: RowScope
+  stable modifier: Modifier? = @static <expression>
+  stable showBackground: Boolean
+  stable onClick: Function0<Unit>
+  stable icon: DrawableResource
+  stable label: String
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.CalendarEventsGrid(
+  stable startDate: LocalDate
+  stable numDays: Int
+  stable eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>
+  stable isVisible: Boolean = @static true
+  unstable timeRange: IntRange
+  stable hourHeightDp: Float
+  stable onEventClick: Function1<Event, Unit>
+  stable currentDate: LocalDate
+  stable scrollState: ScrollState
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.DayColumn(
+  stable modifier: Modifier? = @static <expression>
+  unused stable date: LocalDate
+  stable events: ImmutableList<Event>
+  unstable timeRange: IntRange
+  stable hourHeightDp: Float
+  stable isCurrentDay: Boolean
+  stable currentMinute: Int
+  stable isVisible: Boolean
+  stable onEventClick: Function1<Event, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.EventItem(
+  stable event: Event
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+  stable isOverlapping: Boolean = @static false
+  stable isVisible: Boolean = @static true
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.CalendarTopAppBar(
+  stable modifier: Modifier? = @static <expression>
+  stable dateState: DateState
+  stable onSelectToday: Function0<Unit>
+  stable onDayClick: Function1<LocalDate, Unit>
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TopBarMonthView(
+  stable month: YearMonth
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable onDayClick: Function1<LocalDate, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TopAppBarWeekdayHeader()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TopAppBarDayCell(
+  stable date: LocalDate
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable onDayClick: Function1<LocalDate, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TopAppBarEmptyPagingDayCell()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.DaysHeaderRow(
+  stable startDate: LocalDate
+  stable numDays: Int
+  stable currentDate: LocalDate
+  stable holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>
+  stable isVisible: Boolean = @static true
+  stable onDayClick: Function1<LocalDate, Unit>
+  stable modifier: Modifier? = @static <expression>
+  stable dynamicHeaderHeightState: MutableState<Int>?
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.ErrorSnackbar(
+  stable message: String?
+  stable onDismiss: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+  stable autoDismissMillis: Long = @static 4000L
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.EventTag(
+  stable modifier: Modifier? = @static <expression>
+  stable text: String
+  stable color: Color
+  stable textColor: Color
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.SwipeableCalendarView(
+  stable modifier: Modifier? = @static <expression>
+  stable startDate: LocalDate
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onDayClick: Function1<LocalDate, Unit>
+  stable onEventClick: Function1<Event, Unit>
+  stable onDateRangeChange: Function1<LocalDate, Unit>
+  stable numDays: Int = @static 7
+  unstable timeRange: IntRange? = @dynamic <expression>
+  stable hourHeightDp: Float = @static 60.0f
+  stable scrollState: ScrollState
+  stable currentDate: LocalDate
+  stable dynamicHeaderHeightState: MutableState<Int>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.CalendarContent(
+  stable startDate: LocalDate
+  stable numDays: Int
+  stable eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>
+  stable holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>
+  stable isVisible: Boolean = @static true
+  unstable timeRange: IntRange
+  stable hourHeightDp: Float
+  stable onDayClick: Function1<LocalDate, Unit>
+  stable onEventClick: Function1<Event, Unit>
+  stable currentDate: LocalDate
+  stable scrollState: ScrollState
+  stable modifier: Modifier? = @static <expression>
+  stable dynamicHeaderHeightState: MutableState<Int>?
+)
+restartable skippable fun com.debanshu.xcalendar.ui.components.SwipeablePager(
+  unused stable modifier: Modifier? = @static <expression>
+  currentReference: T
+  stable calculateOffset: Function2<@[ParameterName(name = 'current')] T, @[ParameterName(name = 'base')] T, Int>
+  stable pageToReference: Function3<@[ParameterName(name = 'baseReference')] T, @[ParameterName(name = 'initialPage')] Int, @[ParameterName(name = 'page')] Int, T>
+  stable onReferenceChange: Function1<T, Unit>
+  stable content: Function3<@[ParameterName(name = 'reference')] T, Composer, Int, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TimeColumn(
+  stable modifier: Modifier? = @static <expression>
+  unstable timeRange: IntRange? = @dynamic <expression>
+  stable hourHeightDp: Float = @static 60.0f
+  stable scrollState: ScrollState
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.TimeCell(
+  stable hour: Int
+  stable hourHeightDp: Float
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.core.DayNumber(
+  stable day: Int
+  stable isToday: Boolean
+  stable modifier: Modifier? = @static <expression>
+  stable isCurrentMonth: Boolean = @static true
+  stable isSelected: Boolean = @static false
+  stable size: Dp = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.core.DayNumberLarge(
+  stable day: Int
+  stable isToday: Boolean
+  stable modifier: Modifier? = @static <expression>
+  stable size: Dp = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.core.HolidayTag(
+  stable name: String
+  stable modifier: Modifier? = @static <expression>
+  stable compact: Boolean = @static true
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.core.ScheduleHolidayTag(
+  stable name: String
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.AddEventDialog(
+  stable user: User
+  stable calendars: ImmutableList<Calendar>
+  stable selectedDate: LocalDate
+  stable onSave: Function1<Event, Unit>? = @static <expression>
+  stable onDismiss: Function0<Unit>? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.DialogHeader(
+  stable onCancel: Function0<Unit>
+  stable onSave: Function0<Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.TitleTextField(
+  stable value: String
+  stable onValueChange: Function1<String, Unit>
+  stable interactionSource: MutableInteractionSource
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.CalendarSelectionSection(
+  stable user: User
+  stable calendars: ImmutableList<Calendar>
+  stable selectedCalendarId: String
+  stable onCalendarSelected: Function1<String, Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.CalendarList(
+  stable calendars: ImmutableList<Calendar>
+  stable selectedCalendarId: String
+  stable onCalendarSelected: Function1<String, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable, [androidx.compose.ui.UiComposable]]") fun com.debanshu.xcalendar.ui.components.dialog.EventOptionRow(
+  stable icon: DrawableResource
+  stable label: String
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+  stable trailingContent: Function2<Composer, Int, Unit>? = @static null
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.SwitchRow(
+  stable label: String
+  stable checked: Boolean
+  stable onCheckedChange: Function1<Boolean, Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.CalendarColorDot(
+  stable color: Int
+  stable isSelected: Boolean
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.TimeDisplay(
+  stable label: String
+  stable time: String
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.EventDetailsDialog(
+  stable event: Event
+  stable onEdit: Function1<Event, Unit>
+  stable onDismiss: Function0<Unit>? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.DetailsHeader(
+  stable onClose: Function0<Unit>
+  stable onEdit: Function0<Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.EventTitleRow(
+  unused stable eventId: String
+  stable title: String
+  stable color: Int
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.DetailRow(
+  stable icon: DrawableResource
+  stable text: String
+  stable iconTint: Color = @dynamic <expression>
+  stable textColor: Color = @dynamic <expression>
+  stable verticalAlignment: Vertical? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.EventTypeSelector(
+  stable selectedType: EventType
+  stable onTypeSelected: Function1<EventType, Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.NotificationRow(
+  stable reminderMinutes: Int
+  unused stable onReminderChange: Function1<Int, Unit>? = @static <expression>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.EventOptionRow(
+  stable icon: DrawableResource
+  stable text: String
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.CalendarTimeSection(
+  stable isAllDayInitial: Boolean
+  stable selectedDate: LocalDate
+  stable startDateTime: LocalDateTime
+  stable endDateTime: LocalDateTime
+  stable onAllDayChange: Function1<Boolean, Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.components.dialog.TimeDisplayRow(
+  stable label: String
+  stable startTime: String? = @static null
+  stable endTime: String? = @static null
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+)
+restartable skippable fun com.debanshu.xcalendar.ui.navigation.NavigationHost(
+  stable modifier: Modifier
+  backStack: NavBackStack<NavKey>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable onEventClick: Function1<Event, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.dayScreen.DayScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.monthScreen.MonthScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onDateClick: Function0<Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell(
+  stable modifier: Modifier
+  stable date: LocalDate
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isCurrentMonth: Boolean
+  stable isVisible: Boolean = @static true
+  stable onDayClick: Function1<LocalDate, Unit>
+  stable itemSize: DpSize
+  stable isTopLeft: Boolean = @static false
+  stable isTopRight: Boolean = @static false
+  stable isBottomLeft: Boolean = @static false
+  stable isBottomRight: Boolean = @static false
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.monthScreen.components.MonthView(
+  stable modifier: Modifier
+  stable month: YearMonth
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onDayClick: Function1<LocalDate, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.monthScreen.components.WeekdayHeader()
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.scheduleScreen.components.DayWithEvents(
+  stable date: LocalDate
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.scheduleScreen.components.EventItem(
+  stable title: String
+  stable color: Color
+  stable onClick: Function0<Unit>
+  stable modifier: Modifier? = @static <expression>
+  stable eventId: String? = @static null
+  stable isVisible: Boolean = @static true
+  stable timeText: String? = @static null
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.scheduleScreen.components.MonthHeader(
+  stable yearMonth: YearMonth
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.scheduleScreen.components.WeekHeader(
+  stable startDate: LocalDate
+  stable endDate: LocalDate
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.threeDayScreen.ThreeDayScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+  stable onDateClickCallback: Function0<Unit>
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun com.debanshu.xcalendar.ui.screen.weekScreen.WeekScreen(
+  stable modifier: Modifier? = @static <expression>
+  unstable dateStateHolder: DateStateHolder
+  stable events: ImmutableList<Event>
+  stable holidays: ImmutableList<Holiday>
+  stable isVisible: Boolean = @static true
+  stable onEventClick: Function1<Event, Unit>
+  stable onDateClickCallback: Function0<Unit>
+)
+readonly fun com.debanshu.xcalendar.ui.theme.<get-extendedColors>(
+  unused stable <this>: XCalendarTheme
+): XCalendarColors
+restartable skippable scheme("[androidx.compose.ui.UiComposable, [androidx.compose.ui.UiComposable]]") fun com.debanshu.xcalendar.ui.theme.XCalendarTheme(
+  stable shapes: Shapes? = @dynamic <expression>
+  stable typography: Typography? = @dynamic <expression>
+  stable useDarkTheme: Boolean = @dynamic <expression>
+  stable content: Function2<Composer, Int, Unit>
+)
+readonly fun com.debanshu.xcalendar.ui.theme.XCalendarTheme.<get-dimensions>(
+  unused stable <this>: XCalendarTheme
+): Dimensions
+readonly fun com.debanshu.xcalendar.ui.theme.XCalendarTheme.<get-colorScheme>(
+  unused stable <this>: XCalendarTheme
+): ColorScheme
+readonly fun com.debanshu.xcalendar.ui.theme.XCalendarTheme.<get-typography>(
+  unused stable <this>: XCalendarTheme
+): Typography
+readonly fun com.debanshu.xcalendar.ui.theme.XCalendarTheme.<get-shapes>(
+  unused stable <this>: XCalendarTheme
+): Shapes
+readonly fun com.debanshu.xcalendar.ui.theme.XCalendarTheme.<get-motion>(
+  unused stable <this>: XCalendarTheme
+): MotionScheme
+restartable skippable scheme("[0, [0]]") fun com.debanshu.xcalendar.ui.transition.WithSharedTransitionScope(
+  stable content: @[ExtensionFunctionType] Function3<SharedTransitionScope, Composer, Int, Unit>
+)
+fun com.debanshu.xcalendar.ui.transition.isSharedTransitionActive()
+fun com.debanshu.xcalendar.ui.utils.rememberToday()

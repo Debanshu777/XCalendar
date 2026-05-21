@@ -1,0 +1,1 @@
+applier inference CalendarTopAppBar.kt:128:9: Type disagreement [Binding(947), [Binding(token = androidx.compose.ui.UiComposable)], [Binding(1011)], [Binding(token = androidx.compose.ui.UiComposable)]] <=> [Binding(947), [Binding(947)], [Binding(947)]]

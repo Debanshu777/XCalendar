@@ -90,19 +90,19 @@ Each phase = one PR (or small stack). Phases sequenced by **dependency, blast ra
 
 ## Phase 0 — Verification harness (prereq)
 
-**Status**: 🟦 In Progress
+**Status**: ✅ Done (commit pending)
 **Goal**: catch regressions in subsequent phases.
 
 | Step | Status | Description |
 |------|--------|-------------|
-| 0.1 | ⬜ | Enable Compose Compiler metrics (`metricsDestination` + `reportsDestination`) in `composeApp/build.gradle.kts`. Commit baseline under `docs/compose-metrics/baseline/`. |
-| 0.2 | ⬜ | Add `kotlinx-coroutines-debug` agent (debug/test only). Enable `DebugProbes.install()` in test setup. |
-| 0.3 | ⬜ | Add `Modifier.recomposeHighlighter()` helper for debug builds. |
-| 0.4 | ⬜ | Verify `kotlinx.atomicfu` wired (used in Phase 2). |
-| 0.5 | ⬜ | Seed perf baseline test — 500-event × 12-month UI state through `ScheduleStateHolder.createScheduleItemsForMonthRange`. |
-| 0.6 | ⬜ | Commit Phase 0. |
+| 0.1 | ✅ | Compose Compiler metrics already configured (`composeApp/build.gradle.kts:38-45`). Baseline captured at `docs/compose-metrics/baseline/` — 161 restartable / 92 skippable (52%), 40 unstable classes. |
+| 0.2 | ✅ | Added `kotlinx-coroutines-debug` to `desktopTest` source set (`libs.versions.toml` + `composeApp/build.gradle.kts`). Available for `DebugProbes.install()` in JVM tests. |
+| 0.3 | ✅ | `Modifier.recomposeHighlighter()` added at `composeApp/src/commonMain/kotlin/com/debanshu/xcalendar/common/RecomposeHighlighter.kt`. Debug-only — uses `composed { }` itself (acceptable here). |
+| 0.4 | ✅ | `atomicfu = "0.27.0"` wired in `libs.versions.toml`; added to `commonMain`. Ready for Phase 2 `AtomicReference<PersistentHashMap>` in `CacheTimestampTracker`. |
+| 0.5 | ✅ | `ScheduleStateHolderPerfBaselineTest` seeded — init 36 ms, refresh 1 ms, 6× loadMoreForward 5 ms. See `docs/compose-metrics/baseline/perf-baselines.md`. |
+| 0.6 | 🟦 | Commit Phase 0. |
 
-**Exit criteria**: baseline metrics archived, repro stress test passing on current main.
+**Exit criteria**: baseline metrics archived ✅, repro stress test passing on current main ✅.
 
 ---
 
@@ -282,3 +282,4 @@ Addresses F31, F23 (final), F24.
 | Date | Note |
 |------|------|
 | 2026-05-21 | Initial audit + plan committed. Phase 0 started. |
+| 2026-05-21 | Phase 0 complete. Baselines archived under `docs/compose-metrics/baseline/`. Coroutines-debug + atomicfu + RecomposeHighlighter wired. |

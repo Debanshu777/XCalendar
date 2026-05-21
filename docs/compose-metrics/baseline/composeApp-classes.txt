@@ -1,0 +1,852 @@
+unstable class com.debanshu.xcalendar.data.localDataSource.AppDatabase_Impl {
+  unstable val _userDao: Lazy<UserDao>
+  unstable val _calendarDao: Lazy<CalendarDao>
+  unstable val _eventDao: Lazy<EventDao>
+  unstable val _holidayDao: Lazy<HolidayDao>
+  unstable val _syncFailureDao: Lazy<SyncFailureDao>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.CalendarDao_Impl {
+  unstable val __db: RoomDatabase
+  unstable val __deleteAdapterOfCalendarEntity: EntityDeleteOrUpdateAdapter<CalendarEntity>
+  unstable val __upsertAdapterOfCalendarEntity: EntityUpsertAdapter<CalendarEntity>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.EventDao_Impl {
+  unstable val __db: RoomDatabase
+  unstable val __insertAdapterOfEventReminderEntity: EntityInsertAdapter<EventReminderEntity>
+  unstable val __deleteAdapterOfEventEntity: EntityDeleteOrUpdateAdapter<EventEntity>
+  unstable val __upsertAdapterOfEventEntity: EntityUpsertAdapter<EventEntity>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.HolidayDao_Impl {
+  unstable val __db: RoomDatabase
+  unstable val __insertAdapterOfHolidayEntity: EntityInsertAdapter<HolidayEntity>
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.LocalDatabaseConstructor {
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.SyncFailureDao_Impl {
+  unstable val __db: RoomDatabase
+  unstable val __insertAdapterOfSyncFailureEntity: EntityInsertAdapter<SyncFailureEntity>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.UserDao_Impl {
+  unstable val __db: RoomDatabase
+  unstable val __insertAdapterOfUserEntity: EntityInsertAdapter<UserEntity>
+  unstable val __deleteAdapterOfUserEntity: EntityDeleteOrUpdateAdapter<UserEntity>
+  <runtime stability> = Unstable
+}
+stable class xcalendar.composeapp.generated.resources.Res.drawable {
+  <runtime stability> = Stable
+}
+stable class xcalendar.composeapp.generated.resources.Res.string {
+  <runtime stability> = Stable
+}
+stable class xcalendar.composeapp.generated.resources.Res.array {
+  <runtime stability> = Stable
+}
+stable class xcalendar.composeapp.generated.resources.Res.plurals {
+  <runtime stability> = Stable
+}
+stable class xcalendar.composeapp.generated.resources.Res.font {
+  <runtime stability> = Stable
+}
+stable class xcalendar.composeapp.generated.resources.Res {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiAppModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiDataModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiJson {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiHttpClient {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetUserEntityDao {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetCalendarEntityDao {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetEventEntityDao {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetHolidayEntityDao {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetSyncFailureDao {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiProvideHolidayStore {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiProvideEventBookkeeper_Q_eventBookkeeper {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiProvideSingleEventBookkeeper_Q_singleEventBookkeeper {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiProvideEventStore_Q_eventStore {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiProvideSingleEventStore_Q_singleEventStore {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDataRemoteDataSourceRemoteCalendarApiService {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDataRemoteDataSourceHolidayApiService {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiDomainModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainRepositoryHolidayRepository {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainRepositoryUserRepository {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainRepositoryEventRepository {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainRepositoryCalendarRepository {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiPlatformModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiGetLocalDatabase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiStateModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiUseCaseModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseHolidayGetHolidaysForYearUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseHolidayRefreshHolidaysUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseCalendarGetUserCalendarsUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseUserGetCurrentUserUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseEventCreateEventUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseEventGetEventsForDateRangeUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseEventUpdateEventUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDomainUsecaseEventDeleteEventUseCase {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarDiViewModelModule {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarUiStateDateStateHolder {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarUiViewmodelEventViewModel {
+  <runtime stability> = Stable
+}
+stable class org.koin.ksp.generated._KSP_ComDebanshuXcalendarUiCalendarViewModel {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.BuildKonfig {
+  stable val API_KEY: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.common.DateRangeHelper.DateRange {
+  stable val currentDate: LocalDate
+  stable val startTime: Long
+  stable val endTime: Long
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.common.DateRangeHelper {
+  stable val DEFAULT_MONTH_RANGE: Int
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.common.DateUtils.DateRange {
+  stable val currentDate: LocalDate
+  stable val startTime: Long
+  stable val endTime: Long
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.common.DateUtils {
+  stable val DEFAULT_MONTH_RANGE: Int
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.common.GlassEffect {
+  stable val rectWidth: Float
+  stable val rectHeight: Float
+  stable val centerX: Float
+  stable val centerY: Float
+  stable val cornerRadius: Float
+  stable val ior: Float
+  stable val highlightStrength: Float
+  stable val bevelWidth: Float
+  stable val thickness: Float
+  stable val shadowIntensity: Float
+  stable val chromaticAberration: Float
+  stable val frostedBlurRadius: Float
+  stable val absorptionR: Float
+  stable val absorptionG: Float
+  stable val absorptionB: Float
+  stable val absorptionDensity: Float
+  stable val sourceR: Float
+  stable val sourceG: Float
+  stable val sourceB: Float
+  stable val targetR: Float
+  stable val targetG: Float
+  stable val targetB: Float
+  stable val colorTolerance: Float
+  stable val colorReplaceEnabled: Boolean
+  stable val id: String
+  stable val displayName: String
+  unstable val parameters: List<ParameterSpec>
+  stable val shaderSource: String
+}
+unstable class com.debanshu.xcalendar.common.AppLogger {
+  unstable val logger: Logger
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.common.model.YearMonth {
+  stable val year: Int
+  stable val month: Month
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.AppDatabase {
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.CalendarEntity {
+  stable val id: String
+  stable val name: String
+  stable val color: Int
+  stable val userId: String
+  stable val isVisible: Boolean
+  stable val isPrimary: Boolean
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.EventEntity {
+  stable val id: String
+  stable val calendarId: String
+  stable val calendarName: String
+  stable val title: String
+  stable val description: String?
+  stable val location: String?
+  stable val startTime: Long
+  stable val endTime: Long
+  stable val isAllDay: Boolean
+  stable val isRecurring: Boolean
+  stable val recurringRule: String?
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.EventReminderEntity {
+  stable val eventId: String
+  stable val minutes: Int
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.localDataSource.model.EventWithReminders {
+  stable val event: EventEntity
+  unstable val reminders: List<EventReminderEntity>
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.HolidayEntity {
+  stable val id: String
+  stable val name: String
+  stable val date: Long
+  stable val countryCode: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.SyncFailureEntity {
+  stable val key: String
+  stable val keyType: String
+  stable val timestamp: Long
+  stable val failureCount: Int
+  stable val lastErrorMessage: String?
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.localDataSource.model.UserEntity {
+  stable val id: String
+  stable val name: String
+  stable val email: String
+  stable val photoUrl: String
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.ClientWrapper {
+  unstable val networkClient: HttpClient
+  unstable val json: Json
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.HolidayApiService {
+  unstable val clientWrapper: ClientWrapper
+  stable val baseUrl: String
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.RemoteCalendarApiService {
+  unstable val clientWrapper: ClientWrapper
+  stable val baseUrl: String
+  <runtime stability> = Unstable
+}
+runtime class com.debanshu.xcalendar.data.remoteDataSource.Result.Success {
+  runtime val data: D
+  <runtime stability> = Parameter(D)
+}
+runtime class com.debanshu.xcalendar.data.remoteDataSource.Result.Error {
+  runtime val error: E
+  <runtime stability> = Parameter(E)
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.calendar.CalendarResponseItem.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.calendar.CalendarResponseItem {
+  stable val id: String
+  stable val isPrimary: Boolean
+  stable val isVisible: Boolean
+  stable val name: String
+  stable val userId: String
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.calendar.EventResponseItem.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.calendar.EventResponseItem {
+  stable val calendarId: String
+  stable val calendarName: String?
+  stable val description: String
+  stable val endTime: Long
+  stable val id: String
+  stable val isAllDay: Boolean
+  stable val isRecurring: Boolean
+  stable val location: String?
+  stable val recurringRule: String?
+  unstable val reminderMinutes: List<Int>
+  stable val startTime: Long
+  stable val title: String
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Country.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Country {
+  stable val id: String
+  stable val name: String
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Date.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Date {
+  stable val datetime: Datetime
+  stable val iso: String
+  stable val timezone: Timezone?
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Datetime.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Datetime {
+  stable val day: Int
+  stable val hour: Int?
+  stable val minute: Int?
+  stable val month: Int
+  stable val second: Int?
+  stable val year: Int
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.HolidayItem.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.HolidayItem {
+  stable val canonicalUrl: String
+  stable val country: Country
+  stable val date: Date
+  stable val description: String
+  stable val locations: String
+  stable val name: String
+  stable val primaryType: String
+  stable val states: String
+  unstable val type: List<String>
+  stable val urlid: String
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.HolidayResponse.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.HolidayResponse {
+  stable val meta: Meta
+  unstable val response: Response
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Meta.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Meta {
+  stable val code: Int
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Response.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Response {
+  unstable val holidays: List<HolidayItem>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Timezone.$serializer {
+  unstable val descriptor: SerialDescriptor
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.remoteDataSource.model.holiday.Timezone {
+  stable val offset: String
+  stable val zoneabb: String
+  stable val zonedst: Int
+  stable val zoneoffset: Int
+  stable val zonetotaloffset: Int
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.EventStoreFactory {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.SingleEventStoreFactory {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.HolidayStoreFactory {
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.store.StoreException {
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.store.KeyTypes {
+  stable val EVENT_KEY: String
+  stable val SINGLE_EVENT_KEY: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.EventBookkeeperFactory {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.SingleEventBookkeeperFactory {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.HolidayKey {
+  stable val countryCode: String
+  stable val year: Int
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.EventKey {
+  stable val userId: String
+  stable val startTime: Long
+  stable val endTime: Long
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.SingleEventKey {
+  stable val eventId: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.CacheDuration {
+  stable val HOLIDAYS_CACHE_HOURS: Long
+  stable val EVENTS_CACHE_HOURS: Long
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.data.store.CacheTimestampTracker {
+  unstable val timestamps: MutableMap<String, Long>
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.data.store.HolidayValidator {
+  stable val maxAgeMillis: Long
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.data.store.EventValidator {
+  stable val maxAgeMillis: Long
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.PlatformModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.DataModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.ViewModelModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.DomainModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.UseCaseModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.StateModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.di.AppModule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.model.Calendar {
+  stable val id: String
+  stable val name: String
+  stable val color: Int
+  stable val userId: String
+  stable val isVisible: Boolean
+  stable val isPrimary: Boolean
+}
+stable class com.debanshu.xcalendar.domain.model.Event {
+  stable val id: String
+  stable val calendarId: String
+  stable val calendarName: String
+  stable val title: String
+  stable val description: String?
+  stable val location: String?
+  stable val startTime: Long
+  stable val endTime: Long
+  stable val isAllDay: Boolean
+  stable val isRecurring: Boolean
+  stable val recurringRule: String?
+  unstable val reminderMinutes: List<Int>
+  stable val color: Int
+}
+stable class com.debanshu.xcalendar.domain.model.Holiday {
+  stable val id: String
+  stable val name: String
+  stable val date: Long
+  stable val countryCode: String
+}
+stable class com.debanshu.xcalendar.domain.model.User {
+  stable val id: String
+  stable val name: String
+  stable val email: String
+  stable val photoUrl: String
+}
+unstable class com.debanshu.xcalendar.domain.repository.BaseRepository {
+  unstable val ioDispatcher: CoroutineDispatcher
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.domain.repository.CalendarRepository {
+  runtime val calendarDao: CalendarDao
+  unstable val apiService: RemoteCalendarApiService
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.domain.repository.EventRepository {
+  unstable val eventStore: MutableStore<EventKey, List<Event>>
+  unstable val singleEventStore: MutableStore<SingleEventKey, Event>
+  runtime val eventDao: EventDao
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.domain.repository.HolidayRepository {
+  unstable val holidayStore: Store<HolidayKey, List<Holiday>>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.domain.repository.RepositoryException {
+  stable val message: String
+  unstable val cause: Throwable?
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.domain.repository.UserRepository {
+  runtime val userDao: UserDao
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.domain.states.CalendarUiState {
+  stable val accounts: ImmutableList<User>
+  stable val calendars: ImmutableList<Calendar>
+  stable val events: ImmutableList<Event>
+  stable val holidays: ImmutableList<Holiday>
+  stable val selectedEvent: Event?
+  stable val isLoading: Boolean
+  stable val error: DomainError?
+  <runtime stability> = 
+}
+runtime class com.debanshu.xcalendar.domain.usecase.calendar.GetUserCalendarsUseCase {
+  runtime val calendarRepository: ICalendarRepository
+  <runtime stability> = Uncertain(ICalendarRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.event.CreateEventUseCase {
+  runtime val eventRepository: IEventRepository
+  <runtime stability> = Uncertain(IEventRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.event.DeleteEventUseCase {
+  runtime val eventRepository: IEventRepository
+  <runtime stability> = Uncertain(IEventRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.event.GetEventsForDateRangeUseCase {
+  runtime val eventRepository: IEventRepository
+  <runtime stability> = Uncertain(IEventRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.event.UpdateEventUseCase {
+  runtime val eventRepository: IEventRepository
+  <runtime stability> = Uncertain(IEventRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.holiday.GetHolidaysForYearUseCase {
+  runtime val holidayRepository: IHolidayRepository
+  <runtime stability> = Uncertain(IHolidayRepository)
+}
+runtime class com.debanshu.xcalendar.domain.usecase.holiday.RefreshHolidaysUseCase {
+  runtime val holidayRepository: IHolidayRepository
+  <runtime stability> = Uncertain(IHolidayRepository)
+}
+stable class com.debanshu.xcalendar.domain.usecase.user.GetCurrentUserUseCase {
+  <runtime stability> = Stable
+}
+runtime class com.debanshu.xcalendar.domain.util.DomainResult.Success {
+  runtime val data: T
+  <runtime stability> = Parameter(T)
+}
+stable class com.debanshu.xcalendar.domain.util.DomainResult.Error {
+  stable val error: DomainError
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainResult {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.NoInternet {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.ServerError {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.Timeout {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.Unauthorized {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.DatabaseError {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.NotFound {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.ValidationError {
+  stable val errorMessage: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError.Unknown {
+  stable val errorMessage: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.DomainError {
+  stable val message: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.domain.util.ErrorMapper {
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.domain.util.EventValidationException {
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.domain.util.EventValidator {
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.ui.CalendarViewModel {
+  runtime val userRepository: IUserRepository
+  runtime val calendarRepository: ICalendarRepository
+  runtime val eventRepository: IEventRepository
+  unstable val dateStateHolder: DateStateHolder
+  runtime val getHolidaysForYearUseCase: GetHolidaysForYearUseCase
+  runtime val refreshHolidaysUseCase: RefreshHolidaysUseCase
+  stable val userId: String
+  stable val dateRange: DateRange
+  stable val currentDate: LocalDate
+  stable val startTime: Long
+  stable val endTime: Long
+  unstable val _uiState: MutableStateFlow<CalendarUiState>
+  unstable val isInitialized: AtomicBoolean
+  unstable val users: SharedFlow<List<User>>
+  unstable val holidays: SharedFlow<List<Holiday>>
+  unstable val calendars: SharedFlow<List<Calendar>>
+  unstable val events: SharedFlow<List<Event>>
+  unstable val uiState: StateFlow<CalendarUiState>
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.ui.components.AnimationPhase.Idle {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.AnimationPhase.Dragging {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.AnimationPhase.ClickAnimating {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.AnimationPhase.MorphingOut {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.TopBarCalendarView.NoView {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.TopBarCalendarView.Week {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.TopBarCalendarView.Month {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.components.TopBarCalendarView {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.navigation.NavigableScreen.Schedule {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.navigation.NavigableScreen.Day {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.navigation.NavigableScreen.ThreeDay {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.navigation.NavigableScreen.Week {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.navigation.NavigableScreen.Month {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.MonthHeader {
+  stable val yearMonth: YearMonth
+  stable val uniqueId: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.WeekHeader {
+  stable val startDate: LocalDate
+  stable val endDate: LocalDate
+  stable val uniqueId: String
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.DayEvents {
+  stable val date: LocalDate
+  stable val events: ImmutableList<Event>
+  stable val holidays: ImmutableList<Holiday>
+  stable val uniqueId: String
+  <runtime stability> = 
+}
+stable class com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.state.DateState {
+  stable val currentDate: LocalDate
+  stable val selectedDate: LocalDate
+  stable val selectedInViewMonth: YearMonth
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.ui.state.DateStateHolder {
+  stable val initialDate: LocalDate
+  unstable val _currentDateState: MutableStateFlow<DateState>
+  unstable val currentDateState: StateFlow<DateState>
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.ui.state.ScheduleState {
+  stable val startMonth: YearMonth
+  stable val initialRange: Int
+  stable var minOffset: Int
+  stable var maxOffset: Int
+  stable var lastMinOffset: Int
+  stable var lastMaxOffset: Int
+  <runtime stability> = Unstable
+}
+unstable class com.debanshu.xcalendar.ui.state.ScheduleStateHolder {
+  stable val getEvents: Function0<List<Event>>
+  stable val getHolidays: Function0<List<Holiday>>
+  stable val _items: SnapshotStateList<ScheduleItem>
+  unstable val items: List<ScheduleItem>
+  unstable val monthRange: ScheduleState
+  stable val initialScrollIndex: Int
+  unstable val eventCache: MutableMap<LocalDate, List<Event>>
+  unstable val holidayCache: MutableMap<LocalDate, List<Holiday>>
+  <runtime stability> = Unstable
+}
+stable class com.debanshu.xcalendar.ui.theme.XCalendarColors {
+  stable val holiday: Color
+  stable val holidayContainer: Color
+  stable val onHoliday: Color
+  stable val scheduleHoliday: Color
+  stable val scheduleHolidayContainer: Color
+  stable val eventDot: Color
+  stable val gridLine: Color
+  stable val currentTimeLine: Color
+  stable val todayBackground: Color
+  stable val onToday: Color
+  stable val weekendText: Color
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.theme.Dimensions {
+  stable val spacing_2: Dp
+  stable val spacing_4: Dp
+  stable val spacing_8: Dp
+  stable val spacing_12: Dp
+  stable val spacing_16: Dp
+  stable val spacing_20: Dp
+  stable val spacing_24: Dp
+  stable val spacing_32: Dp
+  stable val spacing_40: Dp
+  stable val spacing_48: Dp
+  stable val spacing_56: Dp
+  stable val spacing_64: Dp
+  stable val calendarDaySize: Dp
+  stable val calendarDotSize: Dp
+  stable val calendarHeaderHeight: Dp
+  stable val calendarEventHeight: Dp
+  stable val calendarHourHeight: Dp
+  stable val calendarTimeColumnWidth: Dp
+  stable val minButtonHeight: Dp
+  stable val minTouchTargetSize: Dp
+  stable val iconSize: Dp
+  stable val iconSizeSmall: Dp
+  stable val iconSizeLarge: Dp
+  stable val elevation_0: Dp
+  stable val elevation_1: Dp
+  stable val elevation_2: Dp
+  stable val elevation_3: Dp
+  stable val elevation_4: Dp
+  stable val elevation_5: Dp
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.theme.XCalendarTheme {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.transition.DateSharedElementKey {
+  stable val date: LocalDate
+  stable val type: SharedElementType
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.transition.EventSharedElementKey {
+  stable val eventId: String
+  stable val type: SharedElementType
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.transition.TimeColumnSharedElementKey {
+  stable val type: SharedElementType
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.utils.DateTimeFormatter {
+  <runtime stability> = Stable
+}
+stable class com.debanshu.xcalendar.ui.viewmodel.EventUiState {
+  stable val selectedEvent: Event?
+  stable val isLoading: Boolean
+  stable val errorMessage: String?
+  <runtime stability> = Stable
+}
+unstable class com.debanshu.xcalendar.ui.viewmodel.EventViewModel {
+  runtime val createEventUseCase: CreateEventUseCase
+  runtime val updateEventUseCase: UpdateEventUseCase
+  runtime val deleteEventUseCase: DeleteEventUseCase
+  unstable val _uiState: MutableStateFlow<EventUiState>
+  unstable val uiState: StateFlow<EventUiState>
+  <runtime stability> = Unstable
+}
