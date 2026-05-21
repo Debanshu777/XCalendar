@@ -3,7 +3,7 @@ package com.debanshu.xcalendar.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.debanshu.xcalendar.common.AppLogger
-import com.debanshu.xcalendar.common.DateUtils
+import com.debanshu.xcalendar.common.DateRangeHelper
 import com.debanshu.xcalendar.domain.repository.ICalendarRepository
 import com.debanshu.xcalendar.domain.repository.IEventRepository
 import com.debanshu.xcalendar.domain.repository.IUserRepository
@@ -23,7 +23,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -44,16 +43,12 @@ class CalendarViewModel(
     private val eventRepository: IEventRepository,
     private val dateStateHolder: DateStateHolder,
     getUserCalendarsUseCase: GetUserCalendarsUseCase,
-    getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
+    private val getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
     private val getHolidaysForYearUseCase: GetHolidaysForYearUseCase,
     private val refreshHolidaysUseCase: RefreshHolidaysUseCase,
     getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ViewModel() {
     private val userId = getCurrentUserUseCase()
-    private val dateRange = DateUtils.getDateRange()
-    private val currentDate = dateRange.currentDate
-    private val startTime = dateRange.startTime
-    private val endTime = dateRange.endTime
     private val _uiState = MutableStateFlow(CalendarUiState(isLoading = true))
 
     @OptIn(ExperimentalAtomicApi::class)
@@ -106,8 +101,20 @@ class CalendarViewModel(
                 replay = 1,
             )
 
+    /**
+     * Events flow reacts to the current date — re-queried when today rolls
+     * over midnight (audit F2). Earlier the range was captured at VM init
+     * and never refreshed.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val events =
-        getEventsForDateRangeUseCase(userId, startTime, endTime)
+        dateStateHolder.currentDateState
+            .map { it.currentDate }
+            .distinctUntilChanged()
+            .flatMapLatest {
+                val range = DateRangeHelper.getDateRange()
+                getEventsForDateRangeUseCase(userId, range.startTime, range.endTime)
+            }
             .catch { exception ->
                 handleError("Failed to load events", exception)
                 emit(emptyList())
@@ -144,6 +151,7 @@ class CalendarViewModel(
 
     init {
         initializeData()
+        startMidnightTicker()
     }
 
     @OptIn(ExperimentalAtomicApi::class)
@@ -166,6 +174,19 @@ class CalendarViewModel(
                 } finally {
                     updateLoadingState(false)
                 }
+            }
+        }
+    }
+
+    /**
+     * Drives [DateStateHolder.resetToToday] on each midnight crossover so
+     * the events flow above refetches with the new date range. Lives for
+     * the ViewModel lifetime; cancelled by viewModelScope on `onCleared`.
+     */
+    private fun startMidnightTicker() {
+        viewModelScope.launch {
+            dateStateHolder.midnightTicker().collect {
+                dateStateHolder.resetToToday()
             }
         }
     }
@@ -222,7 +243,8 @@ class CalendarViewModel(
 
     private suspend fun initializeEvents() {
         runCatching {
-            eventRepository.syncEventsForCalendar(emptyList(), startTime, endTime)
+            val range = DateRangeHelper.getDateRange()
+            eventRepository.syncEventsForCalendar(emptyList(), range.startTime, range.endTime)
         }.onFailure { exception ->
             handleError("Failed to initialize events", exception)
         }

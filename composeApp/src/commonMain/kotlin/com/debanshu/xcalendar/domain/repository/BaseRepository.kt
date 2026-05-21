@@ -1,11 +1,11 @@
 package com.debanshu.xcalendar.domain.repository
 
 import com.debanshu.xcalendar.common.AppLogger
+import com.debanshu.xcalendar.common.ioDispatcher as platformIoDispatcher
 import com.debanshu.xcalendar.domain.util.DomainError
 import com.debanshu.xcalendar.domain.util.DomainResult
 import com.debanshu.xcalendar.domain.util.toDomainError
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
  * ```
  */
 abstract class BaseRepository(
-    protected val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+    protected val ioDispatcher: CoroutineDispatcher = platformIoDispatcher
 ) {
     /**
      * Tag for logging - defaults to class name

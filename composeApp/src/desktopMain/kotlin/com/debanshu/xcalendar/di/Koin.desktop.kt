@@ -25,7 +25,9 @@ actual fun getDatabase(): AppDatabase {
     return Room
         .databaseBuilder<AppDatabase>(dbFile.absolutePath)
         .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.Default)
+        // Use IO for blocking SQLite work. Default (compute pool) starves
+        // Compose layout/measure. See audit F32.
+        .setQueryCoroutineContext(Dispatchers.IO)
         // Apply all migrations - ensure migrations exist for all schema changes
         .addMigrations(*AppDatabase.MIGRATIONS)
         .build()

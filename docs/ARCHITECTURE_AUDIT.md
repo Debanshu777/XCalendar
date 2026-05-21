@@ -19,8 +19,8 @@
 
 | # | Status | Finding | File:line | Sev | CMP | Coro | Data |
 |---|--------|---------|-----------|-----|-----|------|------|
-| F1 | ⬜ | `BaseRepository.ioDispatcher = Dispatchers.Default` — DB+net on compute pool. **KMP nuance**: `Dispatchers.IO` doesn't exist on native; needs `expect/actual` | `BaseRepository.kt:33` | 🔴 | — | ⚠️ | ✅ |
-| F2 | ⬜ | Stale `currentDate`/`startTime`/`endTime` frozen at VM init; never updates → events miss after midnight or scroll past `endTime`. **`DateStateHolder.resetToToday()` exists but is never called** | `CalendarViewModel.kt:52-56, 110` | 🔴 | — | ✅ | — |
+| F1 | ✅ | `BaseRepository.ioDispatcher = Dispatchers.Default` — DB+net on compute pool. **KMP nuance**: `Dispatchers.IO` doesn't exist on native; needs `expect/actual` | `BaseRepository.kt:33` | 🔴 | — | ⚠️ | ✅ |
+| F2 | ✅ | Stale `currentDate`/`startTime`/`endTime` frozen at VM init; never updates → events miss after midnight or scroll past `endTime`. **`DateStateHolder.resetToToday()` exists but is never called** | `CalendarViewModel.kt:52-56, 110` | 🔴 | — | ✅ | — |
 | F3 | ⬜ | `ScheduleStateHolder._items` is `SnapshotStateList` (snapshot-safe, NOT thread-safe). Three parallel `launch` blocks in `ScheduleScreen` mutate it concurrently → corruption under stress | `ScheduleStateHolder.kt:35, 66-110`; `ScheduleScreen.kt:87-167` | 🔴 | ✅ | ✅ | — |
 | F4 | ⬜ | `CacheTimestampTracker` global `mutableMapOf`, no lock | `StoreValidator.kt:29-50` | 🟠 | — | ✅ | ✅ |
 | F5 | ⬜ | TTL validators (`EventValidator.isStale`, `HolidayValidator.isStale`, `recordFetch`, `invalidate`) **never called**. Store cache never expires by age — only by explicit `clear()` | `StoreValidator.kt:78-131` | 🟠 | — | ✅ | ✅ |
@@ -50,7 +50,7 @@
 | F29 | ⬜ | **No outbox pattern**: `EventRepository.create/update/delete` persist locally only (backend writes commented out at `EventStoreFactory.kt:100-123`). User sees "saved", server never receives. When backend ships, writes orphaned | `EventStoreFactory.kt:100-123`; `Updater.kt:117` | 🔴 | — | — | ➕ ✅ |
 | F30 | ⬜ | **No Room migrations**: `MIGRATIONS` array empty, `DATABASE_VERSION = 1`. Any future schema bump crashes app on upgrade | `AppDatabase.kt:19, 52-55` | 🟠 | — | — | ➕ ✅ |
 | F31 | ⬜ | **No DB encryption** on any platform; SQLite plaintext on disk. iOS keychain wrap absent | `AppDatabase.kt` (all platforms) | 🟠 | — | — | ➕ ✅ |
-| F32 | ⬜ | **Desktop Room context = `Dispatchers.Default`** (wrong — should be `IO`). Android correct (`IO`). iOS implicit Main (safe) | `Koin.desktop.kt:28` | 🟠 | — | — | ➕ ✅ |
+| F32 | ✅ | **Desktop Room context = `Dispatchers.Default`** (wrong — should be `IO`). Android correct (`IO`). iOS implicit Main (safe) | `Koin.desktop.kt:28` | 🟠 | — | — | ➕ ✅ |
 | F33 | ⬜ | Domain models (`Event`, `Holiday`, `Calendar`, `User`) likely lack `@Immutable`/`@Stable` → composables consuming them flagged unstable by Compose Compiler → unnecessary recomposition | `domain/model/*.kt` | 🟠 | ➕ ✅ | — | — |
 | F34 | ⬜ | `HorizontalPager` has no `beyondViewportPageCount` → no neighbour preload, jank on fast swipe | `SwipeablePager.kt:87-92` | 🟡 | ➕ ✅ | — | — |
 | F35 | ⬜ | `ImmutableList`/`ImmutableMap` lookup keyed `eventsByDate[date]` — if parent passes new map reference each recomposition (even unchanged content) → slot-table churn. Wrap with `@Stable data class` | `CalendarEventsGrid.kt:85, 118`; `SwipeableCalendarView.kt:65-72` | 🟡 | ➕ ✅ | — | — |
@@ -108,20 +108,20 @@ Each phase = one PR (or small stack). Phases sequenced by **dependency, blast ra
 
 ## Phase 1 — Correctness foundation 🔴
 
-**Status**: ⬜
+**Status**: ✅ Done
 Addresses F1, F2, F32.
 
-1. **F1 + F32** — Convert `BaseRepository.ioDispatcher` to KMP `expect/actual val ioDispatcher: CoroutineDispatcher`.
+1. **F1 + F32** — Converted `BaseRepository.ioDispatcher` to KMP `expect val ioDispatcher: CoroutineDispatcher`.
    - androidMain: `Dispatchers.IO`
    - desktopMain: `Dispatchers.IO`
-   - iosMain: `Dispatchers.Default` (no IO on native; document)
-   - Fix `Koin.desktop.kt:28` Room context to `Dispatchers.IO`.
-2. **F2** — Make date range reactive:
-   - Drop `currentDate`/`startTime`/`endTime` from VM fields.
-   - `events` flow becomes `dateStateHolder.currentDateState.flatMapLatest { ... getEventsForDateRangeUseCase(...) }` with sliding monthly window.
-   - Wire midnight tick into `DateStateHolder` so `resetToToday()` fires when day rolls over.
+   - iosMain: `Dispatchers.Default` (no IO on native; documented)
+   - Fixed `Koin.desktop.kt` Room context to `Dispatchers.IO`.
+2. **F2** — Made date range reactive:
+   - Dropped `currentDate`/`startTime`/`endTime` from VM fields.
+   - `events` flow now `dateStateHolder.currentDateState.map { currentDate }.distinctUntilChanged().flatMapLatest { getEventsForDateRangeUseCase(...) }`.
+   - Added `DateStateHolder.midnightTicker(): Flow<LocalDate>` driven by injectable `Clock`. VM `startMidnightTicker()` collects it and calls `resetToToday()`.
 
-**Verification**: mock-clock midnight test asserts new events appear; manual scroll past prior `endTime` loads events.
+**Verification**: `DateStateHolderMidnightTest` — 3 tests (midnight advance, selection preserved when moved off today, selection follows today forward). All pass. Full desktop test suite green; iOS Sim Arm64 compile green.
 
 ---
 
@@ -283,3 +283,4 @@ Addresses F31, F23 (final), F24.
 |------|------|
 | 2026-05-21 | Initial audit + plan committed. Phase 0 started. |
 | 2026-05-21 | Phase 0 complete. Baselines archived under `docs/compose-metrics/baseline/`. Coroutines-debug + atomicfu + RecomposeHighlighter wired. |
+| 2026-05-21 | Phase 1 complete. F1/F2/F32 fixed. `expect/actual ioDispatcher` per platform, reactive date range w/ midnight ticker, `DateStateHolderMidnightTest` added. |
