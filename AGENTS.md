@@ -1,5 +1,10 @@
 # Working in XCalendar
 
+For build-system migration work or stale Gradle IDE imports, use the repository
+skill at [.ai/skills/kotlin-toolchain-migration/SKILL.md](.ai/skills/kotlin-toolchain-migration/SKILL.md).
+Invoke it as `$kotlin-toolchain-migration` when installed in Codex. The `.ai/`
+copy is the versioned source; keep any installed copy in sync when updating it.
+
 ## Build system and setup
 
 XCalendar is a Kotlin/Compose Multiplatform application for Android, iOS, and
