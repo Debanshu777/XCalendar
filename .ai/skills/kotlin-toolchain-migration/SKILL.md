@@ -1,18 +1,20 @@
 ---
 name: kotlin-toolchain-migration
-description: Migrate Kotlin or Compose Multiplatform projects from Gradle to Kotlin Toolchain YAML modules, using a reference repository such as Kratos, and repair stale Gradle IDE imports after migration. Use for an explicitly requested build-system migration or problems with an already migrated project; ordinary Gradle dependency updates do not require this workflow.
+description: Migrate Kotlin and Compose Multiplatform projects from Gradle to Kotlin Toolchain YAML modules, optionally following a reference repository, and repair stale Gradle IDE imports after migration. Use for an explicitly requested build-system migration or problems with an already migrated project; ordinary Gradle dependency updates do not require this workflow.
 ---
 
 # Kotlin Toolchain migration
 
 Preserve application behavior and platform identities while replacing the build
-system. Treat a reference project as evidence of conventions, not a template to
-copy wholesale. This skill captures the XCalendar migration to Kratos-style
-modules; release-specific findings are separate from the workflow.
+system. Discover module names, targets, integrations, and versions from the
+repository being worked on. A reference repository is optional; no specific
+project, local directory, dependency stack, or module naming scheme is required.
+Treat references as evidence of conventions, not templates to copy wholesale.
+Release-specific findings are separate from the workflow.
 
 ## Select the work
 
-- **Migration:** inspect the source build and reference repository, then use the
+- **Migration:** inspect the source build and any supplied reference, then use the
   workflow below. If the request only says to adopt another project's setup,
   establish whether it includes changing the build system before removing Gradle.
   Reuse an explicit choice already made in the conversation.
@@ -35,20 +37,21 @@ bundle IDs and deployment targets, JVM release, database paths/schema history,
 resource accessor packages, entry points, and optional local configuration.
 Do not print credential values while inspecting configuration.
 
-Find the reference project's actual root. A supplied path can name a library
+When a reference is supplied, find its actual root. A path can name a library
 subdirectory; inspect its parents for `project.yaml` and wrappers. Read only the
 relevant modules and build plugins. Do not import unrelated native integrations,
 machine paths, trust stores, credentials, or application identities.
 
-If a new branch is requested, create one before edits, normally under `codex/`.
+If a new branch is requested, create one before edits using repository conventions.
 Keep unrelated staged/unstaged changes separate when committing. Creating or
 publishing a PR is conditional on the user's request, not implied by this skill.
 
 ## Establish versions and structure
 
-Inspect both reference wrappers and their checksums. For a requested latest
-upgrade, verify the current release against official sources. Otherwise retain
-the agreed pin. Kotlin Toolchain, Kotlin language, Compose, and KSP versions are
+Obtain matching POSIX/Windows wrappers from the selected official release or a
+verified reference, and inspect their checksums. For a requested latest upgrade,
+verify the current release against official sources. Otherwise retain the agreed
+pin. Kotlin Toolchain, Kotlin language, Compose, and KSP versions are
 different values: obtain defaults from the selected CLI rather than inferring
 them from the toolchain version.
 
@@ -63,16 +66,20 @@ Use the checked-in wrapper and release-specific help:
 ./kotlin run --help
 ```
 
+On Windows use `.\kotlin.bat`. Resolve module names with `show modules`; command
+examples in references use placeholders and are not ready-to-run project presets.
+
 Keep the POSIX wrapper executable, preserve Windows compatibility, and retain
 download checksum verification. Let the toolchain provision its runtime/JDK;
 preserve the intended bytecode release separately. Handle local proxy/trust-store
 needs through supported local environment settings rather than wrapper edits.
 
-For Kratos-style structure, register modules/plugins in `project.yaml`, place
-application entry points under `app/`, and use `module.yaml` per module. Move
-common code to `src/`, platform code to `src@<platform>/`, common tests to `test/`,
+Register modules/plugins in `project.yaml` and use `module.yaml` per module.
+Preserve a useful existing module organization; an `app/` hierarchy is optional.
+Separate platform entry points from shared code where the product model requires
+it. Move common code to `src/`, platform code to `src@<platform>/`, common tests to `test/`,
 and platform tests to `test@<platform>/`. Preserve package names. Move Compose
-resources and Room schemas with their owning shared module.
+resources and schemas with their owning modules when those integrations exist.
 
 Use a shared module template for genuinely shared settings. Keep application
 dependencies in the version catalog; replace Gradle BOM/plugin mechanics with
@@ -85,12 +92,15 @@ Translate custom tasks only when equivalent behavior is needed. Prefer built-in
 toolchain capabilities; use `build-logic/` plugins for remaining generation or
 packaging work. Keep their outputs under ignored build directories.
 
-For Room/Koin, optional API-key generation, Compose resources, and desktop
-packaging, consult [0.13 compatibility notes](references/toolchain-0.13.md).
-Verify generated code is consumed by each target; compilation of handwritten
-sources alone is insufficient.
+Apply only the integrations present in the project. Do not add Compose, Room,
+Koin, API-key generation, desktop packaging, or mobile targets solely because
+this skill discusses them. For applicable 0.13 issues, consult
+[0.13 compatibility notes](references/toolchain-0.13.md). Verify generated code
+is consumed by each target; compilation of handwritten sources alone is
+insufficient.
 
-Preserve the existing Xcode project's assets, configuration, and signing identity.
+For Apple applications, preserve the existing Xcode project's assets,
+configuration, and signing identity.
 Adapt its source paths, framework import, and Kotlin build phase to the selected
 toolchain. Verify the wrapper path from Xcode's working directory and inspect the
 actual shared scheme names. Account for customized settings before considering
@@ -102,10 +112,12 @@ does not make the migrated repository a Gradle build.
 
 ## Verify and hand over
 
-Build each supported application on an appropriate host. Run relevant common and
+Build each existing application/library on an appropriate host. Run relevant common and
 platform tests, plus focused tests for custom generation and packaging logic.
-Check resource accessors, Koin resolution, and Room read/write behavior against
-an isolated database. Compare committed schema history against the baseline.
+Check applicable generated interfaces and runtime integrations. For example,
+check resource accessors, DI graph resolution, and database read/write behavior
+against an isolated database if those systems exist. Compare any committed
+schema history against the baseline.
 
 Verify a clean checkout without optional local configuration. Keep it isolated
 from the working copy. For desktop distribution changes, launch the actual
