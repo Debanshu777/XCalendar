@@ -1,0 +1,11 @@
+modules:
+  - app/androidApp
+  - app/desktopApp
+  - app/iosApp
+  - app/shared
+  - build-logic/app-config
+  - build-logic/desktop-distribution
+
+plugins:
+  - ./build-logic/app-config
+  - ./build-logic/desktop-distribution

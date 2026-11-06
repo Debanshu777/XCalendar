@@ -1,0 +1,15 @@
+product: jvm/app
+
+apply:
+  - ../app.module-template.yaml
+
+plugins:
+  desktop-distribution: enabled
+
+dependencies:
+  - //app/shared
+  - $compose.desktop.currentOs
+
+settings:
+  jvm:
+    mainClass: com.debanshu.xcalendar.MainKt

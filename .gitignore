@@ -16,3 +16,6 @@ captures
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
+
+# Legacy local Gradle daemon selection; the Kotlin Toolchain provisions its own JDK.
+/gradle/gradle-daemon-jvm.properties

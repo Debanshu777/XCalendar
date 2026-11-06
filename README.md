@@ -49,8 +49,8 @@ XCalendar is a feature-rich calendar application that provides multiple viewing 
   - 📝 Schedule View - List-based event schedule with infinite scroll
 
 - **Cross-Platform Support**
-  - 🤖 Android (API 30+)
-  - 🍎 iOS (arm64, x64, Simulator)
+  - 🤖 Android (API 33+)
+  - 🍎 iOS (arm64 devices and Apple Silicon Simulator)
   - 🖥️ Desktop (Windows, macOS, Linux)
 
 - **Event Management**
@@ -87,78 +87,66 @@ XCalendar is a feature-rich calendar application that provides multiple viewing 
 
 | Category | Technology | Version |
 |----------|------------|---------|
-| **Language** | Kotlin | 2.3.0 |
-| **UI Framework** | Compose Multiplatform | 1.10.0-rc02 |
-| **UI Design** | Material 3 Expressive | 1.10.0-alpha05 |
-| **Database** | Room | 2.8.4 |
-| **SQLite** | SQLite Bundled | 2.6.2 |
-| **Networking** | Ktor Client | 3.3.3 |
-| **DI Framework** | Koin | 4.1.1 |
-| **DI Compiler** | Koin KSP | 2.3.1 |
-| **Navigation** | Navigation3 | 1.0.0-alpha06 |
-| **Date/Time** | kotlinx-datetime | 0.7.1 |
-| **Image Loading** | Landscapist Coil3 | 2.8.2 |
-| **Dynamic Colors** | MaterialKolor | 4.0.5 |
-| **Caching** | Store5 | 5.1.0-alpha07 |
-| **Adaptive UI** | Compose Adaptive | 1.3.0-alpha03 |
-| **Build Config** | BuildKonfig | 0.17.1 |
+| **Build System** | Kotlin Toolchain | 0.13.0 |
+| **Language** | Kotlin | 2.4.20 (toolchain default) |
+| **UI Framework** | Compose Multiplatform | 1.12.1 (toolchain default) |
+| **UI Design** | Material 3 Expressive | Toolchain Compose catalog |
+| **Code Generation** | KSP | 2.3.12 (toolchain default) |
+| **Database** | Room / SQLite Bundled | 2.8.4 / 2.6.2 |
+| **Networking** | Ktor Client | 3.5.0 |
+| **DI** | Koin / Koin Annotations | 4.2.1 / 2.3.1 |
+| **Navigation** | Navigation3 / Lifecycle | 1.2.0 / 2.11.0 |
+| **Date/Time** | kotlinx-datetime | 0.8.0 |
+| **Image Loading** | Landscapist Coil3 | 2.9.7 |
+| **Dynamic Colors** | MaterialKolor | 4.1.1 |
+| **Caching** | Store5 | 5.1.0-alpha08 |
+| **Adaptive UI** | Compose Adaptive | 1.3.0 |
 | **Collections** | kotlinx-collections-immutable | 0.4.0 |
-| **Logging** | Kermit | 2.0.8 |
-| **Build System** | Gradle (AGP) | 8.13.2 |
-| **Android SDK** | Compile/Target SDK | 36 |
+| **Logging** | Kermit | 2.1.0 |
+| **Glass Effects** | ShaderX | 0.1.3 |
+| **Android SDK** | Compile / Target / Minimum | 37 / 36 / 33 |
+| **Java** | Provisioned JDK / JVM release | 25 / 23 |
 
-### **Platform-Specific Dependencies**
-
-| Platform | HTTP Client | Additional |
-|----------|-------------|------------|
-| Android | Ktor OkHttp | Koin Android, Activity Compose 1.12.2 |
-| iOS | Ktor Darwin | - |
-| Desktop | Ktor OkHttp | Kotlinx Coroutines Swing 1.10.2 |
+Application library versions live in [`libs.versions.toml`](libs.versions.toml).
+The pinned wrapper owns compiler, Compose, and KSP defaults. Android and desktop
+use Ktor OkHttp; iOS uses Ktor Darwin. Platform entry points are separate modules.
 
 ### **Project Structure**
 
-```
+```text
 XCalendar/
-├── 📁 assets/                          # Static data & screenshots
-│   ├── calendars.json                  # Calendar categories
-│   ├── events.json                     # Sample events
-│   └── screenshots/                    # README images
-├── 📁 composeApp/
-│   ├── build.gradle.kts                # Module configuration
-│   ├── schemas/                        # Room database schemas
-│   └── src/
-│       ├── 📁 commonMain/kotlin/com/debanshu/xcalendar/
-│       │   ├── CalendarApp.kt          # Main app composable
-│       │   ├── common/                 # Extensions, utilities, mappers, logging
-│       │   ├── data/
-│       │   │   ├── localDataSource/    # Room DB, DAOs, entities
-│       │   │   ├── remoteDataSource/   # Ktor APIs, models, error handling
-│       │   │   └── store/              # Store5 caching layer
-│       │   ├── di/                     # Koin DI modules
-│       │   ├── domain/
-│       │   │   ├── model/              # Domain models
-│       │   │   ├── repository/         # Data repositories
-│       │   │   ├── states/             # UI state management
-│       │   │   ├── usecase/            # Use cases (calendar, event, holiday, user)
-│       │   │   └── util/               # Domain utilities & error mapping
-│       │   └── ui/
-│       │       ├── CalendarViewModel.kt
-│       │       ├── components/         # Reusable UI components
-│       │       ├── navigation/         # Navigation3 setup
-│       │       ├── screen/             # Calendar view screens
-│       │       ├── state/              # State holders (Date, Schedule)
-│       │       ├── theme/              # Material3 Expressive theme
-│       │       ├── transition/         # Shared element transitions
-│       │       ├── utils/              # UI utilities & formatters
-│       │       └── viewmodel/          # Feature-specific ViewModels
-│       ├── 📁 androidMain/             # Android-specific code
-│       ├── 📁 iosMain/                 # iOS-specific code
-│       └── 📁 desktopMain/             # Desktop-specific code
-├── 📁 iosApp/                          # iOS Xcode project
-├── 📁 gradle/
-│   └── libs.versions.toml              # Version catalog
-└── local.properties                    # API keys (gitignored)
+├── kotlin / kotlin.bat             # Checksummed Kotlin Toolchain wrappers
+├── project.yaml                    # Module and plugin registration
+├── libs.versions.toml              # Application dependency catalog
+├── AGENTS.md                       # Setup, architecture, and validation guidelines
+├── app/
+│   ├── app.module-template.yaml    # Shared compiler and platform settings
+│   ├── androidApp/                 # Android app, src/AndroidManifest.xml, res/
+│   ├── desktopApp/                 # JVM desktop app and src/ entry point
+│   ├── iosApp/                     # Swift/Kotlin src/, assets, module.xcodeproj
+│   └── shared/
+│       ├── module.yaml             # Shared dependencies and Room/Koin KSP
+│       ├── src/                    # Common Kotlin: UI, domain, data, DI
+│       ├── src@android/            # Android database adapter and Koin bridge
+│       ├── src@ios/                # iOS database adapter
+│       ├── src@iosArm64/           # Device Koin bridge
+│       ├── src@iosSimulatorArm64/  # Simulator Koin bridge
+│       ├── src@jvm/                # Desktop database adapter and Koin bridge
+│       ├── test/                   # Common regression tests
+│       ├── composeResources/       # Shared images and resource accessors
+│       └── schemas/                # Room database schema history
+├── build-logic/
+│   ├── app-config/                 # Optional API key generation plugin
+│   └── desktop-distribution/       # Desktop packaging with complete classpath
+├── assets/                         # Demo data and screenshots
+└── local.properties               # Optional API_KEY (ignored)
 ```
+
+CI runs JVM tests and desktop packaging on Linux, macOS, and Windows, plus
+Android build/tests and an iOS simulator build on their respective hosts.
+
+The module layout follows Kratos: `src/`, `src@<platform>/`, `test/`, and YAML
+configuration. See [AGENTS.md](AGENTS.md) for contribution and validation rules.
 
 ### **Data Models**
 
@@ -250,73 +238,107 @@ data class Holiday(
 
 ### **Prerequisites**
 
-- **JDK 23** (required for JVM target 23)
-- **Android Studio Ladybug** (2024.2.1) or later
-- **Kotlin 2.3.0+**
-- **Xcode 15+** (for iOS builds, macOS only)
+- Network access for the wrapper and Maven dependencies on the first build.
+- Android SDK for Android builds; set `ANDROID_HOME` to an existing installation.
+- Full Xcode and an iOS SDK/simulator runtime for iOS (macOS only).
+- Kotlin Toolchain and Kotlin Multiplatform IDE plugins for project import.
+
+The checked-in wrapper bootstraps its runtime and provisions JDK 25 for builds.
+There is no machine-specific Java path or Gradle sync step. The JVM bytecode
+release remains 23.
 
 ### **Installation**
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Debanshu777/XCalendar.git
-   cd XCalendar
-   ```
-
-2. **Configure API Key (Optional)**
-   
-   For live holiday data, add to `local.properties`:
-   ```properties
-   API_KEY=your_calendarific_api_key
-   ```
-   Get a free API key at [Calendarific](https://calendarific.com)
-   
-   > **Note:** API key works across all platforms (Android, iOS, Desktop) via BuildKonfig
-
-3. **Open in Android Studio**
-   - Open the project in Android Studio
-   - Sync Gradle files
-   - Wait for dependencies to download
-
-### **Build Commands**
-
-**Android:**
-```bash
-# Build debug APK
-./gradlew :composeApp:assembleDebug
-
-# Install on connected device
-./gradlew :composeApp:installDebug
+```sh
+git clone https://github.com/Debanshu777/XCalendar.git
+cd XCalendar
+./kotlin --version
+./kotlin show modules
 ```
 
-**iOS (macOS only):**
-```bash
-# Build framework for simulator
-./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+On Windows use `.\kotlin.bat` in place of `./kotlin`. Open the repository root
+in a compatible IDE with the Kotlin Toolchain plugin.
 
-# Build framework for device
-./gradlew :composeApp:linkDebugFrameworkIosArm64
-```
-Then open `iosApp/iosApp.xcodeproj` in Xcode and run.
+For live holiday data, optionally add your Calendarific key to root
+`local.properties` (see [Calendarific](https://calendarific.com)):
 
-**Desktop:**
-```bash
-# Run directly
-./gradlew :composeApp:run
-
-# Build executable JAR
-./gradlew :composeApp:desktopJar
-
-# Package for distribution
-./gradlew :composeApp:packageDmg    # macOS (.dmg)
-./gradlew :composeApp:packageMsi    # Windows (.msi)
-./gradlew :composeApp:packageDeb    # Linux (.deb)
+```properties
+API_KEY=your_calendarific_api_key
 ```
 
-**Clean build:**
-```bash
-./gradlew clean
+The local app-config plugin generates the same `BuildKonfig.API_KEY` contract
+for every platform. Missing configuration produces an empty key. Keep this file
+and generated outputs out of version control. API keys compiled into client apps
+are extractable; use a backend proxy for credentials that must remain secret.
+
+### **Build, Run, and Test**
+
+Run these commands from the repository root:
+
+```sh
+# Android
+./kotlin build -m androidApp -p android
+./kotlin run -m androidApp
+
+# Desktop (Windows, macOS, Linux)
+./kotlin build -m desktopApp -p jvm
+./kotlin run -m desktopApp
+
+# iOS simulator / device (macOS only)
+./kotlin build -m iosApp -p iosSimulatorArm64
+./kotlin run -m iosApp -p iosSimulatorArm64
+./kotlin build -m iosApp -p iosArm64
+
+# Regression tests
+./kotlin test -m app-config -m desktop-distribution -p jvm
+./kotlin test -m shared -p jvm
+./kotlin test -m shared -p android
+./kotlin test -m shared -p iosSimulatorArm64
 ```
+
+Use `-v release` for release builds. `./kotlin build` builds all configured
+platforms. iOS tests need an available simulator. Use `./kotlin run --help` for
+`--device-id` selection. Avoid routine cleans so incremental build caches remain
+useful.
+
+### **Distribution**
+
+```sh
+# Desktop distribution for the current OS/architecture
+./kotlin do packageDesktop -m desktopApp
+
+# Android release app bundle; configure release signing before publishing
+./kotlin package -m androidApp -f aab
+```
+
+The desktop command prints a directory containing a launcher `XCalendar.jar`
+and a `lib/` folder. Keep them together and run:
+
+```sh
+java --enable-native-access=ALL-UNNAMED -jar <distribution-directory>/XCalendar.jar
+```
+
+The packaging plugin preserves distinct dependencies that share a filename.
+Kotlin Toolchain 0.13's built-in `executable-jar` format loses some AndroidX and
+JetBrains redirect JARs, so use `packageDesktop` for this application. Build on
+each target OS because Compose includes native libraries.
+
+Create native installers with a full JDK's `jpackage`, using the printed
+distribution directory as input, for example on macOS:
+
+```sh
+jpackage --type dmg --name XCalendar --app-version 1.0.0 \
+  --input <distribution-directory> --main-jar XCalendar.jar \
+  --java-options --enable-native-access=ALL-UNNAMED --dest build/distributions
+```
+
+Use `--type msi` on Windows or `--type deb` on Linux with the host's packaging
+tools installed. Kotlin Toolchain 0.13 has no built-in DMG/MSI/DEB tasks.
+
+For iOS, open `app/iosApp/module.xcodeproj`. It retains XCalendar's app identity,
+icons, and signing configuration and invokes the Kotlin wrapper automatically.
+Swift imports `KotlinModules`; the old `ComposeApp` framework and Gradle build
+phase have been removed.
 
 ## 📱 App Flow & Navigation
 
@@ -404,10 +426,11 @@ The app comes with pre-configured calendar categories:
 
 ## 🧪 Testing
 
-The project includes comprehensive testing infrastructure:
-- **Test Tags**: UI components tagged for automated testing
-- **State Testing**: ViewModel and state management testing
-- **Component Testing**: Individual UI component testing
+The shared tests cover event/calendar use cases and ViewModel state. The JVM
+integration test resolves the generated Koin graph and reads/writes an in-memory
+Room database. Build-plugin tests cover missing, changed, and escaped API keys,
+plus runtime classpath collisions and stale dependency cleanup.
+Run the commands in **Build, Run, and Test** above.
 
 ## 📊 Performance Features
 
@@ -418,7 +441,7 @@ The project includes comprehensive testing infrastructure:
   - `debounce(30ms)` batches rapid state changes
   - `ImmutableList` for stable recomposition
 - **Flow Sharing**: `shareIn(WhileSubscribed(5000))` for efficient data sharing
-- **Compose Stability**: Configuration via `stability_config.conf`
+- **Compose Stability**: Immutable models and the toolchain's Compose compiler
 - **Memory Management**: Scoped coroutines with proper lifecycle handling
 
 ## 🔮 Future Enhancements

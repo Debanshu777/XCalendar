@@ -1,0 +1,49 @@
+name: Kotlin Toolchain
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: toolchain-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            wrapper: ./kotlin
+          - os: macos-latest
+            wrapper: ./kotlin
+          - os: windows-latest
+            wrapper: .\kotlin.bat
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Verify toolchain and modules
+        run: |
+          ${{ matrix.wrapper }} --version
+          ${{ matrix.wrapper }} show modules
+      - name: Test build configuration and shared application
+        run: ${{ matrix.wrapper }} test -m app-config -m desktop-distribution -m shared -p jvm
+      - name: Build desktop application
+        run: ${{ matrix.wrapper }} build -m desktopApp -p jvm
+      - name: Package desktop application
+        run: ${{ matrix.wrapper }} do packageDesktop -m desktopApp
+      - name: Build and test Android
+        if: runner.os == 'Linux'
+        run: |
+          ./kotlin build -m androidApp -p android
+          ./kotlin test -m shared -p android
+      - name: Build iOS simulator application
+        if: runner.os == 'macOS'
+        run: ./kotlin build -m iosApp -p iosSimulatorArm64

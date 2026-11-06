@@ -1,0 +1,55 @@
+[versions]
+adaptive = "1.3.0"
+androidx-activityCompose = "1.13.0"
+androidx-lifecycle = "2.11.0"
+coil3 = "2.9.7"
+kotlinxCollectionsImmutable = "0.4.0"
+room_version = "2.8.4"
+sqlite = "2.6.2"
+ktor-bom = "3.5.0"
+koin-bom = "4.2.1"
+koin-annotations = "2.3.1"
+kotlinx-datetime = "0.8.0"
+navigation = "1.2.0"
+materialKolor = "4.1.1"
+kotlinx-coroutines = "1.11.0"
+store = "5.1.0-alpha08"
+kermit = "2.1.0"
+shaderx = "0.1.3"
+
+[libraries]
+androidx-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "adaptive" }
+androidx-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "adaptive" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
+landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "coil3" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-bom" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor-bom" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor-bom" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-bom" }
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor-bom" }
+material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
+
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin-bom" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin-bom" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin-bom" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
+# KSP runs on the host JVM, even when processing Android or iOS sources.
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler-jvm", version.ref = "koin-annotations" }
+
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room_version" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room_version" }
+sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sqlite" }
+
+navigation3-compose-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation" }
+navigation3-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3",version.ref = "androidx-lifecycle" }
+materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+shaderx = { module = "io.github.debanshu777:shaderx", version.ref = "shaderx" }
