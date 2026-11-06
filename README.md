@@ -259,6 +259,24 @@ cd XCalendar
 On Windows use `.\kotlin.bat` in place of `./kotlin`. Open the repository root
 in a compatible IDE with the Kotlin Toolchain plugin.
 
+#### Existing checkouts previously opened with Gradle
+
+Android Studio may retain the old Gradle project link in ignored `.idea/`
+settings after switching to this branch. If sync reports that XCalendar
+"does not contain a Gradle build", reimport the project:
+
+1. Close the XCalendar project in the IDE.
+2. Move its `.idea/` directory into a backup directory outside the active
+   project settings (for example, under ignored `.kotlin/ide-backups/`).
+3. Use **File → Open** to reopen the repository root with the **Kotlin Toolchain**
+   plugin enabled, and let it import `project.yaml`.
+4. Use the toolchain's run configuration for the desired app module, or run
+   `./kotlin run -m androidApp` / `./kotlin run -m desktopApp` from the root.
+
+Do not run `gradle init` or recreate Gradle settings. A Gradle JVM warning during
+this failed sync is a symptom of the stale project import; selecting a different
+Gradle JVM will not restore the removed Gradle build.
+
 For live holiday data, optionally add your Calendarific key to root
 `local.properties` (see [Calendarific](https://calendarific.com)):
 
