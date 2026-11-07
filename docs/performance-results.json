@@ -1,0 +1,584 @@
+{
+  "baseline_commit": "adbd2c8",
+  "notes": [
+    "Release builds; diagnostic and unprofiled measurements are separate.",
+    "One accepted diagnostic capture per workload/build. Counts include initial composition.",
+    "Android is a physical Pixel 9; iOS is an iPhone 18 Pro simulator on iOS 27.",
+    "Sparse November 2026 demo data; these are not dense calendar or backend benchmarks."
+  ],
+  "android": {
+    "startup_ms": {
+      "baseline": [
+        301,
+        289,
+        258,
+        267,
+        271,
+        262,
+        275,
+        263,
+        270,
+        262
+      ],
+      "after": [
+        234,
+        225,
+        238,
+        227,
+        223,
+        220,
+        251,
+        242,
+        233,
+        218
+      ]
+    },
+    "diagnostics": {
+      "navigation": {
+        "baseline": {
+          "artifact": "baseline-v3/navigation/trace.perfetto-trace",
+          "frames": {
+            "frames": 1033,
+            "mean_ms": 8.471,
+            "p50_ms": 6.966,
+            "p90_ms": 13.643,
+            "p95_ms": 15.848,
+            "p99_ms": 27.338,
+            "self_jank": 19,
+            "app_deadline_missed": 8,
+            "max_ms": 61.706
+          },
+          "cpu_ms": {
+            "main": 3998.824,
+            "RenderThread": 2142.817
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.components.CalendarBottomNavigationBar": 1033,
+            "com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell": 756
+          }
+        },
+        "after": {
+          "artifact": "after/navigation/trace.perfetto-trace",
+          "frames": {
+            "frames": 822,
+            "mean_ms": 6.13,
+            "p50_ms": 4.877,
+            "p90_ms": 10.648,
+            "p95_ms": 12.072,
+            "p99_ms": 23.3,
+            "self_jank": 15,
+            "app_deadline_missed": 6,
+            "max_ms": 43.13
+          },
+          "cpu_ms": {
+            "main": 2516.247,
+            "RenderThread": 1710.989
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell": 672,
+            "com.debanshu.xcalendar.ui.components.NavBarSurface": 223,
+            "com.debanshu.xcalendar.ui.components.CalendarBottomNavigationBar": 30
+          }
+        }
+      },
+      "month": {
+        "baseline": {
+          "artifact": "baseline-v3/month/trace.perfetto-trace",
+          "frames": {
+            "frames": 866,
+            "mean_ms": 11.262,
+            "p50_ms": 10.318,
+            "p90_ms": 14.772,
+            "p95_ms": 15.961,
+            "p99_ms": 51.546,
+            "self_jank": 53,
+            "app_deadline_missed": 25,
+            "max_ms": 107.925
+          },
+          "cpu_ms": {
+            "main": 4795.731,
+            "RenderThread": 2543.998
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell": 6240
+          }
+        },
+        "after": {
+          "artifact": "after/month/trace.perfetto-trace",
+          "frames": {
+            "frames": 904,
+            "mean_ms": 10.541,
+            "p50_ms": 9.977,
+            "p90_ms": 12.974,
+            "p95_ms": 14.628,
+            "p99_ms": 35.475,
+            "self_jank": 33,
+            "app_deadline_missed": 6,
+            "max_ms": 89.709
+          },
+          "cpu_ms": {
+            "main": 4010.546,
+            "RenderThread": 2604.856
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell": 5544
+          }
+        }
+      },
+      "schedule": {
+        "baseline": {
+          "artifact": "baseline-v3/schedule/trace.perfetto-trace",
+          "frames": {
+            "frames": 1057,
+            "mean_ms": 5.287,
+            "p50_ms": 5.005,
+            "p90_ms": 7.059,
+            "p95_ms": 8.148,
+            "p99_ms": 11.918,
+            "self_jank": 7,
+            "app_deadline_missed": 4,
+            "max_ms": 22.158
+          },
+          "cpu_ms": {
+            "main": 3508.239,
+            "RenderThread": 2115.626
+          },
+          "composition": {}
+        },
+        "after": {
+          "artifact": "after/schedule/trace.perfetto-trace",
+          "frames": {
+            "frames": 1055,
+            "mean_ms": 5.41,
+            "p50_ms": 5.049,
+            "p90_ms": 7.172,
+            "p95_ms": 8.202,
+            "p99_ms": 12.463,
+            "self_jank": 7,
+            "app_deadline_missed": 4,
+            "max_ms": 22.136
+          },
+          "cpu_ms": {
+            "main": 3546.229,
+            "RenderThread": 2083.81
+          },
+          "composition": {}
+        }
+      },
+      "dropdown": {
+        "baseline": {
+          "artifact": "baseline-v4/dropdown/trace.perfetto-trace",
+          "frames": {
+            "frames": 548,
+            "mean_ms": 12.759,
+            "p50_ms": 11.983,
+            "p90_ms": 16.957,
+            "p95_ms": 18.736,
+            "p99_ms": 27.241,
+            "self_jank": 37,
+            "app_deadline_missed": 18,
+            "max_ms": 40.951
+          },
+          "cpu_ms": {
+            "main": 3868.317,
+            "RenderThread": 1439.882
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.screen.monthScreen.components.DayCell": 19236,
+            "com.debanshu.xcalendar.ui.components.TopAppBarDayCell": 150,
+            "com.debanshu.xcalendar.ui.components.TopAppBarEmptyPagingDayCell": 35
+          }
+        },
+        "after": {
+          "artifact": "after/dropdown/trace.perfetto-trace",
+          "frames": {
+            "frames": 549,
+            "mean_ms": 11.828,
+            "p50_ms": 11.537,
+            "p90_ms": 14.448,
+            "p95_ms": 15.487,
+            "p99_ms": 22.129,
+            "self_jank": 4,
+            "app_deadline_missed": 3,
+            "max_ms": 56.8
+          },
+          "cpu_ms": {
+            "main": 3175.605,
+            "RenderThread": 1531.863
+          },
+          "composition": {
+            "com.debanshu.xcalendar.ui.components.TopAppBarDayCell": 150
+          }
+        }
+      },
+      "dialog": {
+        "after": {
+          "artifact": "after/dialog/trace.perfetto-trace",
+          "frames": {
+            "frames": 1155,
+            "mean_ms": 7.309,
+            "p50_ms": 5.575,
+            "p90_ms": 11.426,
+            "p95_ms": 11.815,
+            "p99_ms": 15.654,
+            "self_jank": 11,
+            "app_deadline_missed": 10,
+            "max_ms": 69.87
+          },
+          "cpu_ms": {
+            "RenderThread": 2642.017,
+            "main": 2183.646
+          },
+          "composition": {}
+        }
+      }
+    }
+  },
+  "after_app_commit": "3956546",
+  "ios": {
+    "notes": [
+      "Final journey uses identical 70%-width drags with 0.5-second settling pauses.",
+      "Exploratory journeys used default slow swipes that could snap back; they are excluded from the final journey comparison.",
+      "Launch samples are independent of the gesture change; all measured launch runs are retained.",
+      "The initial after runners reported completed metrics but had harness assertion failures; their result coordinators required termination. Final validation uses a separate successful bundle.",
+      "Time Profiler sampling is qualitative, not exact recomposition counting."
+    ],
+    "runs": {
+      "baseline_launch": {
+        "log": "baseline/ios-tests.log",
+        "metrics": {
+          "launch_s": {
+            "mean": 1.987,
+            "relative_stddev_percent": 4.153,
+            "samples": [
+              1.941533,
+              2.180806,
+              2.090787,
+              1.956322,
+              2.014948,
+              1.903523,
+              1.909691,
+              1.968348,
+              1.954839,
+              1.946815
+            ]
+          }
+        }
+      },
+      "baseline_exploratory": {
+        "log": "baseline/ios-journey-v2.log",
+        "metrics": {
+          "wall_s": {
+            "mean": 7.871,
+            "relative_stddev_percent": 0.558,
+            "samples": [
+              7.926176,
+              7.899348,
+              7.857146,
+              7.877598,
+              7.796384
+            ]
+          },
+          "absolute_memory_kb": {
+            "mean": 112891.701,
+            "relative_stddev_percent": 0.658,
+            "samples": [
+              112101.992,
+              113642.088,
+              112511.592,
+              112282.216,
+              113920.616
+            ]
+          },
+          "app_cpu_s": {
+            "mean": 1.697,
+            "relative_stddev_percent": 3.985,
+            "samples": [
+              1.741281,
+              1.689666,
+              1.668498,
+              1.792617,
+              1.592619
+            ]
+          },
+          "peak_memory_kb": {
+            "mean": 114887.272,
+            "relative_stddev_percent": 0.941,
+            "samples": [
+              112986.728,
+              116083.304,
+              115231.336,
+              114510.44,
+              115624.552
+            ]
+          }
+        }
+      },
+      "after_exploratory_1": {
+        "log": "after/ios-final-tests.log",
+        "metrics": {
+          "wall_s": {
+            "mean": 8.129,
+            "relative_stddev_percent": 2.945,
+            "samples": [
+              7.874989,
+              8.053476,
+              8.554754,
+              8.202499,
+              7.956782
+            ]
+          },
+          "absolute_memory_kb": {
+            "mean": 100728.195,
+            "relative_stddev_percent": 0.7,
+            "samples": [
+              101354.064,
+              99535.44,
+              101026.384,
+              100338.256,
+              101386.832
+            ]
+          },
+          "app_cpu_s": {
+            "mean": 1.639,
+            "relative_stddev_percent": 13.764,
+            "samples": [
+              1.499653,
+              1.712593,
+              2.01681,
+              1.623052,
+              1.344488
+            ]
+          },
+          "peak_memory_kb": {
+            "mean": 102097.898,
+            "relative_stddev_percent": 1.15,
+            "samples": [
+              101763.664,
+              104385.104,
+              101108.304,
+              101845.584,
+              101386.832
+            ]
+          },
+          "launch_s": {
+            "mean": 2.053,
+            "relative_stddev_percent": 6.475,
+            "samples": [
+              1.902142,
+              2.01318,
+              2.418062,
+              1.981426,
+              2.034692,
+              1.976154,
+              2.078977,
+              2.094904,
+              2.049151,
+              1.980352
+            ]
+          }
+        }
+      },
+      "after_exploratory_2": {
+        "log": "after/ios-verified-tests.log",
+        "metrics": {
+          "wall_s": {
+            "mean": 7.878,
+            "relative_stddev_percent": 0.518,
+            "samples": [
+              7.886116,
+              7.910617,
+              7.928629,
+              7.818611,
+              7.844798
+            ]
+          },
+          "absolute_memory_kb": {
+            "mean": 97720.093,
+            "relative_stddev_percent": 1.242,
+            "samples": [
+              96619.088,
+              95947.344,
+              99093.072,
+              98421.328,
+              98519.632
+            ]
+          },
+          "app_cpu_s": {
+            "mean": 1.487,
+            "relative_stddev_percent": 4.823,
+            "samples": [
+              1.551115,
+              1.593728,
+              1.412594,
+              1.435263,
+              1.442285
+            ]
+          },
+          "peak_memory_kb": {
+            "mean": 99754.986,
+            "relative_stddev_percent": 1.7,
+            "samples": [
+              97323.6,
+              100534.864,
+              99093.072,
+              102451.792,
+              99371.6
+            ]
+          },
+          "launch_s": {
+            "mean": 1.894,
+            "relative_stddev_percent": 1.298,
+            "samples": [
+              1.915282,
+              1.899186,
+              1.882719,
+              1.91849,
+              1.899683,
+              1.882434,
+              1.895115,
+              1.883989,
+              1.927449,
+              1.835293
+            ]
+          }
+        }
+      },
+      "baseline_final": {
+        "log": "baseline/ios-final-v4.log",
+        "metrics": {
+          "wall_s": {
+            "mean": 9.696,
+            "relative_stddev_percent": 0.58,
+            "samples": [
+              9.7489,
+              9.776085,
+              9.639357,
+              9.644177,
+              9.669063
+            ]
+          },
+          "absolute_memory_kb": {
+            "mean": 118082.128,
+            "relative_stddev_percent": 2.382,
+            "samples": [
+              113330.768,
+              118114.896,
+              117443.152,
+              119704.144,
+              121817.68
+            ]
+          },
+          "app_cpu_s": {
+            "mean": 2.189,
+            "relative_stddev_percent": 3.503,
+            "samples": [
+              2.300038,
+              2.260227,
+              2.103196,
+              2.143671,
+              2.138219
+            ]
+          },
+          "peak_memory_kb": {
+            "mean": 119664.822,
+            "relative_stddev_percent": 2.434,
+            "samples": [
+              114739.792,
+              118114.896,
+              120916.56,
+              121752.144,
+              122800.72
+            ]
+          }
+        }
+      },
+      "after_final": {
+        "log": "after/ios-final-v4.log",
+        "metrics": {
+          "wall_s": {
+            "mean": 9.751,
+            "relative_stddev_percent": 0.631,
+            "samples": [
+              9.810322,
+              9.832395,
+              9.697521,
+              9.675068,
+              9.737406
+            ]
+          },
+          "absolute_memory_kb": {
+            "mean": 96995.91,
+            "relative_stddev_percent": 3.31,
+            "samples": [
+              95242.808,
+              93604.408,
+              97225.296,
+              95930.96,
+              102976.08
+            ]
+          },
+          "app_cpu_s": {
+            "mean": 1.881,
+            "relative_stddev_percent": 3.467,
+            "samples": [
+              1.965646,
+              1.918065,
+              1.772735,
+              1.852335,
+              1.894262
+            ]
+          },
+          "peak_memory_kb": {
+            "mean": 98830.918,
+            "relative_stddev_percent": 3.466,
+            "samples": [
+              95849.016,
+              96717.368,
+              98617.936,
+              97536.592,
+              105433.68
+            ]
+          },
+          "launch_s": {
+            "mean": 1.936,
+            "relative_stddev_percent": 3.223,
+            "samples": [
+              1.88597,
+              1.942859,
+              1.977077,
+              1.973623,
+              1.934748,
+              1.832198,
+              1.97601,
+              1.892091,
+              2.062217,
+              1.880891
+            ]
+          }
+        }
+      }
+    },
+    "builds": {
+      "baseline": {
+        "bundle_id": "com.debanshu.xcalendar.XCalendar",
+        "executable_sha256": "7398a6cd26af1cb726bcb1467ba961bcd0bcef6d11c33971a2e0691fe388198f"
+      },
+      "after": {
+        "bundle_id": "com.debanshu.xcalendar.XCalendar",
+        "executable_sha256": "bc2deea39d93d025039cbdf8ef9bfe024de9d31a4f023804335841378f2bac06"
+      }
+    },
+    "final_xctest_passed": 4,
+    "profile": {
+      "artifact": "after/ios-profile-final/cpu.trace",
+      "duration_s": 60,
+      "samples": 5778,
+      "samples_with_symbols": 5778,
+      "main_thread_sampled_ms": 4136,
+      "day_cell_inclusive_sampled_ms": 718,
+      "compose_metal_redraw_inclusive_sampled_ms": 1591,
+      "warning": "One Instruments table has no known input source; time-profile exported with app symbols. Qualitative analysis only; baseline profile used exploratory gestures."
+    }
+  }
+}
