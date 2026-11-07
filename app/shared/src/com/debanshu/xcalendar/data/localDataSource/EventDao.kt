@@ -14,15 +14,15 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EventDao {
-    @Query("SELECT * FROM events " +
+    @Query("SELECT events.* FROM events " +
             "INNER JOIN calendars ON events.calendarId = calendars.id "+
-            "WHERE calendars.userId = :userId AND startTime >= :startTime AND endTime <= :endTime")
+            "WHERE calendars.userId = :userId AND events.startTime < :endTime AND events.endTime > :startTime")
     fun getEventsBetweenDates(userId: String, startTime: Long, endTime: Long): Flow<List<EventEntity>>
 
     @Transaction
     @Query("SELECT events.* FROM events " +
             "INNER JOIN calendars ON events.calendarId = calendars.id " +
-            "WHERE calendars.userId = :userId AND startTime >= :startTime AND endTime <= :endTime")
+            "WHERE calendars.userId = :userId AND events.startTime < :endTime AND events.endTime > :startTime")
     fun getEventsWithRemindersBetweenDates(userId: String, startTime: Long, endTime: Long): Flow<List<EventWithReminders>>
 
     @Query("SELECT * FROM events WHERE id = :eventId")
@@ -35,6 +35,16 @@ interface EventDao {
     @Transaction
     @Query("SELECT * FROM events WHERE id = :eventId")
     suspend fun getEventWithRemindersById(eventId: String): EventWithReminders?
+
+    @Transaction
+    @Query("SELECT * FROM events WHERE id = :eventId")
+    fun observeEventWithReminders(eventId: String): Flow<EventWithReminders?>
+
+    /** One transaction and one invalidation for a fetched batch. */
+    @Transaction
+    suspend fun insertEventsWithReminders(events: List<EventWithReminders>) {
+        events.forEach { insertEventWithReminders(it.event, it.reminders) }
+    }
 
     @Upsert
     suspend fun upsertEvent(event: EventEntity): Long

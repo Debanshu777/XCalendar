@@ -6,6 +6,7 @@ import com.debanshu.xcalendar.domain.util.DomainError
 import com.debanshu.xcalendar.domain.util.DomainResult
 import com.debanshu.xcalendar.domain.util.EventValidationException
 import com.debanshu.xcalendar.domain.util.EventValidator
+import kotlinx.coroutines.CancellationException
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -31,6 +32,8 @@ class UpdateEventUseCase(
             DomainResult.Success(Unit)
         } catch (e: EventValidationException) {
             DomainResult.Error(DomainError.ValidationError(e.message ?: "Validation failed"))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             DomainResult.Error(DomainError.Unknown(e.message ?: "Failed to update event"))
         }

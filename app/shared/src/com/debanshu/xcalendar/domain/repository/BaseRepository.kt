@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.domain.repository
 
+import kotlinx.coroutines.CancellationException
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.domain.util.DomainError
 import com.debanshu.xcalendar.domain.util.DomainResult
@@ -54,6 +55,8 @@ abstract class BaseRepository(
                 val result = block()
                 AppLogger.d { "$tag: $operationName completed successfully" }
                 DomainResult.Success(result)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 AppLogger.e(e) { "$tag: $operationName failed" }
                 DomainResult.Error(e.toDomainError())
@@ -80,6 +83,8 @@ abstract class BaseRepository(
                 val result = block()
                 AppLogger.d { "$tag: $operationName completed successfully" }
                 result
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 val errorMessage = "$operationName failed: ${e.message}"
                 AppLogger.e(e) { "$tag: $errorMessage" }

@@ -4,11 +4,11 @@ import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.common.model.asEntity
 import com.debanshu.xcalendar.common.model.asEvent
 import com.debanshu.xcalendar.data.localDataSource.EventDao
+import com.debanshu.xcalendar.data.localDataSource.model.EventWithReminders
 import com.debanshu.xcalendar.data.localDataSource.model.EventReminderEntity
 import com.debanshu.xcalendar.data.remoteDataSource.RemoteCalendarApiService
 import com.debanshu.xcalendar.data.remoteDataSource.Result
 import com.debanshu.xcalendar.domain.model.Event
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.Bookkeeper
 import org.mobilenativefoundation.store.store5.Converter
@@ -81,13 +81,11 @@ object EventStoreFactory {
                 }
         },
         writer = { _, events ->
-            events.forEach { event ->
-                val eventEntity = event.asEntity()
-                val reminderEntities = event.reminderMinutes.map { minutes ->
+            eventDao.insertEventsWithReminders(events.map { event ->
+                EventWithReminders(event.asEntity(), event.reminderMinutes.map { minutes ->
                     EventReminderEntity(event.id, minutes)
-                }
-                eventDao.insertEventWithReminders(eventEntity, reminderEntities)
-            }
+                })
+            })
         },
         delete = { key ->
             AppLogger.d { "Delete called for key: $key (no-op for range queries)" }
@@ -153,7 +151,7 @@ object SingleEventStoreFactory {
         eventDao: EventDao
     ): Fetcher<SingleEventKey, Event> = Fetcher.of { key ->
         AppLogger.d { "Fetching single event: ${key.eventId}" }
-        val entity = eventDao.getEventById(key.eventId)
+        val entity = eventDao.getEventWithRemindersById(key.eventId)
             ?: throw StoreException("Event not found: ${key.eventId}")
         entity.asEvent()
     }
@@ -162,12 +160,7 @@ object SingleEventStoreFactory {
         eventDao: EventDao
     ): SourceOfTruth<SingleEventKey, Event, Event> = SourceOfTruth.of(
         reader = { key ->
-            flow {
-                val entity = eventDao.getEventById(key.eventId)
-                if (entity != null) {
-                    emit(entity.asEvent())
-                }
-            }
+            eventDao.observeEventWithReminders(key.eventId).map { it?.asEvent() }
         },
         writer = { _, event ->
             val eventEntity = event.asEntity()

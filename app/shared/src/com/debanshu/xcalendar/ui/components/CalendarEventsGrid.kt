@@ -1,33 +1,35 @@
 package com.debanshu.xcalendar.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.utils.layoutDayEvents
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedDayColumn
 import com.debanshu.xcalendar.ui.transition.sharedEventElement
@@ -61,13 +63,13 @@ internal fun CalendarEventsGrid(
     scrollState: ScrollState,
 ) {
     val dates =
-        List(numDays) { index ->
-            startDate.plus(DatePeriod(days = index))
+        remember(startDate, numDays) {
+            List(numDays) { index -> startDate.plus(DatePeriod(days = index)) }
         }
 
     val totalHeight = timeRange.count() * hourHeightDp
 
-    BoxWithConstraints(
+    Box(
         modifier =
             Modifier
                 .fillMaxSize()
@@ -81,7 +83,7 @@ internal fun CalendarEventsGrid(
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            dates.forEachIndexed { dayIndex, date ->
+            dates.forEach { date ->
                 val dayEvents = eventsByDate[date] ?: persistentListOf()
                 val isCurrentDay = date == currentDate
 
@@ -126,28 +128,25 @@ private fun DayColumn(
     onEventClick: (Event) -> Unit,
 ) {
     Box(modifier = modifier) {
-        // Background time slot cells
-        Column(modifier = Modifier.fillMaxSize()) {
-            timeRange.forEach { _ ->
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(hourHeightDp.dp)
-                            .border(
-                                width = 2.dp,
-                                color = XCalendarTheme.colorScheme.surfaceContainerLow,
-                                shape = RoundedCornerShape(10.dp),
-                            )
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(XCalendarTheme.colorScheme.surfaceContainerHigh),
+        val cellColor = XCalendarTheme.colorScheme.surfaceContainerHigh
+        // Decorative hour cells have no semantics. Draw them in one node instead
+        // of composing/measuring 24 boxes for every visible day column.
+        Canvas(Modifier.fillMaxSize()) {
+            val inset = 2.dp.toPx()
+            val hourHeight = hourHeightDp.dp.toPx()
+            repeat(timeRange.count()) { hour ->
+                drawRoundRect(
+                    color = cellColor,
+                    topLeft = Offset(inset, hour * hourHeight + inset),
+                    size = Size((size.width - 2 * inset).coerceAtLeast(0f), (hourHeight - 2 * inset).coerceAtLeast(0f)),
+                    cornerRadius = CornerRadius(8.dp.toPx()),
                 )
             }
         }
 
         // Current time indicator line
-        if (isCurrentDay) {
-            val offsetY = (currentMinute / 60f * hourHeightDp).dp
+        if (isCurrentDay && currentMinute / 60 in timeRange) {
+            val offsetY = ((currentMinute / 60f - timeRange.first) * hourHeightDp).dp
             Box(
                 modifier =
                     Modifier
@@ -158,75 +157,44 @@ private fun DayColumn(
             )
         }
 
-        // Events overlay
-        val eventGroups = remember(events) { groupOverlappingEvents(events) }
-
-        eventGroups.forEach { (_, group) ->
-            val totalOverlapping = group.size
-
-            group.forEachIndexed { _, event ->
-                val eventStart =
-                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                val eventEnd =
-                    event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-                val hour = eventStart.hour
-                val minute = eventStart.minute
-
-                if (hour in timeRange) {
-                    val durationMinutes =
-                        if (eventStart.date == eventEnd.date) {
-                            (eventEnd.hour - hour) * 60 + (eventEnd.minute - minute)
-                        } else {
-                            (24 - hour) * 60 - minute
-                        }
-
-                    val topOffset =
-                        (hour - timeRange.first) * hourHeightDp + (minute / 60f) * hourHeightDp
-                    val eventHeight = (durationMinutes / 60f) * hourHeightDp
-
-                    EventItem(
-                        event = event,
-                        onClick = { onEventClick(event) },
-                        modifier =
-                            Modifier
-                                .offset(y = topOffset.dp)
-                                .fillMaxWidth()
-                                .height(eventHeight.dp.coerceAtLeast(30.dp))
-                                .padding(1.dp),
-                        isOverlapping = totalOverlapping > 1,
-                        isVisible = isVisible,
-                    )
+        val timeZone = TimeZone.currentSystemDefault()
+        val placements = remember(events, date, timeRange, timeZone) {
+            layoutDayEvents(events, date, timeRange, timeZone)
+        }
+        Layout(
+            modifier = Modifier.fillMaxSize(),
+            content = {
+                placements.forEach { placement ->
+                    key(placement.event.id) {
+                        EventItem(
+                            event = placement.event,
+                            onClick = { onEventClick(placement.event) },
+                            modifier = Modifier.height(
+                                ((placement.endMinute - placement.startMinute) / 60f * hourHeightDp).dp,
+                            ).padding(1.dp),
+                            isOverlapping = placement.columnCount > 1,
+                            isVisible = isVisible,
+                        )
+                    }
+                }
+            },
+        ) { measurables, constraints ->
+            val placeables = measurables.mapIndexed { index, measurable ->
+                val placement = placements[index]
+                val left = constraints.maxWidth * placement.column / placement.columnCount
+                val right = constraints.maxWidth * (placement.column + 1) / placement.columnCount
+                measurable.measure(constraints.copy(minWidth = right - left, maxWidth = right - left, minHeight = 0))
+            }
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeables.forEachIndexed { index, placeable ->
+                    val placement = placements[index]
+                    val x = constraints.maxWidth * placement.column / placement.columnCount
+                    val y = ((placement.startMinute / 60f - timeRange.first) * hourHeightDp).dp.roundToPx()
+                    placeable.placeRelative(x, y)
                 }
             }
         }
     }
-}
-
-private fun groupOverlappingEvents(events: List<Event>): Map<Int, List<Event>> {
-    val sortedEvents = events.sortedBy { it.startTime }
-    val groups = mutableMapOf<Int, MutableList<Event>>()
-    var groupId = 0
-
-    sortedEvents.forEach { event ->
-        val eventStart = event.startTime
-        val eventEnd = event.endTime
-
-        val existingGroup =
-            groups.entries.firstOrNull { (_, groupEvents) ->
-                groupEvents.none {
-                    (eventStart < it.endTime && eventEnd > it.startTime)
-                }
-            }
-
-        if (existingGroup != null) {
-            existingGroup.value.add(event)
-        } else {
-            groups[groupId] = mutableListOf(event)
-            groupId++
-        }
-    }
-
-    return groups
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.data.store
 
+import kotlinx.coroutines.CancellationException
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.data.localDataSource.SyncFailureDao
 import com.debanshu.xcalendar.data.localDataSource.model.SyncFailureEntity
@@ -43,6 +44,8 @@ object EventBookkeeperFactory {
                     }
                     AppLogger.d { "Recorded sync failure for EventKey: $key" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to record sync failure: ${e.message}" }
                     false
@@ -54,6 +57,8 @@ object EventBookkeeperFactory {
                     syncFailureDao.deleteFailure(keyString)
                     AppLogger.d { "Cleared sync failure for EventKey: $key" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to clear sync failure: ${e.message}" }
                     false
@@ -64,6 +69,8 @@ object EventBookkeeperFactory {
                     syncFailureDao.deleteFailuresByType(KeyTypes.EVENT_KEY)
                     AppLogger.d { "Cleared all EventKey sync failures" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to clear all sync failures: ${e.message}" }
                     false
@@ -102,6 +109,8 @@ object SingleEventBookkeeperFactory {
                     }
                     AppLogger.d { "Recorded sync failure for SingleEventKey: ${key.eventId}" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to record sync failure: ${e.message}" }
                     false
@@ -112,6 +121,8 @@ object SingleEventBookkeeperFactory {
                     syncFailureDao.deleteFailure(key.eventId)
                     AppLogger.d { "Cleared sync failure for SingleEventKey: ${key.eventId}" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to clear sync failure: ${e.message}" }
                     false
@@ -122,6 +133,8 @@ object SingleEventBookkeeperFactory {
                     syncFailureDao.deleteFailuresByType(KeyTypes.SINGLE_EVENT_KEY)
                     AppLogger.d { "Cleared all SingleEventKey sync failures" }
                     true
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.e { "Failed to clear all sync failures: ${e.message}" }
                     false

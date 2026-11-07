@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.data.remoteDataSource
 
+import kotlinx.coroutines.CancellationException
 import com.debanshu.xcalendar.common.AppLogger
 import com.debanshu.xcalendar.data.remoteDataSource.error.DataError
 import io.ktor.client.HttpClient
@@ -29,6 +30,8 @@ class ClientWrapper(
                 return Result.Error(DataError.Network.NO_INTERNET)
             } catch (_: SerializationException) {
                 return Result.Error(DataError.Network.SERIALIZATION)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 AppLogger.e {
                     "Network request failed: ${e::class.simpleName}: ${e.message}"

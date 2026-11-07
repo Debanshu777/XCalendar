@@ -62,6 +62,8 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.state.DateState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.utils.indexEventsByDate
+import kotlinx.collections.immutable.persistentListOf
 import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -243,8 +245,15 @@ private fun TopBarMonthView(
     onDayClick: (LocalDate) -> Unit,
 ) {
     val firstDayOfMonth = LocalDate(month.year, month.month, 1)
-    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.ordinal + 1
+    val firstDayOfWeek = (firstDayOfMonth.dayOfWeek.ordinal + 1) % 7
     val daysInMonth = month.month.lengthOfMonth(month.year.isLeap())
+    val timeZone = TimeZone.currentSystemDefault()
+    val eventsByDate = remember(month, events, timeZone) {
+        indexEventsByDate(events, firstDayOfMonth, LocalDate(month.year, month.month, daysInMonth), timeZone)
+    }
+    val holidaysByDate = remember(holidays, timeZone) {
+        holidays.groupBy { it.date.toLocalDateTime(timeZone).date }.mapValues { it.value.toImmutableList() }
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
     ) {
@@ -260,16 +269,8 @@ private fun TopBarMonthView(
             val date = LocalDate(month.year, month.month, day + 1)
             TopAppBarDayCell(
                 date = date,
-                events =
-                    events
-                        .filter { event ->
-                            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                        }.toImmutableList(),
-                holidays =
-                    holidays
-                        .filter { holiday ->
-                            holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date == date
-                        }.toImmutableList(),
+                events = eventsByDate[date] ?: persistentListOf(),
+                holidays = holidaysByDate[date] ?: persistentListOf(),
                 onDayClick = onDayClick,
             )
         }

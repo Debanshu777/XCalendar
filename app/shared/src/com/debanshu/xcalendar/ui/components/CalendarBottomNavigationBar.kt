@@ -274,6 +274,12 @@ private fun Modifier.indicatorDragGesture(
                     }
                 }
             },
+            onDragCancel = {
+                state.phase.value = AnimationPhase.MorphingOut
+                coroutineScope.launch {
+                    state.fluidDeformation.animateTo(0f, NavBarAnimationSpecs.fluidSettleSpring)
+                }
+            },
         )
     }
 
@@ -380,29 +386,9 @@ internal fun CalendarBottomNavigationBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            var navBarSize by remember { mutableStateOf(IntSize.Zero) }
-
-            val glassEffect =
-                rememberGlassEffect(
-                    GlassEffectInput(
-                        navBarSize = navBarSize,
-                        state = state,
-                        onSurfaceColor = XCalendarTheme.colorScheme.onSurface,
-                        primaryColor = XCalendarTheme.colorScheme.primary,
-                    ),
-                )
-
-            Box(
-                modifier =
-                    Modifier
-                        .height(56.dp)
-                        .weight(1f)
-                        .onSizeChanged { navBarSize = it }
-                        .graphicsLayer {
-                            renderEffect = glassEffect
-                            scaleX = state.boxScale.value
-                            scaleY = state.boxScale.value
-                        },
+            NavBarSurface(
+                modifier = Modifier.height(56.dp).weight(1f),
+                state = state,
             ) {
                 Row(
                     modifier =
@@ -467,6 +453,33 @@ private data class NavItem(
     val icon: DrawableResource,
     val label: String,
 )
+
+/** Keep frame-by-frame shader state reads out of the navigation item's scope. */
+@Composable
+private fun NavBarSurface(
+    modifier: Modifier,
+    state: NavBarState,
+    content: @Composable () -> Unit,
+) {
+    var navBarSize by remember { mutableStateOf(IntSize.Zero) }
+    val glassEffect = rememberGlassEffect(
+        GlassEffectInput(
+            navBarSize = navBarSize,
+            state = state,
+            onSurfaceColor = XCalendarTheme.colorScheme.onSurface,
+            primaryColor = XCalendarTheme.colorScheme.primary,
+        ),
+    )
+    Box(
+        modifier.onSizeChanged { navBarSize = it }.graphicsLayer {
+            renderEffect = glassEffect
+            scaleX = state.boxScale.value
+            scaleY = state.boxScale.value
+        },
+    ) {
+        content()
+    }
+}
 
 private data class ItemMetrics(
     val left: Float,

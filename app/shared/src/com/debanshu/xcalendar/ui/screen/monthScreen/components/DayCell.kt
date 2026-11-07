@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.common.noRippleClickable
@@ -51,7 +50,6 @@ fun DayCell(
     isCurrentMonth: Boolean,
     isVisible: Boolean = true,
     onDayClick: (LocalDate) -> Unit,
-    itemSize: DpSize,
     isTopLeft: Boolean = false,
     isTopRight: Boolean = false,
     isBottomLeft: Boolean = false,
@@ -81,7 +79,7 @@ fun DayCell(
                     width = 2.dp,
                     color = XCalendarTheme.colorScheme.surfaceContainerLow,
                     shape = cellShape,
-                ).size(itemSize)
+                )
                 .noRippleClickable { onDayClick(date) }
                 .clip(cellShape)
                 .background(XCalendarTheme.colorScheme.surfaceContainerHigh)

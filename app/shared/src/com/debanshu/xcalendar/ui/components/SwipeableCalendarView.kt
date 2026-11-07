@@ -10,6 +10,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.debanshu.xcalendar.common.toLocalDateTime
+import com.debanshu.xcalendar.ui.utils.indexEventsByDate
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import kotlinx.collections.immutable.ImmutableList
@@ -62,16 +63,6 @@ internal fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
-    val eventsByDate =
-        remember(events) {
-            events
-                .groupBy { event ->
-                    event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                }.mapValues {
-                    it.value.toImmutableList()
-                }.toImmutableMap()
-        }
-
     val holidaysByDate =
         remember(holidays) {
             holidays
@@ -95,6 +86,10 @@ internal fun SwipeableCalendarView(
         },
         onReferenceChange = onDateRangeChange,
     ) { pageStartDate ->
+        val timeZone = TimeZone.currentSystemDefault()
+        val eventsByDate = remember(events, pageStartDate, numDays, timeZone) {
+            indexEventsByDate(events, pageStartDate, pageStartDate.plus(DatePeriod(days = numDays - 1)), timeZone)
+        }
         CalendarContent(
             startDate = pageStartDate,
             numDays = numDays,

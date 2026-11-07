@@ -11,31 +11,25 @@ import com.debanshu.xcalendar.domain.states.CalendarUiState
 import com.debanshu.xcalendar.domain.usecase.calendar.GetUserCalendarsUseCase
 import com.debanshu.xcalendar.domain.usecase.event.GetEventsForDateRangeUseCase
 import com.debanshu.xcalendar.domain.usecase.holiday.GetHolidaysForYearUseCase
-import com.debanshu.xcalendar.domain.usecase.holiday.RefreshHolidaysUseCase
 import com.debanshu.xcalendar.domain.usecase.user.GetCurrentUserUseCase
 import com.debanshu.xcalendar.domain.util.DomainError
 import com.debanshu.xcalendar.ui.state.DateStateHolder
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
-import kotlin.concurrent.atomics.AtomicBoolean
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 @KoinViewModel
 class CalendarViewModel(
@@ -46,18 +40,14 @@ class CalendarViewModel(
     getUserCalendarsUseCase: GetUserCalendarsUseCase,
     getEventsForDateRangeUseCase: GetEventsForDateRangeUseCase,
     private val getHolidaysForYearUseCase: GetHolidaysForYearUseCase,
-    private val refreshHolidaysUseCase: RefreshHolidaysUseCase,
     getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ViewModel() {
     private val userId = getCurrentUserUseCase()
     private val dateRange = DateUtils.getDateRange()
-    private val currentDate = dateRange.currentDate
     private val startTime = dateRange.startTime
     private val endTime = dateRange.endTime
     private val _uiState = MutableStateFlow(CalendarUiState(isLoading = true))
 
-    @OptIn(ExperimentalAtomicApi::class)
-    private val isInitialized = AtomicBoolean(false)
     private val users =
         userRepository
             .getAllUsers()
@@ -79,11 +69,11 @@ class CalendarViewModel(
             .flatMapLatest { year ->
                 // Combine holidays from adjacent years to ensure smooth transitions
                 combine(
-                    getHolidaysForYearUseCase("IN", year - 1),
-                    getHolidaysForYearUseCase("IN", year),
-                    getHolidaysForYearUseCase("IN", year + 1),
+                    getHolidaysForYearUseCase("IN", year - 1).onStart { emit(emptyList()) },
+                    getHolidaysForYearUseCase("IN", year).onStart { emit(emptyList()) },
+                    getHolidaysForYearUseCase("IN", year + 1).onStart { emit(emptyList()) },
                 ) { prevYear, currentYear, nextYear ->
-                    (prevYear + currentYear + nextYear).distinctBy { it.date }
+                    (prevYear + currentYear + nextYear).distinctBy { it.id }
                 }
             }
             .catch { exception ->
@@ -108,6 +98,7 @@ class CalendarViewModel(
 
     private val events =
         getEventsForDateRangeUseCase(userId, startTime, endTime)
+            .onStart { emit(emptyList()) }
             .catch { exception ->
                 handleError("Failed to load events", exception)
                 emit(emptyList())
@@ -117,8 +108,6 @@ class CalendarViewModel(
                 replay = 1,
             )
 
-    // Optimized UI state with proper distinctUntilChanged and debouncing
-    @OptIn(FlowPreview::class)
     val uiState =
         combine(
             _uiState,
@@ -135,7 +124,6 @@ class CalendarViewModel(
                 isLoading = false,
             )
         }.distinctUntilChanged()
-            .debounce(30) // Reduced debounce for better responsiveness
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -146,26 +134,20 @@ class CalendarViewModel(
         initializeData()
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
     private fun initializeData() {
-        if (isInitialized.compareAndSet(expectedValue = false, newValue = true)) {
-            viewModelScope.launch {
-                try {
-                    val initJobs =
-                        listOf(
-                            async {
-                                initializeUsers()
-                                initializeCalendars()
-                                initializeEvents()
-                            },
-                            async { initializeHolidays() },
-                        )
-                    initJobs.awaitAll()
-                } catch (exception: Exception) {
-                    handleError("Initialization failed", exception)
-                } finally {
-                    updateLoadingState(false)
-                }
+        // Holiday observation already refreshes through Store. A second perpetual
+        // collector duplicated requests and prevented initialization from finishing.
+        viewModelScope.launch {
+            try {
+                initializeUsers()
+                initializeCalendars()
+                initializeEvents()
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                handleError("Initialization failed", exception)
+            } finally {
+                updateLoadingState(false)
             }
         }
     }
@@ -174,41 +156,8 @@ class CalendarViewModel(
         runCatching {
             userRepository.getUserFromApi()
         }.onFailure { exception ->
+            if (exception is CancellationException) throw exception
             handleError("Failed to initialize users", exception)
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun initializeHolidays() {
-        runCatching {
-            // Watch for year changes and refresh holidays for current and adjacent years
-            dateStateHolder.currentDateState
-                .map { it.selectedInViewMonth.year }
-                .distinctUntilChanged()
-                .flatMapLatest { year ->
-                    // Combine all three years to track which ones need refresh
-                    combine(
-                        getHolidaysForYearUseCase("IN", year - 1).map { (year - 1) to it },
-                        getHolidaysForYearUseCase("IN", year).map { year to it },
-                        getHolidaysForYearUseCase("IN", year + 1).map { (year + 1) to it },
-                    ) { prev, current, next -> listOf(prev, current, next) }
-                }
-                .collect { yearHolidayPairs ->
-                    yearHolidayPairs.forEach { (yr, holidays) ->
-                        if (holidays.isEmpty()) {
-                            // Launch in viewModelScope to avoid cancellation by flatMapLatest
-                            viewModelScope.launch {
-                                runCatching {
-                                    refreshHolidaysUseCase("IN", yr)
-                                }.onFailure { exception ->
-                                    AppLogger.w(exception) { "Failed to refresh holidays for year $yr" }
-                                }
-                            }
-                        }
-                    }
-                }
-        }.onFailure { exception ->
-            handleError("Failed to initialize holidays", exception)
         }
     }
 
@@ -216,6 +165,7 @@ class CalendarViewModel(
         runCatching {
             calendarRepository.refreshCalendarsForUser(userId)
         }.onFailure { exception ->
+            if (exception is CancellationException) throw exception
             handleError("Failed to initialize calendars", exception)
         }
     }
@@ -224,6 +174,7 @@ class CalendarViewModel(
         runCatching {
             eventRepository.syncEventsForCalendar(emptyList(), startTime, endTime)
         }.onFailure { exception ->
+            if (exception is CancellationException) throw exception
             handleError("Failed to initialize events", exception)
         }
     }
@@ -254,9 +205,4 @@ class CalendarViewModel(
         updateState { it.copy(error = null) }
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
-    override fun onCleared() {
-        super.onCleared()
-        isInitialized.store(false)
-    }
 }

@@ -5,6 +5,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -39,35 +43,36 @@ internal fun <T> SwipeablePager(
     val totalPages = 10000
     val initialPage = totalPages / 2
 
-    // Capture initial reference as stable base for offset calculations
-    val baseReference = remember { currentReference }
-
-    val referenceOffset =
-        remember(currentReference, baseReference) {
-            calculateOffset(currentReference, baseReference)
-        }
+    // Preserve an anchor while swiping; rebase only for external dates that
+    // cannot be represented by this page stride (for example a three-day view).
+    var baseReference by remember { mutableStateOf(currentReference) }
 
     val pagerState =
         rememberPagerState(
-            initialPage = initialPage + referenceOffset,
+            initialPage = initialPage,
             pageCount = { totalPages },
         )
 
+    val latestPageToReference by rememberUpdatedState(pageToReference)
     val pageConverter: (Int) -> T =
         remember(baseReference, initialPage) {
             { page ->
-                pageToReference(baseReference, initialPage, page)
+                latestPageToReference(baseReference, initialPage, page)
             }
         }
+
+    val latestReference by rememberUpdatedState(currentReference)
+    val latestOnReferenceChange by rememberUpdatedState(onReferenceChange)
+    val latestPageConverter by rememberUpdatedState(pageConverter)
 
     // Track current displayed reference and notify changes
     // Use settledPage to avoid conflicts during scroll animations
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }
             .collect { page ->
-                val newReference = pageConverter(page)
-                if (newReference != currentReference) {
-                    onReferenceChange(newReference)
+                val newReference = latestPageConverter(page)
+                if (newReference != latestReference) {
+                    latestOnReferenceChange(newReference)
                 }
             }
     }
@@ -77,6 +82,12 @@ internal fun <T> SwipeablePager(
         val targetOffset = calculateOffset(currentReference, baseReference)
         val targetPage = initialPage + targetOffset
 
+        if (targetPage !in 0 until totalPages || pageConverter(targetPage) != currentReference) {
+            baseReference = currentReference
+            pagerState.scrollToPage(initialPage)
+            return@LaunchedEffect
+        }
+
         // Only scroll if the settled page doesn't match the target
         // This prevents interference with ongoing user swipes
         if (pagerState.settledPage != targetPage) {
@@ -85,6 +96,7 @@ internal fun <T> SwipeablePager(
     }
 
     HorizontalPager(
+        modifier = modifier,
         state = pagerState,
     ) { page ->
         val reference = pageConverter(page)

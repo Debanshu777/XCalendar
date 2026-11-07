@@ -70,21 +70,14 @@ fun ScheduleScreen(
     }
 
     // Create list state with initial position
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = scheduleStateHolder.initialScrollIndex)
 
     // Track pagination state to prevent multiple simultaneous requests
     val isPaginatingBackward = remember { androidx.compose.runtime.mutableStateOf(false) }
     val isPaginatingForward = remember { androidx.compose.runtime.mutableStateOf(false) }
 
-    // Apply initial scroll position after composition
-    LaunchedEffect(scheduleStateHolder.initialScrollIndex) {
-        if (scheduleStateHolder.initialScrollIndex > 0) {
-            listState.scrollToItem(scheduleStateHolder.initialScrollIndex)
-        }
-    }
-
     // Optimized: Single LaunchedEffect with combined logic to reduce overhead
-    LaunchedEffect(listState) {
+    LaunchedEffect(listState, scheduleStateHolder) {
         // Monitor visible month headers for TopAppBar updates
         launch {
             snapshotFlow {

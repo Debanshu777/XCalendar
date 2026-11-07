@@ -1,5 +1,6 @@
 package com.debanshu.xcalendar.domain.util
 
+import kotlinx.coroutines.CancellationException
 import com.debanshu.xcalendar.data.remoteDataSource.error.DataError
 import com.debanshu.xcalendar.data.store.StoreException
 import com.debanshu.xcalendar.domain.repository.RepositoryException
@@ -105,6 +106,8 @@ fun Throwable.toDomainError(): DomainError = ErrorMapper.mapToDomainError(this)
 inline fun <T> runCatchingToDomainResult(block: () -> T): DomainResult<T> {
     return try {
         DomainResult.Success(block())
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         DomainResult.Error(e.toDomainError())
     }
@@ -119,6 +122,8 @@ suspend inline fun <T> runSuspendCatchingToDomainResult(
 ): DomainResult<T> {
     return try {
         DomainResult.Success(block())
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         DomainResult.Error(e.toDomainError())
     }

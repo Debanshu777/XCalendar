@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.savedstate.serialization.SavedStateConfiguration
@@ -70,16 +71,15 @@ private fun CalendarApp(
     eventViewModel: EventViewModel,
     dateStateHolder: DateStateHolder,
 ) {
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val eventUiState by eventViewModel.uiState.collectAsState()
-    val dataState by dateStateHolder.currentDateState.collectAsState()
+    val calendarUiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+    val eventUiState by eventViewModel.uiState.collectAsStateWithLifecycle()
+    val dataState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(config, NavigableScreen.Month)
     var showAddBottomSheet by remember { mutableStateOf(false) }
 
     // Use EventViewModel as single source of truth for selected event
     // The details sheet visibility is derived from whether an event is selected
     val selectedEvent = eventUiState.selectedEvent
-    val showDetailsBottomSheet = selectedEvent != null
 
     val visibleCalendars by remember(calendarUiState.calendars) {
         derivedStateOf { calendarUiState.calendars.filter { it.isVisible } }
@@ -96,7 +96,7 @@ private fun CalendarApp(
             CalendarTopAppBar(
                 dateState = dataState,
                 onSelectToday = {
-                    dateStateHolder.updateSelectedDateState(dataState.currentDate)
+                    dateStateHolder.resetToToday()
                 },
                 onDayClick = { date ->
                     dateStateHolder.updateSelectedDateState(date)
@@ -121,6 +121,7 @@ private fun CalendarApp(
                 modifier =
                     Modifier.padding(
                         top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding() + 72.dp,
                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                     ),
@@ -149,7 +150,7 @@ private fun CalendarApp(
                 AddEventDialog(
                     user = it,
                     calendars = visibleCalendars.toImmutableList(),
-                    selectedDate = dataState.currentDate,
+                    selectedDate = dataState.selectedDate,
                     onSave = { event ->
                         eventViewModel.addEvent(event)
                         showAddBottomSheet = false
@@ -161,7 +162,7 @@ private fun CalendarApp(
             }
         }
 
-        if (showDetailsBottomSheet && selectedEvent != null) {
+        if (selectedEvent != null) {
             EventDetailsDialog(
                 event = selectedEvent,
                 onEdit = { editedEvent ->

@@ -5,6 +5,7 @@ import com.debanshu.xcalendar.domain.model.Holiday
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
 import org.mobilenativefoundation.store.store5.Store
@@ -38,6 +39,7 @@ class HolidayRepository(
         // Use filterIsInstance + first() to exit after the first successful data emission
         // This prevents hanging since Store5's stream() returns a hot Flow
         holidayStore.stream(StoreReadRequest.fresh(key))
+            .onEach { it.throwIfError() }
             .filterIsInstance<StoreReadResponse.Data<List<Holiday>>>()
             .first()
             .also { response ->

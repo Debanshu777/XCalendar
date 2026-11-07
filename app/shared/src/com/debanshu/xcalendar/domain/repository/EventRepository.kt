@@ -10,6 +10,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
@@ -58,6 +59,7 @@ class EventRepository(
             // Force a fresh fetch from the network
             eventStore
                 .stream<Unit>(StoreReadRequest.fresh(key))
+                .onEach { it.throwIfError() }
                 .filterIsInstance<StoreReadResponse.Data<List<Event>>>()
                 .first()
             Unit

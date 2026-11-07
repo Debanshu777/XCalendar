@@ -11,6 +11,7 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.DayEvents
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem.WeekHeader
+import com.debanshu.xcalendar.ui.utils.indexEventsByDate
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -117,9 +118,12 @@ class ScheduleStateHolder(
         val items = mutableListOf<ScheduleItem>()
 
         // Pre-calculate date ranges for events and holidays
-        val eventDateMap = allEvents.groupBy { event ->
-            event.startTime.toLocalDateTime(TimeZone.currentSystemDefault()).date
-        }
+        if (months.isEmpty()) return items
+        val eventDateMap = indexEventsByDate(
+            allEvents,
+            calculateDaysInMonth(months.first()).first(),
+            calculateDaysInMonth(months.last()).last(),
+        )
 
         val holidayDateMap = allHolidays.groupBy { holiday ->
             holiday.date.toLocalDateTime(TimeZone.currentSystemDefault()).date
