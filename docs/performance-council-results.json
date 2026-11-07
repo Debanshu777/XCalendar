@@ -1,0 +1,1912 @@
+{
+  "schema_version": 1,
+  "measurement_date_local": "2026-11-08",
+  "scope": "UI rendering and interaction benchmarks; not database, synchronization, network or physical iOS device throughput.",
+  "sanitization": "Allowlisted metrics and aggregate conditions only; no account names, device serials/UUIDs, absolute paths, process/thread identifiers or raw thermal sensor names.",
+  "performance_review": {
+    "score_out_of_10": 9.0,
+    "status": "approved_for_reviewed_workloads",
+    "rubric_out_of_2_5": {
+      "evidence_quality": 2.4,
+      "frame_behavior": 2.1,
+      "cpu_and_composition": 2.4,
+      "coverage": 2.1
+    },
+    "history": [
+      {
+        "loop": "initial_council",
+        "score": 7.5
+      },
+      {
+        "loop": "first_fixes",
+        "score": 8.1
+      },
+      {
+        "loop": "dense_week_idle_fixed",
+        "score": 8.3
+      },
+      {
+        "loop": "dense_android_and_ios",
+        "score": 8.8
+      },
+      {
+        "loop": "current_editor_verified",
+        "score": 9.0
+      }
+    ],
+    "remaining_gate": null,
+    "conclusion": "Repeated dense Android/iOS results, corrected idle behavior and current editor tracing meet the practical performance review gate. Residual transition/window-creation outliers remain; no high-confidence further renderer change was identified. This is not a global optimum or zero-jank claim.",
+    "artifact_scope": "Dense comparisons remain tied to their recorded v2 artifacts. The current editor trace verifies application commit fe3830ab15628440b5c757d8f7c3eaceb578410f and its separate APK; it is not a replacement dense comparison."
+  },
+  "fixture": {
+    "selected_date": "2026-11-08",
+    "event_count": 300,
+    "calendar_count": 5,
+    "holiday_count": 9,
+    "account_count": 1,
+    "data_sha256": "1bf189c4a0c701687e4b92b1febd987abe417cd7977b8d7a5c8c7b1be4bd6346",
+    "generated_source_sha256": "96b55ab93ce8ed312a776be212ca6f669230beea83e34bec962f4e89dbd0082a",
+    "clock": "Selected date is fixed; today/current time and system timezone remain live. Schedule depends on current month. This is not frozen-clock replay."
+  },
+  "measured_artifacts": {
+    "baseline_commit": "adbd2c8fcb2cac463556b4942d503b03ecb8cfc0",
+    "android_dense_before_apk_sha256": "a27cccdd4f664ce1bec91ef4842a6701a2a299471daa8c3e7ed7b219a90f3c95",
+    "android_dense_v2_after_apk_sha256": "3d41febc419859866ee242ab5ca6f9825ed4cc90111f343faaf76f8e1faf209a",
+    "ios_dense_before_executable_sha256": "7e5d5a0e78ca8a477664b49185aef9d47548c03ab9f301c509ace326fd130edb",
+    "ios_dense_v2_after_executable_sha256": "a3b4e20e6645a7126d78a5dd46d83b0909903be6e079581eab92ce29bdc2fbfb",
+    "android_first_council_dropdown_after_apk_sha256": "8efcf2e6827749b67263b1015a77d2125acbd36dcba5bbe1b8c04032a8bc535b",
+    "android_dropdown_before_apk_sha256": null,
+    "dense_v2_source_state": "Measured working-tree revision; no exact final PR commit is asserted.",
+    "later_changes": "Dense v2 preceded final event-text contrast and bounded DST/subminute placement fixes. Fixture events are minute-aligned and outside DST folds; this does not make final binaries identical to measured artifacts."
+  },
+  "android_first_council_dropdown": {
+    "label": "Pre-council release versus FIRST council rendering revision",
+    "source_artifact": "captures/performance/council/round-1/dropdown-comparison.json",
+    "source_sha256": "a9b5232e4808c747c57748dd8cebd6799cf215fb86a56c1e765be6f717390889",
+    "ready": true,
+    "repetitions_per_group": 3,
+    "capture_order": "All before repetitions, then all after repetitions; not interleaved or randomized pairs.",
+    "method": {
+      "model": "Pixel 9",
+      "android_version": "17",
+      "scenario": "dropdown",
+      "iterations_per_process": 10,
+      "compose_tracing": true,
+      "percentiles": "Per-run Actual FrameTimeline duration percentiles; summary is median/range of three per-run values, not pooled frames or a confidence interval.",
+      "cpu": "Whole-trace scheduler running time; includes profiling and workload/accessibility overhead. Saved default query uses exact benchmark main-thread name. Dense after run 1 was independently verified using tid=pid.",
+      "composition": "Counts include initial composition; inclusive times overlap. CalendarApp content aggregates named anonymous scopes. NavBarSurface was extracted during this work, so its absence in the original build is not zero equivalent work."
+    },
+    "metrics": {
+      "frames": {
+        "before": {
+          "n": 3,
+          "values": [
+            550,
+            549,
+            543
+          ],
+          "median": 549,
+          "min": 543,
+          "max": 550
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            548,
+            549,
+            546
+          ],
+          "median": 548,
+          "min": 546,
+          "max": 549
+        },
+        "median_delta": -1,
+        "median_delta_pct": -0.18214936247723132
+      },
+      "main_cpu_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            3248.096,
+            3210.787,
+            3186.026
+          ],
+          "median": 3210.787,
+          "min": 3186.026,
+          "max": 3248.096
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            2958.263,
+            2909.097,
+            2958.825
+          ],
+          "median": 2958.263,
+          "min": 2909.097,
+          "max": 2958.825
+        },
+        "median_delta": -252.5239999999999,
+        "median_delta_pct": -7.864863038251989
+      },
+      "render_cpu_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            1605.839,
+            1574.714,
+            1505.712
+          ],
+          "median": 1574.714,
+          "min": 1505.712,
+          "max": 1605.839
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            1599.274,
+            1546.775,
+            1557.784
+          ],
+          "median": 1557.784,
+          "min": 1546.775,
+          "max": 1599.274
+        },
+        "median_delta": -16.929999999999836,
+        "median_delta_pct": -1.075115862308955
+      },
+      "p50_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            11.985,
+            11.948,
+            11.676
+          ],
+          "median": 11.948,
+          "min": 11.676,
+          "max": 11.985
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            11.149,
+            11.145,
+            11.019
+          ],
+          "median": 11.145,
+          "min": 11.019,
+          "max": 11.149
+        },
+        "median_delta": -0.8030000000000008,
+        "median_delta_pct": -6.720790090391704
+      },
+      "p95_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            15.864,
+            15.555,
+            15.858
+          ],
+          "median": 15.858,
+          "min": 15.555,
+          "max": 15.864
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            15.474,
+            15.236,
+            15.372
+          ],
+          "median": 15.372,
+          "min": 15.236,
+          "max": 15.474
+        },
+        "median_delta": -0.48600000000000065,
+        "median_delta_pct": -3.064699205448358
+      },
+      "p99_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            21.68,
+            21.086,
+            22.509
+          ],
+          "median": 21.68,
+          "min": 21.086,
+          "max": 22.509
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            21.05,
+            21.761,
+            25.23
+          ],
+          "median": 21.761,
+          "min": 21.05,
+          "max": 25.23
+        },
+        "median_delta": 0.08099999999999952,
+        "median_delta_pct": 0.3736162361623594
+      },
+      "max_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            57.046,
+            47.035,
+            39.24
+          ],
+          "median": 47.035,
+          "min": 39.24,
+          "max": 57.046
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            48.04,
+            43.551,
+            44.002
+          ],
+          "median": 44.002,
+          "min": 43.551,
+          "max": 48.04
+        },
+        "median_delta": -3.032999999999994,
+        "median_delta_pct": -6.448389497182936
+      },
+      "app_deadline_miss_pct": {
+        "before": {
+          "n": 3,
+          "values": [
+            0.5454545454545454,
+            0.18214936247723132,
+            0.3683241252302026
+          ],
+          "median": 0.3683241252302026,
+          "min": 0.18214936247723132,
+          "max": 0.5454545454545454
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0.0,
+            0.18214936247723132,
+            0.0
+          ],
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.18214936247723132
+        },
+        "median_delta": -0.3683241252302026,
+        "median_delta_pct": -100.0
+      },
+      "self_jank_pct": {
+        "before": {
+          "n": 3,
+          "values": [
+            0.5454545454545454,
+            0.36429872495446264,
+            0.5524861878453039
+          ],
+          "median": 0.5454545454545454,
+          "min": 0.36429872495446264,
+          "max": 0.5524861878453039
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0.36496350364963503,
+            0.36429872495446264,
+            0.5494505494505495
+          ],
+          "median": 0.36496350364963503,
+          "min": 0.36429872495446264,
+          "max": 0.5494505494505495
+        },
+        "median_delta": -0.18049104180491038,
+        "median_delta_pct": -33.09002433090024
+      },
+      "bottom_navigation_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "median_delta": 0,
+        "median_delta_pct": null
+      },
+      "navigation_host_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            480,
+            479,
+            475
+          ],
+          "median": 479,
+          "min": 475,
+          "max": 480
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "median_delta": -479,
+        "median_delta_pct": -100.0
+      },
+      "month_day_cell_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "median_delta": 0,
+        "median_delta_pct": null
+      },
+      "compose_recompose_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            665,
+            664,
+            660
+          ],
+          "median": 664,
+          "min": 660,
+          "max": 665
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            175,
+            175,
+            175
+          ],
+          "median": 175,
+          "min": 175,
+          "max": 175
+        },
+        "median_delta": -489,
+        "median_delta_pct": -73.644578313253
+      },
+      "recomposer_recompose_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            580,
+            579,
+            574
+          ],
+          "median": 579,
+          "min": 574,
+          "max": 580
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            568,
+            569,
+            566
+          ],
+          "median": 568,
+          "min": 566,
+          "max": 569
+        },
+        "median_delta": -11,
+        "median_delta_pct": -1.8998272884283247
+      },
+      "calendar_app_content_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            490,
+            489,
+            485
+          ],
+          "median": 489,
+          "min": 485,
+          "max": 490
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            0,
+            0,
+            0
+          ],
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "median_delta": -489,
+        "median_delta_pct": -100.0
+      }
+    },
+    "aggregate_frames": {
+      "before": {
+        "frames": 1642,
+        "self_jank": 8,
+        "app_deadline_misses": 6,
+        "self_jank_pct": 0.48721071863581,
+        "app_deadline_miss_pct": 0.3654080389768575
+      },
+      "after": {
+        "frames": 1643,
+        "self_jank": 7,
+        "app_deadline_misses": 1,
+        "self_jank_pct": 0.426049908703591,
+        "app_deadline_miss_pct": 0.06086427267194157
+      }
+    },
+    "runs": [
+      {
+        "id": "before-1",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": null,
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 48333327,
+        "frames": {
+          "frames": 550,
+          "self_jank": 3,
+          "app_deadline_misses": 3,
+          "p50_ms": 11.985,
+          "p95_ms": 15.864,
+          "p99_ms": 21.68,
+          "max_ms": 57.046,
+          "self_jank_pct": 0.5454545454545454,
+          "app_deadline_miss_pct": 0.5454545454545454
+        },
+        "main_cpu_ms": 3248.096,
+        "render_cpu_ms": 1605.839,
+        "composition_executions": {
+          "calendar_app_content": 490,
+          "navigation_host": 480,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 665,
+          "recomposer_recompose": 580
+        },
+        "conditions": {
+          "capture_utc": null,
+          "timezone": null,
+          "battery_temperature_c": 32.6,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 7
+          }
+        }
+      },
+      {
+        "id": "before-2",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": null,
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 46916011,
+        "frames": {
+          "frames": 549,
+          "self_jank": 2,
+          "app_deadline_misses": 1,
+          "p50_ms": 11.948,
+          "p95_ms": 15.555,
+          "p99_ms": 21.086,
+          "max_ms": 47.035,
+          "self_jank_pct": 0.36429872495446264,
+          "app_deadline_miss_pct": 0.18214936247723132
+        },
+        "main_cpu_ms": 3210.787,
+        "render_cpu_ms": 1574.714,
+        "composition_executions": {
+          "calendar_app_content": 489,
+          "navigation_host": 479,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 664,
+          "recomposer_recompose": 579
+        },
+        "conditions": {
+          "capture_utc": null,
+          "timezone": null,
+          "battery_temperature_c": 33.1,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 5
+          }
+        }
+      },
+      {
+        "id": "before-3",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": null,
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 46047614,
+        "frames": {
+          "frames": 543,
+          "self_jank": 3,
+          "app_deadline_misses": 2,
+          "p50_ms": 11.676,
+          "p95_ms": 15.858,
+          "p99_ms": 22.509,
+          "max_ms": 39.24,
+          "self_jank_pct": 0.5524861878453039,
+          "app_deadline_miss_pct": 0.3683241252302026
+        },
+        "main_cpu_ms": 3186.026,
+        "render_cpu_ms": 1505.712,
+        "composition_executions": {
+          "calendar_app_content": 485,
+          "navigation_host": 475,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 660,
+          "recomposer_recompose": 574
+        },
+        "conditions": {
+          "capture_utc": null,
+          "timezone": null,
+          "battery_temperature_c": 33.1,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 4
+          }
+        }
+      },
+      {
+        "id": "after-1",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "8efcf2e6827749b67263b1015a77d2125acbd36dcba5bbe1b8c04032a8bc535b",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 40921957,
+        "frames": {
+          "frames": 548,
+          "self_jank": 2,
+          "app_deadline_misses": 0,
+          "p50_ms": 11.149,
+          "p95_ms": 15.474,
+          "p99_ms": 21.05,
+          "max_ms": 48.04,
+          "self_jank_pct": 0.36496350364963503,
+          "app_deadline_miss_pct": 0.0
+        },
+        "main_cpu_ms": 2958.263,
+        "render_cpu_ms": 1599.274,
+        "composition_executions": {
+          "calendar_app_content": 0,
+          "navigation_host": 0,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 175,
+          "recomposer_recompose": 568
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T21:55:12Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 32.9,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 4
+          }
+        }
+      },
+      {
+        "id": "after-2",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "8efcf2e6827749b67263b1015a77d2125acbd36dcba5bbe1b8c04032a8bc535b",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 39792297,
+        "frames": {
+          "frames": 549,
+          "self_jank": 2,
+          "app_deadline_misses": 1,
+          "p50_ms": 11.145,
+          "p95_ms": 15.236,
+          "p99_ms": 21.761,
+          "max_ms": 43.551,
+          "self_jank_pct": 0.36429872495446264,
+          "app_deadline_miss_pct": 0.18214936247723132
+        },
+        "main_cpu_ms": 2909.097,
+        "render_cpu_ms": 1546.775,
+        "composition_executions": {
+          "calendar_app_content": 0,
+          "navigation_host": 0,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 175,
+          "recomposer_recompose": 569
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T21:56:23Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.1,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 5
+          }
+        }
+      },
+      {
+        "id": "after-3",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "8efcf2e6827749b67263b1015a77d2125acbd36dcba5bbe1b8c04032a8bc535b",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 39548969,
+        "frames": {
+          "frames": 546,
+          "self_jank": 3,
+          "app_deadline_misses": 0,
+          "p50_ms": 11.019,
+          "p95_ms": 15.372,
+          "p99_ms": 25.23,
+          "max_ms": 44.002,
+          "self_jank_pct": 0.5494505494505495,
+          "app_deadline_miss_pct": 0.0
+        },
+        "main_cpu_ms": 2958.825,
+        "render_cpu_ms": 1557.784,
+        "composition_executions": {
+          "calendar_app_content": 0,
+          "navigation_host": 0,
+          "month_day_cell": 0,
+          "bottom_navigation": 0,
+          "nav_bar_surface": 0,
+          "compose_recompose": 175,
+          "recomposer_recompose": 566
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T21:57:33Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.2,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 8
+          }
+        }
+      }
+    ]
+  },
+  "android_dense_v2": {
+    "label": "Original baseline versus council dense v2",
+    "source_artifact": "captures/performance/council/dense/comparison-v2.json",
+    "source_sha256": "3b5df3c067b6e3a6f5676a8bc12f5b959afabed914ce73566745957e188690b6",
+    "ready": true,
+    "repetitions_per_group": 3,
+    "capture_order": "All before repetitions, then all after repetitions; not interleaved or randomized pairs.",
+    "method": {
+      "model": "Pixel 9",
+      "android_version": "17",
+      "scenario": "populated",
+      "iterations_per_process": 1,
+      "compose_tracing": true,
+      "percentiles": "Per-run Actual FrameTimeline duration percentiles; summary is median/range of three per-run values, not pooled frames or a confidence interval.",
+      "cpu": "Whole-trace scheduler running time; includes profiling and workload/accessibility overhead. Saved default query uses exact benchmark main-thread name. Dense after run 1 was independently verified using tid=pid.",
+      "composition": "Counts include initial composition; inclusive times overlap. CalendarApp content aggregates named anonymous scopes. NavBarSurface was extracted during this work, so its absence in the original build is not zero equivalent work."
+    },
+    "metrics": {
+      "frames": {
+        "before": {
+          "n": 3,
+          "values": [
+            1098,
+            1102,
+            1101
+          ],
+          "median": 1101,
+          "min": 1098,
+          "max": 1102
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            886,
+            889,
+            886
+          ],
+          "median": 886,
+          "min": 886,
+          "max": 889
+        },
+        "median_delta": -215,
+        "median_delta_pct": -19.527702089009992
+      },
+      "main_cpu_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            5373.628,
+            5267.739,
+            5216.792
+          ],
+          "median": 5267.739,
+          "min": 5216.792,
+          "max": 5373.628
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            4169.164,
+            4140.554,
+            4055.932
+          ],
+          "median": 4140.554,
+          "min": 4055.932,
+          "max": 4169.164
+        },
+        "median_delta": -1127.1849999999995,
+        "median_delta_pct": -21.39789006251068
+      },
+      "render_cpu_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            3130.021,
+            3046.067,
+            2994.331
+          ],
+          "median": 3046.067,
+          "min": 2994.331,
+          "max": 3130.021
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            2350.858,
+            2237.343,
+            2252.022
+          ],
+          "median": 2252.022,
+          "min": 2237.343,
+          "max": 2350.858
+        },
+        "median_delta": -794.0450000000001,
+        "median_delta_pct": -26.06787703619126
+      },
+      "p50_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            7.491,
+            7.044,
+            7.293
+          ],
+          "median": 7.293,
+          "min": 7.044,
+          "max": 7.491
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            6.041,
+            5.966,
+            5.891
+          ],
+          "median": 5.966,
+          "min": 5.891,
+          "max": 6.041
+        },
+        "median_delta": -1.327,
+        "median_delta_pct": -18.19552996023584
+      },
+      "p95_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            15.805,
+            15.487,
+            15.272
+          ],
+          "median": 15.487,
+          "min": 15.272,
+          "max": 15.805
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            15.266,
+            15.819,
+            15.848
+          ],
+          "median": 15.819,
+          "min": 15.266,
+          "max": 15.848
+        },
+        "median_delta": 0.33200000000000074,
+        "median_delta_pct": 2.1437334538645363
+      },
+      "p99_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            27.063,
+            30.407,
+            28.158
+          ],
+          "median": 28.158,
+          "min": 27.063,
+          "max": 30.407
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            29.459,
+            25.919,
+            28.65
+          ],
+          "median": 28.65,
+          "min": 25.919,
+          "max": 29.459
+        },
+        "median_delta": 0.49199999999999733,
+        "median_delta_pct": 1.7472831877263915
+      },
+      "max_ms": {
+        "before": {
+          "n": 3,
+          "values": [
+            111.457,
+            117.281,
+            123.079
+          ],
+          "median": 117.281,
+          "min": 111.457,
+          "max": 123.079
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            67.971,
+            68.153,
+            70.563
+          ],
+          "median": 68.153,
+          "min": 67.971,
+          "max": 70.563
+        },
+        "median_delta": -49.128,
+        "median_delta_pct": -41.88913805305207
+      },
+      "app_deadline_miss_pct": {
+        "before": {
+          "n": 3,
+          "values": [
+            1.8214936247723132,
+            1.8148820326678765,
+            1.8165304268846503
+          ],
+          "median": 1.8165304268846503,
+          "min": 1.8148820326678765,
+          "max": 1.8214936247723132
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            1.693002257336343,
+            1.3498312710911136,
+            1.693002257336343
+          ],
+          "median": 1.693002257336343,
+          "min": 1.3498312710911136,
+          "max": 1.693002257336343
+        },
+        "median_delta": -0.12352816954830725,
+        "median_delta_pct": -6.800225733634314
+      },
+      "self_jank_pct": {
+        "before": {
+          "n": 3,
+          "values": [
+            4.18943533697632,
+            4.174228675136116,
+            4.087193460490464
+          ],
+          "median": 4.174228675136116,
+          "min": 4.087193460490464,
+          "max": 4.18943533697632
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            4.514672686230249,
+            3.824521934758155,
+            4.063205417607223
+          ],
+          "median": 4.063205417607223,
+          "min": 3.824521934758155,
+          "max": 4.514672686230249
+        },
+        "median_delta": -0.11102325752889275,
+        "median_delta_pct": -2.659731082539996
+      },
+      "bottom_navigation_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            484,
+            484,
+            482
+          ],
+          "median": 484,
+          "min": 482,
+          "max": 484
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            15,
+            15,
+            15
+          ],
+          "median": 15,
+          "min": 15,
+          "max": 15
+        },
+        "median_delta": -469,
+        "median_delta_pct": -96.90082644628099
+      },
+      "navigation_host_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            5,
+            5,
+            5
+          ],
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "median_delta": 0,
+        "median_delta_pct": 0.0
+      },
+      "month_day_cell_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            1543,
+            1543,
+            1543
+          ],
+          "median": 1543,
+          "min": 1543,
+          "max": 1543
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            1470,
+            1470,
+            1470
+          ],
+          "median": 1470,
+          "min": 1470,
+          "max": 1470
+        },
+        "median_delta": -73,
+        "median_delta_pct": -4.731043421905379
+      },
+      "compose_recompose_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            2188,
+            2186,
+            2186
+          ],
+          "median": 2186,
+          "min": 2186,
+          "max": 2188
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            249,
+            252,
+            252
+          ],
+          "median": 252,
+          "min": 249,
+          "max": 252
+        },
+        "median_delta": -1934,
+        "median_delta_pct": -88.47209515096066
+      },
+      "recomposer_recompose_executions": {
+        "before": {
+          "n": 3,
+          "values": [
+            825,
+            828,
+            827
+          ],
+          "median": 827,
+          "min": 825,
+          "max": 828
+        },
+        "after": {
+          "n": 3,
+          "values": [
+            584,
+            591,
+            583
+          ],
+          "median": 584,
+          "min": 583,
+          "max": 591
+        },
+        "median_delta": -243,
+        "median_delta_pct": -29.383313180169285
+      }
+    },
+    "aggregate_frames": {
+      "before": {
+        "frames": 3301,
+        "self_jank": 137,
+        "app_deadline_misses": 60,
+        "self_jank_pct": 4.150257497727961,
+        "app_deadline_miss_pct": 1.8176310209027566
+      },
+      "after": {
+        "frames": 2661,
+        "self_jank": 110,
+        "app_deadline_misses": 42,
+        "self_jank_pct": 4.133784291619691,
+        "app_deadline_miss_pct": 1.5783540022547915
+      }
+    },
+    "runs": [
+      {
+        "id": "before-1",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": "a27cccdd4f664ce1bec91ef4842a6701a2a299471daa8c3e7ed7b219a90f3c95",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 90628387,
+        "frames": {
+          "frames": 1098,
+          "self_jank": 46,
+          "app_deadline_misses": 20,
+          "p50_ms": 7.491,
+          "p95_ms": 15.805,
+          "p99_ms": 27.063,
+          "max_ms": 111.457,
+          "self_jank_pct": 4.18943533697632,
+          "app_deadline_miss_pct": 1.8214936247723132
+        },
+        "main_cpu_ms": 5373.628,
+        "render_cpu_ms": 3130.021,
+        "composition_executions": {
+          "calendar_app_content": 6,
+          "navigation_host": 5,
+          "month_day_cell": 1543,
+          "bottom_navigation": 484,
+          "nav_bar_surface": 0,
+          "compose_recompose": 2188,
+          "recomposer_recompose": 825
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:07:27Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 32.7,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 7
+          }
+        }
+      },
+      {
+        "id": "before-2",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": "a27cccdd4f664ce1bec91ef4842a6701a2a299471daa8c3e7ed7b219a90f3c95",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 89156800,
+        "frames": {
+          "frames": 1102,
+          "self_jank": 46,
+          "app_deadline_misses": 20,
+          "p50_ms": 7.044,
+          "p95_ms": 15.487,
+          "p99_ms": 30.407,
+          "max_ms": 117.281,
+          "self_jank_pct": 4.174228675136116,
+          "app_deadline_miss_pct": 1.8148820326678765
+        },
+        "main_cpu_ms": 5267.739,
+        "render_cpu_ms": 3046.067,
+        "composition_executions": {
+          "calendar_app_content": 6,
+          "navigation_host": 5,
+          "month_day_cell": 1543,
+          "bottom_navigation": 484,
+          "nav_bar_surface": 0,
+          "compose_recompose": 2186,
+          "recomposer_recompose": 828
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:09:16Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.1,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 6
+          }
+        }
+      },
+      {
+        "id": "before-3",
+        "group": "before",
+        "status": "accepted",
+        "apk_sha256": "a27cccdd4f664ce1bec91ef4842a6701a2a299471daa8c3e7ed7b219a90f3c95",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 88728677,
+        "frames": {
+          "frames": 1101,
+          "self_jank": 45,
+          "app_deadline_misses": 20,
+          "p50_ms": 7.293,
+          "p95_ms": 15.272,
+          "p99_ms": 28.158,
+          "max_ms": 123.079,
+          "self_jank_pct": 4.087193460490464,
+          "app_deadline_miss_pct": 1.8165304268846503
+        },
+        "main_cpu_ms": 5216.792,
+        "render_cpu_ms": 2994.331,
+        "composition_executions": {
+          "calendar_app_content": 6,
+          "navigation_host": 5,
+          "month_day_cell": 1543,
+          "bottom_navigation": 482,
+          "nav_bar_surface": 0,
+          "compose_recompose": 2186,
+          "recomposer_recompose": 827
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:10:36Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.3,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 5,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 3
+          }
+        }
+      },
+      {
+        "id": "after-1",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "3d41febc419859866ee242ab5ca6f9825ed4cc90111f343faaf76f8e1faf209a",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 73224771,
+        "frames": {
+          "frames": 886,
+          "self_jank": 40,
+          "app_deadline_misses": 15,
+          "p50_ms": 6.041,
+          "p95_ms": 15.266,
+          "p99_ms": 29.459,
+          "max_ms": 67.971,
+          "self_jank_pct": 4.514672686230249,
+          "app_deadline_miss_pct": 1.693002257336343
+        },
+        "main_cpu_ms": 4169.164,
+        "render_cpu_ms": 2350.858,
+        "composition_executions": {
+          "calendar_app_content": 7,
+          "navigation_host": 5,
+          "month_day_cell": 1470,
+          "bottom_navigation": 15,
+          "nav_bar_surface": 91,
+          "compose_recompose": 249,
+          "recomposer_recompose": 584
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:32:27Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.0,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 6,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 7
+          }
+        }
+      },
+      {
+        "id": "after-2",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "3d41febc419859866ee242ab5ca6f9825ed4cc90111f343faaf76f8e1faf209a",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 72486092,
+        "frames": {
+          "frames": 889,
+          "self_jank": 34,
+          "app_deadline_misses": 12,
+          "p50_ms": 5.966,
+          "p95_ms": 15.819,
+          "p99_ms": 25.919,
+          "max_ms": 68.153,
+          "self_jank_pct": 3.824521934758155,
+          "app_deadline_miss_pct": 1.3498312710911136
+        },
+        "main_cpu_ms": 4140.554,
+        "render_cpu_ms": 2237.343,
+        "composition_executions": {
+          "calendar_app_content": 7,
+          "navigation_host": 5,
+          "month_day_cell": 1470,
+          "bottom_navigation": 15,
+          "nav_bar_surface": 94,
+          "compose_recompose": 252,
+          "recomposer_recompose": 591
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:33:57Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.2,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 6,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 4
+          }
+        }
+      },
+      {
+        "id": "after-3",
+        "group": "after",
+        "status": "accepted",
+        "apk_sha256": "3d41febc419859866ee242ab5ca6f9825ed4cc90111f343faaf76f8e1faf209a",
+        "trace_config_sha256": "9f4c05c85dea89e9bb49611545808fa288b4cc8010a1998b92e6eb8d615953e7",
+        "trace_bytes": 73003845,
+        "frames": {
+          "frames": 886,
+          "self_jank": 36,
+          "app_deadline_misses": 15,
+          "p50_ms": 5.891,
+          "p95_ms": 15.848,
+          "p99_ms": 28.65,
+          "max_ms": 70.563,
+          "self_jank_pct": 4.063205417607223,
+          "app_deadline_miss_pct": 1.693002257336343
+        },
+        "main_cpu_ms": 4055.932,
+        "render_cpu_ms": 2252.022,
+        "composition_executions": {
+          "calendar_app_content": 7,
+          "navigation_host": 5,
+          "month_day_cell": 1470,
+          "bottom_navigation": 15,
+          "nav_bar_surface": 94,
+          "compose_recompose": 252,
+          "recomposer_recompose": 583
+        },
+        "conditions": {
+          "capture_utc": "2026-11-07T22:35:23Z",
+          "timezone": "Asia/Kolkata",
+          "battery_temperature_c": 33.1,
+          "global_thermal_status": 0,
+          "nonzero_sensor_count": 6,
+          "max_nonzero_sensor_status": 1
+        },
+        "health": {
+          "accepted": true,
+          "rejected_counter_count": 0,
+          "informational_scheduler_skips": {
+            "compact_sched_switch_skipped": 8,
+            "compact_sched_waking_skipped": 8
+          }
+        }
+      }
+    ]
+  },
+  "ios_dense_v2": {
+    "source_artifacts": [
+      "captures/performance/council/dense/ios-before-metrics.json",
+      "captures/performance/council/dense/ios-after-v2-metrics.json"
+    ],
+    "environment": {
+      "device_type": "iPhone 18 Pro simulator",
+      "runtime": "iOS 27",
+      "xcode_major": 27,
+      "host": "Apple Silicon Mac; same host/runtime for both groups"
+    },
+    "test": "testPopulatedJourney",
+    "samples_per_build": 3,
+    "discarded_warmup_per_build": 1,
+    "reset": "Terminate/launch app before every closure, including discarded warmup; start measurement after launch. System caches retained.",
+    "order": "Before build measured first, then after build; not interleaved/randomized.",
+    "limitations": [
+      "Simulator results do not predict physical iOS GPU, battery or thermal behavior.",
+      "CPU-time baseline relative SD is 14.775%; prefer the low-variance instruction trend and disclose both CPU mean and median.",
+      "Clock includes fixed gesture/wait/accessibility overhead.",
+      "Memory Physical and Absolute Memory Physical have identical reported samples; do not add them."
+    ],
+    "metrics": [
+      {
+        "metric": "Memory Physical (XCalendar), kB",
+        "before": {
+          "samples": [
+            118868.584,
+            110512.744,
+            109546.064
+          ],
+          "mean": 112975.797,
+          "relative_sd_pct": 3.705,
+          "median": 110512.744
+        },
+        "after": {
+          "samples": [
+            107809.36,
+            100797.008,
+            99797.608
+          ],
+          "mean": 102801.325,
+          "relative_sd_pct": 3.468,
+          "median": 100797.008
+        },
+        "mean_delta_pct": -9.00588645548569,
+        "median_delta_pct": -8.791507339642212
+      },
+      {
+        "metric": "CPU Instructions Retired (XCalendar), kI",
+        "before": {
+          "samples": [
+            109343160.599,
+            110222574.369,
+            109714554.121
+          ],
+          "mean": 109760096.363,
+          "relative_sd_pct": 0.328,
+          "median": 109714554.121
+        },
+        "after": {
+          "samples": [
+            91500824.319,
+            91870131.391,
+            91317394.226
+          ],
+          "mean": 91562783.312,
+          "relative_sd_pct": 0.251,
+          "median": 91500824.319
+        },
+        "mean_delta_pct": -16.579170075450378,
+        "median_delta_pct": -16.601015196135936
+      },
+      {
+        "metric": "Clock Monotonic Time, s",
+        "before": {
+          "samples": [
+            21.785969,
+            21.184473,
+            21.185716
+          ],
+          "mean": 21.385,
+          "relative_sd_pct": 1.325,
+          "median": 21.185716
+        },
+        "after": {
+          "samples": [
+            21.134048,
+            21.0979,
+            21.100175
+          ],
+          "mean": 21.111,
+          "relative_sd_pct": 0.078,
+          "median": 21.100175
+        },
+        "mean_delta_pct": -1.281271919569793,
+        "median_delta_pct": -0.40376733078079097
+      },
+      {
+        "metric": "Absolute Memory Physical (XCalendar), kB",
+        "before": {
+          "samples": [
+            118868.584,
+            110512.744,
+            109546.064
+          ],
+          "mean": 112975.797,
+          "relative_sd_pct": 3.705,
+          "median": 110512.744
+        },
+        "after": {
+          "samples": [
+            107809.36,
+            100797.008,
+            99797.608
+          ],
+          "mean": 102801.325,
+          "relative_sd_pct": 3.468,
+          "median": 100797.008
+        },
+        "mean_delta_pct": -9.00588645548569,
+        "median_delta_pct": -8.791507339642212
+      },
+      {
+        "metric": "CPU Time (XCalendar), s",
+        "before": {
+          "samples": [
+            13.435639,
+            10.044923,
+            9.865514
+          ],
+          "mean": 11.115,
+          "relative_sd_pct": 14.775,
+          "median": 10.044923
+        },
+        "after": {
+          "samples": [
+            8.578543,
+            8.861223,
+            8.655545
+          ],
+          "mean": 8.698,
+          "relative_sd_pct": 1.372,
+          "median": 8.655545
+        },
+        "mean_delta_pct": -21.745389113810166,
+        "median_delta_pct": -13.83164410518628
+      },
+      {
+        "metric": "CPU Cycles (XCalendar), kC",
+        "before": {
+          "samples": [
+            43047219.095,
+            39758632.794,
+            38925038.182
+          ],
+          "mean": 40576963.357,
+          "relative_sd_pct": 4.386,
+          "median": 39758632.794
+        },
+        "after": {
+          "samples": [
+            31861923.763,
+            31484718.628,
+            30478250.429
+          ],
+          "mean": 31274964.273,
+          "relative_sd_pct": 1.867,
+          "median": 31484718.628
+        },
+        "mean_delta_pct": -22.924335175503707,
+        "median_delta_pct": -20.810358869404133
+      },
+      {
+        "metric": "Memory Peak Physical (XCalendar), kB",
+        "before": {
+          "samples": [
+            118983.272,
+            110660.2,
+            110447.184
+          ],
+          "mean": 113363.552,
+          "relative_sd_pct": 3.506,
+          "median": 110660.2
+        },
+        "after": {
+          "samples": [
+            111512.144,
+            102877.776,
+            101763.688
+          ],
+          "mean": 105384.536,
+          "relative_sd_pct": 4.134,
+          "median": 102877.776
+        },
+        "mean_delta_pct": -7.038431541030055,
+        "median_delta_pct": -7.03272179157457
+      }
+    ]
+  },
+  "idle_validation": {
+    "week": {
+      "source": "captures/performance/council/dense/after-v2-week-idle/analysis/independent-idle-verification.txt",
+      "trace_duration_s": 29.871981,
+      "tail_duration_s": 20,
+      "doFrame": 0,
+      "measureAndLayout": 0,
+      "onMeasure": 0,
+      "compose_recompose": 0,
+      "recomposer_recompose": 0,
+      "main_cpu_ms": 0.437,
+      "render_cpu_ms": 0,
+      "health_accepted": true
+    },
+    "month": {
+      "source": "captures/performance/council/dense/after-populated-v2-1/analysis/focused-followup.txt",
+      "tail_duration_s": 10,
+      "doFrame": 0,
+      "measureAndLayout": 0,
+      "onMeasure": 0,
+      "compose_recompose": 0,
+      "recomposer_recompose": 0,
+      "health_accepted": true
+    },
+    "rejected_initial_dense_attempt": {
+      "accepted_for_comparison": false,
+      "reason": "Failed Week visibility assertion and trace data loss.",
+      "overwritten_bytes": 73768960,
+      "overwritten_chunks": 2400,
+      "invalid_incremental_state_packets": 483,
+      "retained_idle_frames_per_5s_approx": 600
+    },
+    "attribution": "Occurrence-key and all-day placement fixes were measured together; no isolated contribution is asserted."
+  },
+  "residual_limits": [
+    "Dense p95/p99 have overlapping before/after ranges with slightly higher after medians; no percentile improvement claim.",
+    "Dense worst frames remain 67.971\u201370.563 ms despite a lower worst-frame median.",
+    "Mixed journey has no per-phase markers; overall percentiles are not per-view percentiles.",
+    "Corrected rendering includes content the original omitted; this is a user-visible workload comparison, not identical display-list work.",
+    "Three sequential repetitions cannot establish confidence intervals or remove thermal/cache/order effects."
+  ],
+  "ui_review": {
+    "score_out_of_10": 9,
+    "status": "accepted_tested_flows",
+    "remaining_limits": [
+      "Broader device/font-size/accessibility coverage",
+      "Discoverability of scrolling more than three all-day items"
+    ]
+  },
+  "correctness_review": {
+    "score_out_of_10": 9.5,
+    "status": "no_remaining_must_fix_in_changed_flows",
+    "limits": [
+      "Static demo import is not remote synchronization; no deletion tombstones",
+      "Fixed 24-hour axis projects reversed DST-fold wall times by elapsed duration",
+      "Process-death draft restoration not guaranteed"
+    ]
+  },
+  "validation": {
+    "shared_tests": {
+      "jvm_passed": 80,
+      "android_host_unit_passed": 71,
+      "ios_simulator_passed": 71
+    },
+    "harness_tests_passed": 15,
+    "android_runtime": [
+      "Four all-day creates retained after restart",
+      "Fourth all-day item scrolled into view and opened",
+      "Edit retained after second restart",
+      "Failed-save error and draft retained beyond timeout"
+    ],
+    "ios_runtime": [
+      "Day/3 Day bidirectional transition video reviewed",
+      "Real software keyboard leaves actions and scrolled description reachable",
+      "Failed-write draft/error retention XCTest passed",
+      "Final normal release launch/month-round-trip XCTest passed"
+    ],
+    "builds_passed": [
+      "Android release",
+      "iOS simulator release",
+      "JVM desktop"
+    ],
+    "application_commit": "fe3830ab15628440b5c757d8f7c3eaceb578410f",
+    "harness_commit": "436cd18"
+  },
+  "current_editor": {
+    "source_artifact": "captures/performance/council/final/android-editor",
+    "application_commit": "fe3830ab15628440b5c757d8f7c3eaceb578410f",
+    "apk_sha256": "20fb20a9e6504c67c568d4b3179d8f44fb2d16612fc1f0f34c70e66d1fbae3f6",
+    "apk_verified_by_runner": true,
+    "trace_config_sha256": "f8642612b5e43fb7df684a7d5fc741b6396278a39c8be98cf89c4424be59fb31",
+    "trace_bytes": 94959868,
+    "trace_duration_s": 79.864323,
+    "comparison_type": "Current-build after-only diagnostic. No matched original editor comparison is asserted.",
+    "scenario": "dialog",
+    "requested_open_close_cycles": 10,
+    "workload_completed": true,
+    "fixture_data_sha256": null,
+    "coverage": {
+      "observed_outer_dialog_compositions": 10,
+      "observed_form_content_compositions": 10,
+      "openings": [
+        {
+          "opening": 1,
+          "trace_relative_s": 2.964,
+          "outer_dialog_composition_ms": 6.267
+        },
+        {
+          "opening": 2,
+          "trace_relative_s": 8.839,
+          "outer_dialog_composition_ms": 4.396
+        },
+        {
+          "opening": 3,
+          "trace_relative_s": 15.477,
+          "outer_dialog_composition_ms": 3.59
+        },
+        {
+          "opening": 4,
+          "trace_relative_s": 19.365,
+          "outer_dialog_composition_ms": 5.057
+        },
+        {
+          "opening": 5,
+          "trace_relative_s": 23.293,
+          "outer_dialog_composition_ms": 4.147
+        },
+        {
+          "opening": 6,
+          "trace_relative_s": 27.26,
+          "outer_dialog_composition_ms": 3.831
+        },
+        {
+          "opening": 7,
+          "trace_relative_s": 31.086,
+          "outer_dialog_composition_ms": 4.577
+        },
+        {
+          "opening": 8,
+          "trace_relative_s": 34.764,
+          "outer_dialog_composition_ms": 3.101
+        },
+        {
+          "opening": 9,
+          "trace_relative_s": 38.634,
+          "outer_dialog_composition_ms": 3.175
+        },
+        {
+          "opening": 10,
+          "trace_relative_s": 42.371,
+          "outer_dialog_composition_ms": 4.055
+        }
+      ],
+      "close_validation": "Runner completed 10 open/Back-dismiss cycles with an editable-field assertion for each opening. Final hierarchy has no EditText/Save/Cancel and Add Event remains. Native window-detach events were not separately counted.",
+      "final_editor_closed": true
+    },
+    "health": {
+      "accepted": true,
+      "loss_or_invalid_state_counters": 0,
+      "informational_scheduler_skips": {
+        "compact_sched_switch_skipped": 8,
+        "compact_sched_waking_skipped": 9
+      }
+    },
+    "conditions": {
+      "capture_utc": "2026-11-07T22:41:36Z",
+      "completed_workload_utc": "2026-11-07T22:42:25Z",
+      "timezone": "Asia/Kolkata",
+      "battery_temperature_c": 32.8,
+      "global_thermal_status": 0
+    },
+    "frames": {
+      "frames": 2361,
+      "self_jank": 28,
+      "app_deadline_misses": 24,
+      "p50_ms": 5.454,
+      "p95_ms": 12.142,
+      "p99_ms": 18.777,
+      "max_ms": 77.365,
+      "self_jank_pct": 1.1859381617958493,
+      "app_deadline_miss_pct": 1.0165184243964422
+    },
+    "whole_trace_cpu_ms": {
+      "main": 4366.135,
+      "render_thread": 5432.056,
+      "identification": "Saved default query identifies the main thread by exact package-tail name."
+    },
+    "composition": {
+      "outer_dialog": {
+        "executions": 10,
+        "inclusive_ms": 42.196,
+        "max_ms": 6.267
+      },
+      "form_content": {
+        "executions": 10,
+        "inclusive_ms": 116.15,
+        "max_ms": 16.935
+      },
+      "interpretation": "Dialog and form-content scopes each execute once per opening; Material animation work can still recompose internally. Inclusive slices overlap and must not be summed."
+    },
+    "tail": {
+      "duration_s": 10,
+      "doFrame": 0,
+      "measureAndLayout": 0,
+      "onMeasure": 0,
+      "compose_recompose": 0,
+      "recomposer_recompose": 0
+    },
+    "worst_frames": [
+      {
+        "opening": 1,
+        "trace_relative_s": 2.962,
+        "frame_ms": 77.365,
+        "jank_type": "App Deadline Missed",
+        "doFrame_ms": 77.118,
+        "traversal_ms": 60.326,
+        "new_window_composition_ms": 22.466,
+        "nested_form_content_ms": 16.935,
+        "onMeasure_ms": 9.429,
+        "window_relayout_ms": 5.046
+      },
+      {
+        "opening": 4,
+        "trace_relative_s": 19.363,
+        "frame_ms": 71.053,
+        "jank_type": "App Deadline Missed",
+        "traversal_ms": 55.892,
+        "new_window_composition_ms": 19.74,
+        "nested_form_content_ms": 16.797,
+        "onMeasure_ms": 9.114
+      },
+      {
+        "opening": 6,
+        "trace_relative_s": 27.258,
+        "frame_ms": 63.905,
+        "jank_type": "App Deadline Missed",
+        "traversal_ms": 48.445,
+        "new_window_composition_ms": 14.229,
+        "nested_form_content_ms": 11.792,
+        "onMeasure_ms": 5.337
+      }
+    ],
+    "limitations": [
+      "Frame durations are not tap-to-visible latency.",
+      "The three largest frames coincide with openings 1, 4 and 6; this is not solely a first-opening cost.",
+      "Remaining outliers combine modal window creation, first content composition, measurement, relayout and drawing; no continuous form recomposition or idle loop was found.",
+      "Existing dense v2 measurements are not silently reassigned to this final APK."
+    ],
+    "independent_verification_query_sha256": "4c919fa953f26fab6c9cfc5a7f886ccfa57a0cd6382c3bc8a993d361a50df13e"
+  },
+  "ios_qualitative_profile": {
+    "path": "captures/performance/council/final/ios-profile-valid",
+    "duration_s": 60.765022,
+    "samples": 10857,
+    "symbolized_samples": 10857,
+    "main_sampled_ms": 8229,
+    "background_sampled_ms": 2628,
+    "month_day_cell_inclusive_ms": 1264,
+    "month_view_inclusive_ms": 425,
+    "concurrent_mark_leaf_ms": 491,
+    "limitations": [
+      "Statistical samples are not exact calls or Compose recompositions",
+      "Inclusive weights overlap",
+      "Concurrent native compilation on host; no timing comparison",
+      "Auxiliary Instruments table warning; time-profile table exported successfully"
+    ],
+    "rejected_attempt": "Prior profile interrupted when shared tests shut down the simulator; excluded"
+  }
+}

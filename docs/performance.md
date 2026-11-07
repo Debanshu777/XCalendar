@@ -1,6 +1,9 @@
 # Android and iOS performance review
 
-This review compares the release app at `adbd2c8` with application commit `3956546`.
+The initial measurements below compare the release app at `adbd2c8` with
+application commit `3956546`. The subsequent
+[council review and populated-calendar measurements](performance-council.md)
+cover the additional navigation, editor, and persistence fixes in this PR.
 It covers cold-process launch, all five calendar views, month paging, schedule
 scrolling, the month dropdown, idle composition, and the event editor.
 Measurements are observations on the devices below, not universal performance
@@ -168,12 +171,60 @@ accepted capture per build; small differences are not statistically conclusive.
 - iOS initializes Koin once outside composition/controller recreation. Top-level
   UI flow collection follows the lifecycle.
 
-Existing product limitations remain: static demo APIs are not a write-capable
-backend; search and parts of the event editor are unfinished; recurrence
-expansion and live clock/time-zone changes need separate product work. The
-initial event query remains bounded around today, so browsing far beyond that
-window is not a complete historical-data experience. These are not claimed as
-implemented by this performance PR.
+The subsequent council review also fixes persistence and editor defects:
+
+- Account refresh updates the existing user through Room `@Upsert`. It preserves
+  child calendars, locally created events, and reminders across app restarts;
+  the previous replacement deleted them through foreign-key cascades.
+- Event add/update checks Store's write response. Database errors reach the
+  editor, and cancellation retains its original exception. A failed local write
+  can no longer be reported as a successful save.
+- The JSON event endpoint now has an explicit demo-seed policy: import missing
+  IDs and their reminders in one transaction, preserving existing local edits.
+  Later imports accept new IDs; changes to an existing ID in the source asset
+  intentionally do not replace the local record. A failed import rolls back
+  its new rows. Local editing retains the existing upsert path, and Room schema
+  version 1 remains unchanged.
+- Edit opens a populated form. Save dismisses only after persistence succeeds;
+  errors retain the draft and its event ID for retry. Submission is guarded
+  before launching a coroutine, preventing duplicate rapid taps. Cancel leaves
+  the original event unchanged, and dismissal is disabled while saving.
+- The editor has scrollable fields and reachable actions, controlled calendar
+  selection for the displayed account, editable dates/times/location/description,
+  and reminder choices. Existing recurrence metadata and multiple reminders are
+  preserved; an empty reminder list differs from an at-start reminder.
+- Existing timed events retain exact instants when their date/time fields are
+  unchanged, including sub-minute precision and repeated daylight-saving hours.
+  Changed inputs reject invalid intervals and nonexistent local times. All-day
+  dates store an exclusive next-local-midnight end, including 23/25-hour days.
+  The timed grid also keeps sub-minute and repeated-hour intervals visible.
+  A fixed 24-hour axis projects reversed clock times using elapsed duration;
+  details retain the original instants, and midnight ends remain exclusive.
+  Details show both dates for overnight/multiday events and no longer invent
+  meeting, guest-list, or default-reminder information.
+
+### Council correctness validation
+
+Regression coverage exercises account refresh with existing child data, real
+Room/Store write failures reaching create/update use cases, failed-write rollback,
+repeated demo imports preserving edits/reminders, and new seed IDs. ViewModel
+tests cover duplicate submissions, persistence completion, failure/retry,
+cancellation, and selection changes while saving. Editor/formatter tests cover
+exclusive all-day ends, daylight-saving transitions, exact timestamp preservation,
+overnight dates, year boundaries, and zero-minute reminders. Final executed test
+counts and device checks are recorded in the [council validation](performance-council.md#final-validation).
+
+The static JSON endpoint is read-only: there is no remote write synchronization
+or conflict-resolution protocol. Repository-level deletion of an imported event
+can allow that ID to be seeded again because no durable deletion tombstone is
+stored; the app currently exposes no Delete control. The seed policy is specific
+to the demo backend and must be replaced with a defined synchronization policy
+before supporting a write-capable server.
+
+Search, recurrence expansion, and live clock/time-zone changes remain separate
+product work. Draft restoration after process death is not claimed. The initial
+event query remains bounded around today, so browsing far beyond that window is
+not a complete historical-data experience.
 
 ## Reproduce Android
 
@@ -241,7 +292,11 @@ and diagnostic APKs in a timing comparison or clear only one build's caches.
 
 ## Validation and evidence
 
-Commands completed successfully:
+The following checks belong to the initial measurement revision. The expanded
+[final council validation](performance-council.md#final-validation) records the
+current test counts, editor/persistence checks, and platform builds.
+
+Commands completed successfully for the initial revision:
 
 - `./kotlin test -m shared -p jvm`: 45/45 tests.
 - `./kotlin test -m shared -p android`: 40/40 target unit tests (not device instrumentation).
