@@ -17,7 +17,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--device", required=True)
     p.add_argument("--output", type=pathlib.Path, required=True)
-    p.add_argument("--only", choices=["testColdLaunch", "testCalendarJourney", "testEventDialog", "testMonthRoundTrip", "testProfileJourney"])
+    p.add_argument("--only", choices=["testColdLaunch", "testCalendarJourney", "testPopulatedJourney", "testEventDialog", "testNavigationViewport", "testSaveFailureRetainsDraft", "testMonthRoundTrip", "testProfileJourney"])
     p.add_argument("--build-only", action="store_true")
     p.add_argument("--trace", action="store_true", help="Attach Time Profiler during testProfileJourney")
     p.add_argument("--expected-app", type=pathlib.Path, help="Verify the installed executable matches this release .app")
@@ -81,6 +81,8 @@ def main():
         command.append("-only-testing:CalendarBenchmarks/CalendarBenchmarks/" + args.only)
     else:
         command.append("-skip-testing:CalendarBenchmarks/CalendarBenchmarks/testProfileJourney")
+        command.append("-skip-testing:CalendarBenchmarks/CalendarBenchmarks/testPopulatedJourney")
+        command.append("-skip-testing:CalendarBenchmarks/CalendarBenchmarks/testSaveFailureRetainsDraft")
     if not args.trace:
         subprocess.run(command, check=True)
         return
