@@ -17,11 +17,34 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.mobilenativefoundation.store.store5.Fetcher
 import org.mobilenativefoundation.store.store5.StoreBuilder
+import org.mobilenativefoundation.store.store5.StoreWriteResponse
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class RepositoryFailureTest {
+    @Test
+    fun storeWriteFailuresPropagateMessagesAndOriginalExceptions() {
+        val failure = IllegalStateException("Local write failed")
+        assertSame(failure, assertFailsWith<IllegalStateException> {
+            StoreWriteResponse.Error.Exception(failure).requireWriteSuccess()
+        })
+        val message = assertFailsWith<RepositoryException> {
+            StoreWriteResponse.Error.Message("Local write failed").requireWriteSuccess()
+        }
+        assertEquals("Local write failed", message.message)
+    }
+
+    @Test
+    fun storeWriteCancellationIsRethrownWithoutBecomingASaveError() {
+        val cancellation = CancellationException("Write cancelled")
+        assertSame(cancellation, assertFailsWith<CancellationException> {
+            StoreWriteResponse.Error.Exception(cancellation).requireWriteSuccess()
+        })
+    }
+
     @Test
     fun failedHolidayRefreshReturnsAnErrorInsteadOfWaitingForever() = runTest {
         val store = StoreBuilder.from(Fetcher.of<HolidayKey, List<Holiday>> { error("offline") }).build()

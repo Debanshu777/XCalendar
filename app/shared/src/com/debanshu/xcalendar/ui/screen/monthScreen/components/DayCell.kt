@@ -30,6 +30,7 @@ import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.Holiday
 import com.debanshu.xcalendar.ui.components.EventTag
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.utils.rememberEventContentColor
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedDateElement
 import com.debanshu.xcalendar.ui.transition.sharedEventElement
@@ -127,7 +128,7 @@ fun DayCell(
                     modifier = Modifier.padding(bottom = 2.dp),
                     text = holiday.name,
                     color = Color(0xFF007F73),
-                    textColor = XCalendarTheme.colorScheme.inverseOnSurface,
+                    textColor = rememberEventContentColor(Color(0xFF007F73), XCalendarTheme.colorScheme.surfaceContainerHigh),
                 )
             }
         }
@@ -139,12 +140,13 @@ fun DayCell(
                     modifier =
                         Modifier.sharedEventElement(
                             eventId = event.id,
+                            date = date,
                             type = SharedElementType.EventCard,
                             isVisible = isVisible,
                         ),
                     text = event.title,
                     color = Color(event.color),
-                    textColor = XCalendarTheme.colorScheme.inverseOnSurface,
+                    textColor = rememberEventContentColor(Color(event.color), XCalendarTheme.colorScheme.surfaceContainerHigh),
                 )
             }
 

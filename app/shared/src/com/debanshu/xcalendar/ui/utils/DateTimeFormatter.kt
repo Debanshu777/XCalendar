@@ -2,6 +2,7 @@ package com.debanshu.xcalendar.ui.utils
 
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 
@@ -79,29 +80,30 @@ object DateTimeFormatter {
      * Formats an event's date and time as a descriptive subheading.
      * Example: "Friday, 20 Jun 6-7PM" or "Friday, 20 Jun" for all-day events.
      */
-    fun formatEventSubheading(event: Event): String {
-        val startDateTime = event.startTime.toLocalDateTime(TimeZone.currentSystemDefault())
-        val endDateTime = event.endTime.toLocalDateTime(TimeZone.currentSystemDefault())
-
-        val dayOfWeek =
-            startDateTime.date.dayOfWeek.name
-                .lowercase()
-                .replaceFirstChar { it.titlecase() }
-
-        val day = startDateTime.date.day
-        val month =
-            startDateTime.date.month.name
-                .take(3)
-                .lowercase()
-                .replaceFirstChar { it.titlecase() }
-
-        val mainLine =
-            if (event.isAllDay) {
-                "$dayOfWeek, $day $month"
-            } else {
-                val timeRange = formatCompactTimeRange(startDateTime, endDateTime)
-                "$dayOfWeek, $day $month $timeRange"
-            }
+    fun formatEventSubheading(
+        event: Event,
+        timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    ): String {
+        val startDateTime = event.startTime.toLocalDateTime(timeZone)
+        val endDateTime = event.endTime.toLocalDateTime(timeZone)
+        // An all-day end marks the first instant outside the event. Converting
+        // the previous instant also handles 23/25-hour days without assuming
+        // that each local day lasts exactly 24 hours.
+        val lastDate = if (event.isAllDay && event.endTime > event.startTime) {
+            (event.endTime - 1).toLocalDateTime(timeZone).date
+        } else {
+            endDateTime.date
+        }
+        val includeYear = startDateTime.year != lastDate.year
+        val startLabel = formatEventDate(startDateTime.date, includeYear)
+        val endLabel = formatEventDate(lastDate, includeYear)
+        val mainLine = when {
+            event.isAllDay && startDateTime.date == lastDate -> startLabel
+            event.isAllDay -> "$startLabel – $endLabel"
+            startDateTime.date == endDateTime.date ->
+                "$startLabel ${formatCompactTimeRange(startDateTime, endDateTime)}"
+            else -> "$startLabel ${formatTime(startDateTime)} – $endLabel ${formatTime(endDateTime)}"
+        }
 
         // Add recurring information if applicable
         return if (event.isRecurring && !event.recurringRule.isNullOrBlank()) {
@@ -117,6 +119,12 @@ object DateTimeFormatter {
         } else {
             mainLine
         }
+    }
+
+    private fun formatEventDate(date: LocalDate, includeYear: Boolean): String {
+        val weekday = date.dayOfWeek.name.lowercase().replaceFirstChar { it.titlecase() }
+        val month = date.month.name.take(3).lowercase().replaceFirstChar { it.titlecase() }
+        return "$weekday, ${date.dayOfMonth} $month" + if (includeYear) " ${date.year}" else ""
     }
 
     /**

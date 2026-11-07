@@ -23,7 +23,9 @@ import org.mobilenativefoundation.store.store5.UpdaterResult
  * Creates a MutableStore for events that handles:
  * - Fetching from the remote API
  * - Caching to Room database
- * - Write operations (create, update, delete) with network sync
+ * - Read-only demo imports that preserve local event edits
+ * - Local writes; a real backend and conflict policy are not implemented
+ * Individual user edits go through SingleEventStoreFactory, not this range store.
  */
 object EventStoreFactory {
 
@@ -81,7 +83,12 @@ object EventStoreFactory {
                 }
         },
         writer = { _, events ->
-            eventDao.insertEventsWithReminders(events.map { event ->
+            // The endpoint is a static demo asset, not a write-capable backend.
+            // Seed new IDs without replacing locally edited events/reminders.
+            // There are no deletion tombstones: a repository-level deletion of
+            // a seeded ID can be imported again. No Delete control is exposed.
+            // A real sync backend needs a durable conflict/tombstone policy.
+            eventDao.importDemoSeedEvents(events.map { event ->
                 EventWithReminders(event.asEntity(), event.reminderMinutes.map { minutes ->
                     EventReminderEntity(event.id, minutes)
                 })

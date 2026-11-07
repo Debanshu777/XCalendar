@@ -8,8 +8,10 @@ import com.debanshu.xcalendar.ui.utils.monthGridDates
 import com.debanshu.xcalendar.ui.state.ScheduleStateHolder
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toInstant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -71,10 +73,90 @@ class CalendarLayoutTest {
     }
 
     @Test
+    fun allDayEventsDoNotConsumeTimedColumnsOrJoinSeparateOverlapGroups() {
+        val allDay = event("all-day", 0, 1440).copy(isAllDay = true)
+        val multiDay = event("multi-day", -1440, 2880).copy(isAllDay = true)
+        val placements = layoutDayEvents(listOf(
+            allDay, multiDay, event("early", 60, 120), event("adjacent", 120, 180),
+            event("overlap-a", 200, 300), event("overlap-b", 250, 350),
+        ), day, 0..23, TimeZone.UTC)
+
+        assertEquals(listOf("early", "adjacent", "overlap-a", "overlap-b"), placements.map { it.event.id })
+        assertEquals(listOf(1, 1, 2, 2), placements.map { it.columnCount })
+        assertTrue(layoutDayEvents(listOf(allDay, multiDay), day, 0..23, TimeZone.UTC).isEmpty())
+    }
+
+    @Test
+    fun allDayHeaderIndexIncludesCoveredDaysAndExcludesTheMidnightEnd() {
+        val allDay = event("two-days", 0, 2880).copy(isAllDay = true)
+        val index = indexEventsByDate(listOf(allDay), LocalDate(2026, 11, 7), LocalDate(2026, 11, 11), TimeZone.UTC)
+
+        assertEquals(setOf(day, LocalDate(2026, 11, 9)), index.keys)
+        assertTrue(index.values.all { it.single() == allDay })
+    }
+
+    @Test
     fun timeGridClipsOvernightAndPartiallyVisibleEvents() {
         val placement = layoutDayEvents(listOf(event("overnight", -60, 600)), day, 8..9, TimeZone.UTC).single()
         assertEquals(480, placement.startMinute)
         assertEquals(600, placement.endMinute)
+    }
+
+    @Test
+    fun subMinuteEventsRemainVisibleAndPartialEndMinutesAreIncluded() {
+        val short = TestDataFactory.createEvent(
+            id = "sub-minute", startTime = midnight + 600_125L, endTime = midnight + 630_250L,
+        )
+        val placements = layoutDayEvents(listOf(short, event("partial-end", 20, 30).copy(
+            endTime = midnight + 30 * 60_000L + 1L,
+        )), day, 0..23, TimeZone.UTC)
+
+        assertEquals(listOf(10, 20), placements.map { it.startMinute })
+        assertEquals(listOf(11, 31), placements.map { it.endMinute })
+        assertEquals(short, placements.first().event)
+    }
+
+    @Test
+    fun repeatedClockHourUsesElapsedDurationWithoutChangingEventInstants() {
+        val foldDay = LocalDate(2026, 11, 1)
+        val original = TestDataFactory.createEvent(
+            // 01:45 EDT to 01:15 EST is a positive 30-minute interval.
+            startTime = LocalDateTime.parse("2026-11-01T05:45").toInstant(TimeZone.UTC).toEpochMilliseconds(),
+            endTime = LocalDateTime.parse("2026-11-01T06:15").toInstant(TimeZone.UTC).toEpochMilliseconds(),
+        )
+        val placement = layoutDayEvents(listOf(original), foldDay, 0..23, TimeZone.of("America/New_York")).single()
+
+        assertEquals(105, placement.startMinute)
+        assertEquals(135, placement.endMinute)
+        assertEquals(original, placement.event)
+
+        val sameClockTime = original.copy(
+            endTime = LocalDateTime.parse("2026-11-01T06:45").toInstant(TimeZone.UTC).toEpochMilliseconds(),
+        )
+        val repeated = layoutDayEvents(listOf(sameClockTime), foldDay, 0..23, TimeZone.of("America/New_York")).single()
+        assertEquals(105, repeated.startMinute)
+        assertEquals(165, repeated.endMinute)
+
+        // Intervals with increasing wall time retain that placement on the
+        // fixed grid even when a clock change alters their elapsed duration.
+        val spanningFold = original.copy(
+            startTime = LocalDateTime.parse("2026-11-01T04:30").toInstant(TimeZone.UTC).toEpochMilliseconds(),
+            endTime = LocalDateTime.parse("2026-11-01T07:30").toInstant(TimeZone.UTC).toEpochMilliseconds(),
+        )
+        val spanning = layoutDayEvents(listOf(spanningFold), foldDay, 0..23, TimeZone.of("America/New_York")).single()
+        assertEquals(30, spanning.startMinute)
+        assertEquals(150, spanning.endMinute)
+    }
+
+    @Test
+    fun emptyReversedAndNonIntersectingIntervalsDoNotCreateGridCards() {
+        val events = listOf(
+            event("empty", 10, 10), event("reversed", 20, 10),
+            event("ends-at-midnight", -60, 0), event("starts-tomorrow", 1440, 1500),
+        )
+        assertTrue(layoutDayEvents(events, day, 0..23, TimeZone.UTC).isEmpty())
+        val endsAtMidnight = layoutDayEvents(listOf(event("ends-next-midnight", 1380, 1440)), day, 0..23, TimeZone.UTC).single()
+        assertEquals(1440, endsAtMidnight.endMinute)
     }
 
     @Test

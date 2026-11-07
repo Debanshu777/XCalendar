@@ -15,11 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.utils.rememberEventContentColor
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedEventElement
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun EventItem(
+    date: LocalDate,
     title: String,
     color: Color,
     onClick: () -> Unit,
@@ -30,7 +33,7 @@ fun EventItem(
 ) {
     // Optimized: Pre-calculate colors to avoid repeated alpha calculations
     val backgroundColor = remember(color) { color.copy(alpha = 0.15f) }
-    val timeTextColor = remember(color) { color.copy(alpha = 0.7f) }
+    val textColor = rememberEventContentColor(backgroundColor, XCalendarTheme.colorScheme.surfaceContainerLow)
 
     // Apply shared element modifier only if eventId is provided
     val surfaceModifier =
@@ -40,6 +43,7 @@ fun EventItem(
                 .padding(vertical = 2.dp)
                 .sharedEventElement(
                     eventId = eventId,
+                    date = date,
                     type = SharedElementType.EventCard,
                     isVisible = isVisible,
                 )
@@ -62,7 +66,7 @@ fun EventItem(
             Text(
                 text = title,
                 style = XCalendarTheme.typography.bodyMedium,
-                color = color,
+                color = textColor,
                 fontWeight = FontWeight.Medium,
             )
 
@@ -70,7 +74,7 @@ fun EventItem(
                 Text(
                     text = it,
                     style = XCalendarTheme.typography.labelSmall,
-                    color = timeTextColor,
+                    color = textColor,
                     fontSize = 12.sp,
                 )
             }

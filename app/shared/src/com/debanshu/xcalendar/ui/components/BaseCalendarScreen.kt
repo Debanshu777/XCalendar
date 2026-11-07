@@ -1,6 +1,5 @@
 package com.debanshu.xcalendar.ui.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,11 +68,11 @@ internal fun BaseCalendarScreen(
 
     val isToday = dateState.selectedDate == dateState.currentDate
 
-    // Cache dynamic header height to avoid recalculation
-    val dynamicHeightOfHeaderComposableWithHolidays = remember { mutableStateOf(0) }
+    // Match the visible page's complete date/holiday/all-day band.
+    val headerHeightPixels = remember { mutableStateOf(0) }
     val heightDp =
         with(LocalDensity.current) {
-            dynamicHeightOfHeaderComposableWithHolidays.value.coerceAtLeast(160).toDp()
+            headerHeightPixels.value.toDp().coerceAtLeast(60.dp)
         }
 
     Row(
@@ -85,8 +84,7 @@ internal fun BaseCalendarScreen(
                     Modifier
                         .height(heightDp)
                         .width(timeColumnWidth)
-                        .background(color = XCalendarTheme.colorScheme.surfaceContainerLow)
-                        .animateContentSize(),
+                        .background(color = XCalendarTheme.colorScheme.surfaceContainerLow),
             ) {
                 if (numDays == 1) {
                     Column(
@@ -170,7 +168,7 @@ internal fun BaseCalendarScreen(
             timeRange = timeRange,
             scrollState = verticalScrollState,
             currentDate = dateState.currentDate,
-            dynamicHeaderHeightState = dynamicHeightOfHeaderComposableWithHolidays,
+            dynamicHeaderHeightState = headerHeightPixels,
         )
     }
 }

@@ -40,11 +40,25 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE id = :eventId")
     fun observeEventWithReminders(eventId: String): Flow<EventWithReminders?>
 
-    /** One transaction and one invalidation for a fetched batch. */
+    /** Replace a local batch in one transaction. Demo imports use importDemoSeedEvents. */
     @Transaction
     suspend fun insertEventsWithReminders(events: List<EventWithReminders>) {
         events.forEach { insertEventWithReminders(it.event, it.reminders) }
     }
+
+    /** Static demo data seeds missing IDs; refresh must not overwrite local edits. */
+    @Transaction
+    suspend fun importDemoSeedEvents(events: List<EventWithReminders>) {
+        val insertedIds = insertEventsIfMissing(events.map { it.event })
+        events.forEachIndexed { index, event ->
+            if (insertedIds[index] != -1L) {
+                event.reminders.forEach { insertEventReminder(it) }
+            }
+        }
+    }
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertEventsIfMissing(events: List<EventEntity>): List<Long>
 
     @Upsert
     suspend fun upsertEvent(event: EventEntity): Long

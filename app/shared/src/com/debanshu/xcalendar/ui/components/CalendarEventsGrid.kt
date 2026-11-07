@@ -25,11 +25,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.debanshu.xcalendar.ui.utils.layoutDayEvents
+import com.debanshu.xcalendar.ui.utils.rememberEventContentColor
 import com.debanshu.xcalendar.ui.transition.SharedElementType
 import com.debanshu.xcalendar.ui.transition.sharedDayColumn
 import com.debanshu.xcalendar.ui.transition.sharedEventElement
@@ -168,6 +173,7 @@ private fun DayColumn(
                     key(placement.event.id) {
                         EventItem(
                             event = placement.event,
+                            date = date,
                             onClick = { onEventClick(placement.event) },
                             modifier = Modifier.height(
                                 ((placement.endMinute - placement.startMinute) / 60f * hourHeightDp).dp,
@@ -200,29 +206,37 @@ private fun DayColumn(
 @Composable
 private fun EventItem(
     event: Event,
+    date: LocalDate,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isOverlapping: Boolean = false,
     isVisible: Boolean = true,
 ) {
+    val backgroundColor = Color(event.color).copy(alpha = if (isOverlapping) 0.7f else 0.9f)
+    val textColor = rememberEventContentColor(backgroundColor, XCalendarTheme.colorScheme.surfaceContainerHigh)
     Box(
         modifier =
             modifier
                 .sharedEventElement(
                     eventId = event.id,
+                    date = date,
                     type = SharedElementType.EventCard,
                     isVisible = isVisible,
                 )
                 .clip(RoundedCornerShape(4.dp))
                 .border(1.dp, color = Color(event.color))
-                .background(Color(event.color).copy(alpha = if (isOverlapping) 0.7f else 0.9f))
+                .background(backgroundColor)
                 .clickable(onClick = onClick)
+                // Keep the title on the full clickable card, even when a narrow
+                // overlap column leaves no room to draw the text itself.
+                .semantics { text = AnnotatedString(event.title) }
                 .padding(4.dp),
     ) {
         Text(
             text = event.title,
+            modifier = Modifier.clearAndSetSemantics {},
             style = XCalendarTheme.typography.labelSmall,
-            color = XCalendarTheme.colorScheme.inverseOnSurface,
+            color = textColor,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )

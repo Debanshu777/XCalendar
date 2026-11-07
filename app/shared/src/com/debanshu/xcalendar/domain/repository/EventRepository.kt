@@ -19,6 +19,7 @@ import org.mobilenativefoundation.store.store5.MutableStore
 import org.mobilenativefoundation.store.store5.StoreReadRequest
 import org.mobilenativefoundation.store.store5.StoreReadResponse
 import org.mobilenativefoundation.store.store5.StoreWriteRequest
+import org.mobilenativefoundation.store.store5.StoreWriteResponse
 
 /**
  * Repository for event data using Store5 MutableStore.
@@ -104,7 +105,7 @@ class EventRepository(
     override suspend fun addEvent(event: Event): Unit =
         safeCallOrThrow("addEvent(${event.id})") {
             val key = SingleEventKey(event.id)
-            singleEventStore.write(StoreWriteRequest.of(key, event))
+            singleEventStore.write(StoreWriteRequest.of(key, event)).requireWriteSuccess()
         }
 
     /**
@@ -119,7 +120,7 @@ class EventRepository(
     override suspend fun updateEvent(event: Event): Unit =
         safeCallOrThrow("updateEvent(${event.id})") {
             val key = SingleEventKey(event.id)
-            singleEventStore.write(StoreWriteRequest.of(key, event))
+            singleEventStore.write(StoreWriteRequest.of(key, event)).requireWriteSuccess()
         }
 
     /**
@@ -144,4 +145,11 @@ class EventRepository(
             val key = SingleEventKey(event.id)
             singleEventStore.clear(key)
         }
+}
+
+/** Store reports local write failures as values, including wrapped cancellation. */
+internal fun StoreWriteResponse.requireWriteSuccess(): Unit = when (this) {
+    is StoreWriteResponse.Success -> Unit
+    is StoreWriteResponse.Error.Exception -> throw error
+    is StoreWriteResponse.Error.Message -> throw RepositoryException(message)
 }

@@ -88,6 +88,7 @@ fun DayWithEvents(
             // Holidays first - optimized with stable keys
             holidays.forEach { holiday ->
                 EventItem(
+                    date = date,
                     title = holiday.name,
                     color = Color(0xFF4CAF50), // Green for holidays
                     onClick = { /* No action for holidays */ },
@@ -109,6 +110,7 @@ fun DayWithEvents(
                     }
 
                 EventItem(
+                    date = date,
                     title = event.title,
                     color = Color(event.color),
                     onClick = { onEventClick(event) },

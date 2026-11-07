@@ -1,5 +1,10 @@
 package com.debanshu.xcalendar.ui.navigation
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -34,6 +39,12 @@ fun NavigationHost(
         modifier = modifier,
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
+        // Calendar modes share moving date/event content. The iOS default
+        // slide-and-veil transition leaves dark strips behind those elements.
+        // Fade the scenes while their shared bounds animate independently.
+        transitionSpec = { calendarViewTransition() },
+        popTransitionSpec = { calendarViewTransition() },
+        predictivePopTransitionSpec = { calendarViewTransition() },
         entryDecorators =
             listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
@@ -97,3 +108,6 @@ fun NavigationHost(
             },
     )
 }
+
+private fun calendarViewTransition(): ContentTransform =
+    fadeIn(tween(durationMillis = 300)) togetherWith fadeOut(tween(durationMillis = 300))

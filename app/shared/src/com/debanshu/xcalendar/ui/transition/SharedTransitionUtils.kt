@@ -36,25 +36,31 @@ fun Modifier.sharedDateElement(
 
 /**
  * Extension function to apply shared event element modifier.
- * Used for event cards that transition between calendar views and EventDetailsDialog.
+ * Used for event cards that transition between calendar views.
  *
  * @param eventId The unique identifier of the event
+ * @param date The date represented by this rendered event segment
  * @param type The type of shared element
  * @param isVisible Whether this element should be visible
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun Modifier.sharedEventElement(
     eventId: String,
+    date: LocalDate,
     type: SharedElementType,
     isVisible: Boolean,
 ): Modifier = composed {
     val sharedTransitionScope = LocalSharedTransitionScope.current
-    val key = remember(eventId, type) { EventSharedElementKey(eventId, type) }
+    // A spanning event can appear in several visible date columns. Each segment
+    // needs its own match while the same date still matches across calendar views.
+    val key = remember(eventId, date, type) { EventSharedElementKey(eventId, date, type) }
 
     with(sharedTransitionScope) {
         this@composed.sharedElementWithCallerManagedVisibility(
             sharedContentState = rememberSharedContentState(key = key),
             visible = isVisible,
+            // Keep scrolling content within its viewport throughout the transition.
+            renderInOverlayDuringTransition = false,
         )
     }
 }
@@ -74,6 +80,8 @@ fun Modifier.sharedTimeColumn(isVisible: Boolean): Modifier = composed {
         this@composed.sharedElementWithCallerManagedVisibility(
             sharedContentState = rememberSharedContentState(key = key),
             visible = isVisible,
+            // Keep scrolling content within its viewport throughout the transition.
+            renderInOverlayDuringTransition = false,
         )
     }
 }
@@ -98,6 +106,8 @@ fun Modifier.sharedDayColumn(
         this@composed.sharedElementWithCallerManagedVisibility(
             sharedContentState = rememberSharedContentState(key = key),
             visible = isVisible,
+            // Keep scrolling content within its viewport throughout the transition.
+            renderInOverlayDuringTransition = false,
         )
     }
 }

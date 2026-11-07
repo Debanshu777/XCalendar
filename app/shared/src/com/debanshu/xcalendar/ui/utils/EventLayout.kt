@@ -2,8 +2,11 @@ package com.debanshu.xcalendar.ui.utils
 
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 
 internal data class EventPlacement(
     val event: Event,
@@ -13,7 +16,7 @@ internal data class EventPlacement(
     val columnCount: Int,
 )
 
-/** Divide each connected group of overlapping intervals into reusable columns. */
+/** Divide timed intervals into reusable columns; all-day events belong in the header. */
 internal fun layoutDayEvents(
     events: List<Event>,
     date: LocalDate,
@@ -22,14 +25,29 @@ internal fun layoutDayEvents(
 ): List<EventPlacement> {
     val lower = timeRange.first * 60
     val upper = (timeRange.last + 1) * 60
+    val dayStart = date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+    val dayEnd = date.plus(DatePeriod(days = 1)).atStartOfDayIn(timeZone).toEpochMilliseconds()
     val intervals = events.mapNotNull { event ->
-        val start = event.startTime.toLocalDateTime(timeZone)
-        val end = event.endTime.toLocalDateTime(timeZone)
-        val startMinute = if (start.date < date) 0 else start.hour * 60 + start.minute
-        val endMinute = if (end.date > date) 1440 else end.hour * 60 + end.minute
+        if (event.isAllDay) return@mapNotNull null
+        // Intersect real instants before projecting onto wall-clock minutes.
+        // This rejects reversed/empty intervals and exclusive midnight ends.
+        val startMillis = maxOf(event.startTime, dayStart)
+        val endMillis = minOf(event.endTime, dayEnd)
+        if (endMillis <= startMillis) return@mapNotNull null
+        val start = startMillis.toLocalDateTime(timeZone)
+        val end = endMillis.toLocalDateTime(timeZone)
+        val startMinute = if (startMillis == dayStart) 0 else start.hour * 60 + start.minute
+        val endMinute = when {
+            endMillis == dayEnd -> 1440
+            // A fixed 24-hour grid cannot draw a repeated DST hour twice. Keep
+            // a fold-crossing event visible using elapsed duration from its
+            // displayed start; details retain the exact original timestamps.
+            end <= start -> startMinute + ((endMillis - startMillis + 59_999L) / 60_000L).toInt()
+            else -> end.hour * 60 + end.minute + if (end.second > 0 || end.nanosecond > 0) 1 else 0
+        }
         val clippedStart = maxOf(lower, startMinute)
-        val clippedEnd = minOf(upper, if (event.isAllDay && event.endTime <= event.startTime) 1440 else endMinute)
-        if (start.date > date || end.date < date || clippedEnd <= clippedStart) null
+        val clippedEnd = minOf(upper, 1440, endMinute)
+        if (clippedEnd <= clippedStart) null
         else EventPlacement(event, clippedStart, clippedEnd, 0, 1)
     }.sortedWith(compareBy<EventPlacement> { it.startMinute }.thenByDescending { it.endMinute })
     val result = mutableListOf<EventPlacement>()

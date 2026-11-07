@@ -63,6 +63,8 @@ internal fun SwipeableCalendarView(
 ) {
     require(numDays in 1..31) { "numDays must be between 1 and 31" }
 
+    val (allDayEvents, timedEvents) = remember(events) { events.partition { it.isAllDay } }
+
     val holidaysByDate =
         remember(holidays) {
             holidays
@@ -87,13 +89,17 @@ internal fun SwipeableCalendarView(
         onReferenceChange = onDateRangeChange,
     ) { pageStartDate ->
         val timeZone = TimeZone.currentSystemDefault()
-        val eventsByDate = remember(events, pageStartDate, numDays, timeZone) {
-            indexEventsByDate(events, pageStartDate, pageStartDate.plus(DatePeriod(days = numDays - 1)), timeZone)
+        val eventsByDate = remember(timedEvents, pageStartDate, numDays, timeZone) {
+            indexEventsByDate(timedEvents, pageStartDate, pageStartDate.plus(DatePeriod(days = numDays - 1)), timeZone)
+        }
+        val allDayEventsByDate = remember(allDayEvents, pageStartDate, numDays, timeZone) {
+            indexEventsByDate(allDayEvents, pageStartDate, pageStartDate.plus(DatePeriod(days = numDays - 1)), timeZone)
         }
         CalendarContent(
             startDate = pageStartDate,
             numDays = numDays,
             eventsByDate = eventsByDate,
+            allDayEventsByDate = allDayEventsByDate,
             holidaysByDate = holidaysByDate,
             isVisible = isVisible,
             timeRange = timeRange,
@@ -103,7 +109,8 @@ internal fun SwipeableCalendarView(
             currentDate = currentDate,
             scrollState = scrollState,
             modifier = Modifier.fillMaxSize(),
-            dynamicHeaderHeightState = dynamicHeaderHeightState,
+            // Adjacent prefetched pages must not resize the current time gutter.
+            dynamicHeaderHeightState = if (pageStartDate == startDate) dynamicHeaderHeightState else null,
         )
     }
 }
@@ -113,6 +120,7 @@ private fun CalendarContent(
     startDate: LocalDate,
     numDays: Int,
     eventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
+    allDayEventsByDate: ImmutableMap<LocalDate, ImmutableList<Event>>,
     holidaysByDate: ImmutableMap<LocalDate, ImmutableList<Holiday>>,
     isVisible: Boolean = true,
     timeRange: IntRange,
@@ -130,8 +138,10 @@ private fun CalendarContent(
             numDays = numDays,
             currentDate = currentDate,
             holidaysByDate = holidaysByDate,
+            allDayEventsByDate = allDayEventsByDate,
             isVisible = isVisible,
             onDayClick = onDayClick,
+            onEventClick = onEventClick,
             modifier = Modifier.fillMaxWidth(),
             dynamicHeaderHeightState = dynamicHeaderHeightState,
         )

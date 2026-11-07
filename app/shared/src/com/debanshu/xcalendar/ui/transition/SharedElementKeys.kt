@@ -47,13 +47,15 @@ data class DateSharedElementKey(
 
 /**
  * Shared element key for event-related elements.
- * Used for transitioning event cards between calendar views and EventDetailsDialog.
+ * Used for matching the same rendered event segment between calendar views.
  *
  * @param eventId The unique identifier of the event
+ * @param date The date of this rendered segment, including overnight/multi-day events
  * @param type The type of shared element
  */
 data class EventSharedElementKey(
     val eventId: String,
+    val date: LocalDate,
     val type: SharedElementType,
 )
 

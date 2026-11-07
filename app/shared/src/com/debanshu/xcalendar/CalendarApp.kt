@@ -1,13 +1,11 @@
 package com.debanshu.xcalendar
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.ui.CalendarViewModel
 import com.debanshu.xcalendar.ui.components.CalendarBottomNavigationBar
 import com.debanshu.xcalendar.ui.components.CalendarTopAppBar
@@ -76,19 +75,20 @@ private fun CalendarApp(
     val dataState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(config, NavigableScreen.Month)
     var showAddBottomSheet by remember { mutableStateOf(false) }
+    var editingEvent by remember { mutableStateOf<Event?>(null) }
 
     // Use EventViewModel as single source of truth for selected event
     // The details sheet visibility is derived from whether an event is selected
     val selectedEvent = eventUiState.selectedEvent
 
-    val visibleCalendars by remember(calendarUiState.calendars) {
-        derivedStateOf { calendarUiState.calendars.filter { it.isVisible } }
-    }
     val events = remember(calendarUiState.events) { calendarUiState.events }
     val holidays = remember(calendarUiState.holidays) { calendarUiState.holidays }
 
-    // Combine error messages from both ViewModels
-    val displayError = calendarUiState.displayError ?: eventUiState.errorMessage
+    // Editor failures belong to the form until retry/cancel. A snackbar behind
+    // the modal must not clear that error on its automatic dismissal timer.
+    val calendarError = calendarUiState.displayError
+    val eventSnackbarError = eventUiState.errorMessage.takeUnless { showAddBottomSheet }
+    val displayError = calendarError ?: eventSnackbarError
 
     Scaffold(
         containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
@@ -110,21 +110,28 @@ private fun CalendarApp(
             ErrorSnackbar(
                 message = displayError,
                 onDismiss = {
-                    calendarViewModel.clearError()
-                    eventViewModel.clearError()
+                    if (calendarError != null) calendarViewModel.clearError()
+                    else eventViewModel.clearError()
                 },
             )
         },
     ) { paddingValues ->
+        // Scaffold updates these insets while the dropdown changes height. Read
+        // them during measurement so the navigation tree can skip composition.
+        val bottomNavigationPadding = remember(paddingValues) {
+            object : PaddingValues {
+                override fun calculateLeftPadding(layoutDirection: LayoutDirection) = 0.dp
+                override fun calculateTopPadding() = 0.dp
+                override fun calculateRightPadding(layoutDirection: LayoutDirection) = 0.dp
+                override fun calculateBottomPadding() = paddingValues.calculateBottomPadding()
+            }
+        }
         Box {
             NavigationHost(
                 modifier =
-                    Modifier.padding(
-                        top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding() + 72.dp,
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
+                    Modifier
+                        .padding(paddingValues)
+                        .padding(bottom = 72.dp),
                 backStack = backStack,
                 dateStateHolder = dateStateHolder,
                 events = events,
@@ -137,36 +144,59 @@ private fun CalendarApp(
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .padding(bottomNavigationPadding),
                 selectedView = backStack.lastOrNull() as? NavigableScreen ?: NavigableScreen.Month,
                 onViewSelect = { view ->
                     backStack.replaceLast(view)
                 },
-                onAddClick = { showAddBottomSheet = true },
+                onAddClick = {
+                    editingEvent = null
+                    eventViewModel.clearSelectedEvent()
+                    eventViewModel.clearError()
+                    showAddBottomSheet = true
+                },
             )
         }
         if (showAddBottomSheet) {
-            calendarUiState.accounts.firstOrNull()?.let {
+            val calendarOwner = calendarUiState.calendars.find { it.id == editingEvent?.calendarId }?.userId
+            (calendarUiState.accounts.find { it.id == calendarOwner }
+                ?: calendarUiState.accounts.firstOrNull())?.let {
                 AddEventDialog(
                     user = it,
-                    calendars = visibleCalendars.toImmutableList(),
+                    calendars = calendarUiState.calendars.toImmutableList(),
                     selectedDate = dataState.selectedDate,
+                    initialEvent = editingEvent,
+                    isSaving = eventUiState.isLoading,
+                    errorMessage = eventUiState.errorMessage,
                     onSave = { event ->
-                        eventViewModel.addEvent(event)
-                        showAddBottomSheet = false
+                        val dismissOnSuccess = {
+                            showAddBottomSheet = false
+                            editingEvent = null
+                        }
+                        if (editingEvent == null) {
+                            eventViewModel.addEvent(event, onSuccess = dismissOnSuccess)
+                        } else {
+                            eventViewModel.editEvent(event, onSuccess = dismissOnSuccess)
+                        }
                     },
                     onDismiss = {
-                        showAddBottomSheet = false
+                        if (!eventUiState.isLoading) {
+                            showAddBottomSheet = false
+                            editingEvent = null
+                            eventViewModel.clearError()
+                        }
                     },
                 )
             }
         }
 
-        if (selectedEvent != null) {
+        if (selectedEvent != null && !showAddBottomSheet) {
             EventDetailsDialog(
                 event = selectedEvent,
                 onEdit = { editedEvent ->
-                    eventViewModel.editEvent(editedEvent)
+                    editingEvent = editedEvent
+                    eventViewModel.clearError()
+                    showAddBottomSheet = true
                 },
                 onDismiss = {
                     eventViewModel.clearSelectedEvent()

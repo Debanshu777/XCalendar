@@ -8,25 +8,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.debanshu.xcalendar.common.noRippleClickable
 import com.debanshu.xcalendar.domain.model.Calendar
 import com.debanshu.xcalendar.domain.model.User
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
@@ -42,10 +40,9 @@ internal fun CalendarSelectionSection(
     calendars: ImmutableList<Calendar>,
     selectedCalendarId: String,
     onCalendarSelected: (String) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    var currentSelectedId by remember { mutableStateOf(selectedCalendarId) }
-
     Column(modifier = modifier) {
         // User row with avatar
         Row(
@@ -75,11 +72,9 @@ internal fun CalendarSelectionSection(
         // Calendar list
         CalendarList(
             calendars = calendars,
-            selectedCalendarId = currentSelectedId,
-            onCalendarSelected = { id ->
-                currentSelectedId = id
-                onCalendarSelected(id)
-            },
+            selectedCalendarId = selectedCalendarId,
+            onCalendarSelected = onCalendarSelected,
+            enabled = enabled,
         )
     }
 }
@@ -92,11 +87,12 @@ private fun CalendarList(
     calendars: ImmutableList<Calendar>,
     selectedCalendarId: String,
     onCalendarSelected: (String) -> Unit,
+    enabled: Boolean,
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        itemsIndexed(calendars) { index, calendar ->
+        itemsIndexed(calendars, key = { _, calendar -> calendar.id }) { index, calendar ->
             val isSelected = selectedCalendarId == calendar.id
 
             Row(
@@ -117,8 +113,12 @@ private fun CalendarList(
                                     XCalendarTheme.colorScheme.primary
                                 },
                             RoundedCornerShape(8.dp),
-                        ).padding(8.dp)
-                        .noRippleClickable { onCalendarSelected(calendar.id) },
+                        ).selectable(
+                            selected = isSelected,
+                            enabled = enabled,
+                            role = Role.RadioButton,
+                            onClick = { onCalendarSelected(calendar.id) },
+                        ).heightIn(min = 48.dp).padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Color indicator
