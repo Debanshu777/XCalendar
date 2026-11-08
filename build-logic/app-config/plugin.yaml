@@ -1,0 +1,9 @@
+tasks:
+  generate:
+    action: !com.debanshu.xcalendar.build.generateAppConfig
+      propertiesFile: ${module.rootDir}/../../local.properties
+      outputDir: ${taskOutputDir}/src
+
+generated:
+  sources:
+    - directory: ${tasks.generate.action.outputDir}

@@ -1,0 +1,69 @@
+product:
+  type: kmp/lib
+  platforms: [ android, iosArm64, iosSimulatorArm64, jvm ]
+
+apply:
+  - ../app.module-template.yaml
+
+plugins:
+  app-config: enabled
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+  - $compose.ui
+  - $compose.components.resources
+  - $libs.kotlinx.collections.immutable
+  - $libs.lifecycle.viewmodel
+  - $libs.androidx.lifecycle.runtime.compose
+  - $libs.room.runtime
+  - $libs.sqlite.bundled
+  - $libs.landscapist.coil3
+  - $libs.kotlinx.datetime
+  - $libs.ktor.client.core
+  - $libs.ktor.client.content.negotiation
+  - $libs.ktor.serialization.kotlinx.json
+  - $libs.koin.core: exported
+  - $libs.koin.compose.viewmodel
+  - $libs.koin.annotations
+  - $libs.materialKolor
+  - $libs.store
+  - $libs.kermit
+  - $libs.androidx.adaptive.layout
+  - $libs.androidx.adaptive.navigation
+  - $libs.navigation3.compose.ui
+  - $libs.navigation3.viewmodel
+  - $libs.material3.adaptive
+  - $libs.shaderx
+
+dependencies@android:
+  - $libs.ktor.client.okhttp
+  - $libs.koin.android
+
+dependencies@ios:
+  - $libs.ktor.client.darwin
+
+dependencies@jvm:
+  - $libs.ktor.client.okhttp
+  - $libs.kotlinx.coroutines.swing
+
+test-dependencies:
+  - $libs.kotlinx.coroutines.test
+
+settings:
+  android:
+    namespace: com.debanshu.xcalendar
+  compose:
+    resources:
+      packageName: com.debanshu.xcalendar.resources
+  kotlin:
+    serialization: json
+    ksp:
+      processors:
+        - $libs.room.compiler
+        - $libs.koin.ksp.compiler
+      processorOptions:
+        room.schemaLocation: ./schemas
+        KOIN_USE_COMPOSE_VIEWMODEL: "true"
+        KOIN_CONFIG_CHECK: "false"
+        KOIN_DEFAULT_MODULE: "false"

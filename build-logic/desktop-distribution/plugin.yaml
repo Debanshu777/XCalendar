@@ -1,0 +1,8 @@
+tasks:
+  packageDesktop:
+    action: !com.debanshu.xcalendar.build.packageDesktop
+      appClasspath: ${module.runtimeClasspath}
+      outputDir: ${taskOutputDir}/distribution
+
+commands:
+  - packageDesktop

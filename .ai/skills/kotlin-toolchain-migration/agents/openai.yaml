@@ -1,0 +1,3 @@
+interface:
+  display_name: "Kotlin Toolchain Migration"
+  short_description: "Migrate Gradle KMP projects and repair IDE imports"

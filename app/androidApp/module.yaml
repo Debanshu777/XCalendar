@@ -1,0 +1,18 @@
+product: android/app
+
+apply:
+  - ../app.module-template.yaml
+
+dependencies:
+  - //app/shared
+  - $libs.koin.android
+  - $libs.androidx.activity.compose
+
+settings:
+  android:
+    namespace: com.debanshu.xcalendar.app
+    applicationId: com.debanshu.xcalendar
+    versionCode: 1
+    versionName: "1.0"
+    resourcePackaging:
+      excludes: [ "META-INF/AL2.0", "META-INF/LGPL2.1" ]

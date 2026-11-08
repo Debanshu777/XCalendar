@@ -1,0 +1,15 @@
+# Common toolchain policy for every application and the shared library.
+settings:
+  kotlin:
+    freeCompilerArgs: [ -Xexpect-actual-classes ]
+  compose: enabled
+  jvm:
+    jdk:
+      version: 25
+    release: 23
+
+settings@android:
+  android:
+    compileSdk: 37
+    minSdk: 33
+    targetSdk: 36

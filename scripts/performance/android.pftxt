@@ -1,0 +1,43 @@
+# Record with the official Perfetto tools/record_android_trace helper.
+# System trace and composition trace share the same clock and frame timeline.
+buffers { size_kb: 131072 fill_policy: RING_BUFFER }
+duration_ms: 60000
+incremental_state_config { clear_period_ms: 5000 }
+data_sources {
+  config {
+    name: "linux.ftrace"
+    ftrace_config {
+      ftrace_events: "sched/sched_switch"
+      ftrace_events: "sched/sched_waking"
+      ftrace_events: "power/cpu_frequency"
+      ftrace_events: "power/cpu_idle"
+      atrace_categories: "gfx"
+      atrace_categories: "view"
+      atrace_categories: "wm"
+      atrace_categories: "am"
+      atrace_categories: "input"
+      atrace_categories: "binder_driver"
+      atrace_apps: "com.debanshu.xcalendar.benchmark"
+    }
+  }
+}
+data_sources { config { name: "android.surfaceflinger.frametimeline" } }
+data_sources { config { name: "android.packages_list" } }
+data_sources {
+  config {
+    name: "track_event"
+    track_event_config {
+      disabled_categories: "*"
+      enabled_categories: "rendering"
+    }
+  }
+}
+data_sources {
+  config {
+    name: "linux.process_stats"
+    process_stats_config {
+      scan_all_processes_on_start: true
+      proc_stats_poll_ms: 1000
+    }
+  }
+}
