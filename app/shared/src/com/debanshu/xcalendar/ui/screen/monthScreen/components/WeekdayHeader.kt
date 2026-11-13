@@ -11,24 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
+import kotlinx.datetime.LocalDate
 
-@OptIn(ExperimentalTime::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun WeekdayHeader() {
+fun WeekdayHeader(today: LocalDate) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth(),
     ) {
-        val today =
-            Clock.System
-                .now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
         val ordinalToday = if (today.dayOfWeek.ordinal == 6) 0 else today.dayOfWeek.ordinal + 1
         val daysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 

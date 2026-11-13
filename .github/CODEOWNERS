@@ -1,0 +1,6 @@
+# Ownership routing only. The solo-developer ruleset does not require
+# code-owner approval or another person to approve a PR.
+/.github/ @Debanshu777
+/scripts/performance/ @Debanshu777
+/scripts/ci/ @Debanshu777
+/performance-evidence/ @Debanshu777

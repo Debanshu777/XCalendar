@@ -31,6 +31,8 @@ fun NavigationHost(
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     onEventClick: (Event) -> Unit,
+    scrollScheduleToToday: Boolean = false,
+    onScheduleTodayScrollRequested: () -> Unit = {},
 ) {
     // Track current screen for shared element visibility
     val currentScreen = backStack.lastOrNull()
@@ -38,7 +40,7 @@ fun NavigationHost(
     NavDisplay(
         modifier = modifier,
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
+        onBack = { backStack.popIfPossible() },
         // Calendar modes share moving date/event content. The iOS default
         // slide-and-veil transition leaves dark strips behind those elements.
         // Fade the scenes while their shared bounds animate independently.
@@ -57,7 +59,6 @@ fun NavigationHost(
                         dateStateHolder = dateStateHolder,
                         events = events,
                         holidays = holidays,
-                        isVisible = currentScreen == NavigableScreen.Month,
                         onDateClick = {
                             backStack.add(NavigableScreen.Day)
                         },
@@ -102,6 +103,8 @@ fun NavigationHost(
                         events = events,
                         holidays = holidays,
                         isVisible = currentScreen == NavigableScreen.Schedule,
+                        scrollToToday = scrollScheduleToToday,
+                        onTodayScrollRequested = onScheduleTodayScrollRequested,
                         onEventClick = onEventClick,
                     )
                 }

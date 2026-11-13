@@ -19,22 +19,10 @@ data class CalendarUiState(
     val calendars: ImmutableList<Calendar> = persistentListOf(),
     val events: ImmutableList<Event> = persistentListOf(),
     val holidays: ImmutableList<Holiday> = persistentListOf(),
-    val selectedEvent: Event? = null,
-    val isLoading: Boolean = false,
     val error: DomainError? = null,
 ) {
-    /**
-     * Whether there is an error to display.
-     */
-    val hasError: Boolean get() = error != null
-    
     /**
      * User-friendly error message for display in UI (snackbar, dialog, etc.).
      */
     val displayError: String? get() = error?.message
-    
-    /**
-     * Whether the state has no data (empty after loading).
-     */
-    val isEmpty: Boolean get() = !isLoading && accounts.isEmpty() && calendars.isEmpty() && events.isEmpty()
 }

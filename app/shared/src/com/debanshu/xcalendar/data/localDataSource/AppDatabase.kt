@@ -1,11 +1,13 @@
 package com.debanshu.xcalendar.data.localDataSource
 
+import com.debanshu.xcalendar.data.google.GoogleCacheDao
+import com.debanshu.xcalendar.data.google.GoogleCacheEntity
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
-import androidx.room.migration.Migration
 import com.debanshu.xcalendar.data.localDataSource.model.CalendarEntity
+import com.debanshu.xcalendar.data.localDataSource.model.DeletedDemoEventEntity
 import com.debanshu.xcalendar.data.localDataSource.model.EventEntity
 import com.debanshu.xcalendar.data.localDataSource.model.EventReminderEntity
 import com.debanshu.xcalendar.data.localDataSource.model.HolidayEntity
@@ -14,14 +16,16 @@ import com.debanshu.xcalendar.data.localDataSource.model.UserEntity
 
 /**
  * Current database version.
- * Increment this when making schema changes and add a migration.
+ * Development builds recreate the database on schema changes.
  */
-const val DATABASE_VERSION = 1
+const val DATABASE_VERSION = 3
 
 const val DATABASE_NAME = "xcalendar.db"
 
 @Database(
     entities = [
+        GoogleCacheEntity::class,
+        DeletedDemoEventEntity::class,
         UserEntity::class,
         CalendarEntity::class,
         EventEntity::class,
@@ -30,10 +34,12 @@ const val DATABASE_NAME = "xcalendar.db"
         SyncFailureEntity::class,
     ],
     version = DATABASE_VERSION,
-    exportSchema = true,
+    exportSchema = false,
 )
 @ConstructedBy(LocalDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
+    internal abstract fun googleCacheDao(): GoogleCacheDao
+
     abstract fun getUserEntityDao(): UserDao
 
     abstract fun getCalendarEntityDao(): CalendarDao
@@ -44,16 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getSyncFailureDao(): SyncFailureDao
 
-    companion object {
-        /**
-         * Array of all migrations.
-         * Add new migrations here when incrementing DATABASE_VERSION.
-         */
-        val MIGRATIONS: Array<Migration> = arrayOf(
-            // Add migrations here as needed, e.g.:
-            // MIGRATION_1_2,
-        )
-    }
+
 }
 
 // The Room compiler generates the `actual` implementations.

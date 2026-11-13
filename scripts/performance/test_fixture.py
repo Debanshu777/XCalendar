@@ -17,11 +17,47 @@ def calendar_source(lifecycle=True):
     collect = "collectAsStateWithLifecycle" if lifecycle else "collectAsState"
     return ("package com.debanshu.xcalendar\nfun CalendarApp() {\n"
             f"    val calendarUiState by calendarViewModel.uiState.{collect}()\n"
+            "    val connected = googleSnapshots.isNotEmpty()\n"
             "    val backStack = rememberNavBackStack(config, NavigableScreen.Month)\n"
             "    // Existing layout and editor wiring must survive unchanged.\n}\n").encode()
 
 
 class FixtureTests(unittest.TestCase):
+    def test_full_year_and_loading_profile(self):
+        data = fixture.fixture_data(year=True, load_delay_ms=15000, batch_delay_ms=100, refresh_delay_ms=2000)
+        self.assertEqual(len(data["events"]), 3650)
+        self.assertEqual(len({event["id"] for event in data["events"]}), 3650)
+        self.assertEqual(len({event["startLocal"][:10] for event in data["events"]}), 365)
+        self.assertEqual(data["events"][-1]["startLocal"][:10], "2026-12-31")
+        self.assertTrue(any(event["endLocal"].startswith("2027-") for event in data["events"]))
+        self.assertTrue(any(event["title"].startswith("November 08 / 01") for event in data["events"]))
+        for event in data["events"]:
+            self.assertGreater(datetime.fromisoformat(event["endLocal"]), datetime.fromisoformat(event["startLocal"]))
+        source = fixture.kotlin_source(data)
+        self.assertIn(b"val uiState by lazy", source)
+        self.assertEqual(data["selected_date"], "2026-01-08")
+        self.assertIn(b"Json.parseToJsonElement", source)
+        self.assertIn(b"Dispatchers.Default", source)
+        self.assertIn(b"PERF_FIXTURE refreshed", source)
+        patched = fixture.patched_calendar_app(calendar_source(), loading=True)
+        self.assertIn(b"PerformanceUiFixture.rememberState().value", patched)
+        with fixture.temporary_fixture(self.root, self.output, year=True, load_delay_ms=15000) as manifest:
+            self.assertEqual(manifest["event_count"], 3650)
+            self.assertEqual(manifest["load_profile"]["initial_delay_ms"], 15000)
+        self.assert_restored()
+
+    def test_paging_fixture_preserves_duration_and_has_unique_ids(self):
+        data = fixture.fixture_data(paging=True)
+        self.assertEqual(len(data["events"]), 900)
+        self.assertEqual(len({e["id"] for e in data["events"]}), 900)
+        originals = {e["id"]: e for e in fixture.fixture_data()["events"]}
+        for month in (10, 11, 12):
+            self.assertEqual(sum(e["startLocal"].startswith(f"2026-{month:02}") for e in data["events"]), 300)
+        for event in data["events"]:
+            original = originals[event["id"][3:]]
+            duration = lambda e: datetime.fromisoformat(e["endLocal"]) - datetime.fromisoformat(e["startLocal"])
+            self.assertEqual(duration(event), duration(original))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

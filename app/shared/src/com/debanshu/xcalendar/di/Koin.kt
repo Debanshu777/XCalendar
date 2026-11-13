@@ -6,7 +6,6 @@ import com.debanshu.xcalendar.data.localDataSource.EventDao
 import com.debanshu.xcalendar.data.localDataSource.HolidayDao
 import com.debanshu.xcalendar.data.localDataSource.SyncFailureDao
 import com.debanshu.xcalendar.data.localDataSource.UserDao
-import com.debanshu.xcalendar.data.store.EventBookkeeperFactory
 import com.debanshu.xcalendar.data.store.EventKey
 import com.debanshu.xcalendar.data.store.EventStoreFactory
 import com.debanshu.xcalendar.data.store.HolidayKey
@@ -107,13 +106,6 @@ class DataModule {
         HolidayStoreFactory.create(holidayApiService, holidayDao)
 
     @Single
-    @Named("eventBookkeeper")
-    fun provideEventBookkeeper(
-        syncFailureDao: SyncFailureDao
-    ): Bookkeeper<EventKey> =
-        EventBookkeeperFactory.create(syncFailureDao)
-
-    @Single
     @Named("singleEventBookkeeper")
     fun provideSingleEventBookkeeper(
         syncFailureDao: SyncFailureDao
@@ -125,9 +117,8 @@ class DataModule {
     fun provideEventStore(
         apiService: RemoteCalendarApiService,
         eventDao: EventDao,
-        @Named("eventBookkeeper") bookkeeper: Bookkeeper<EventKey>
-    ): MutableStore<EventKey, List<Event>> =
-        EventStoreFactory.create(apiService, eventDao, bookkeeper)
+    ): Store<EventKey, List<Event>> =
+        EventStoreFactory.create(apiService, eventDao)
 
     @Single
     @Named("singleEventStore")

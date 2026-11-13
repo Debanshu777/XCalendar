@@ -2,8 +2,6 @@
 
 package com.debanshu.xcalendar.domain.repository
 
-import com.debanshu.xcalendar.common.model.asEntity
-import com.debanshu.xcalendar.data.localDataSource.EventDao
 import com.debanshu.xcalendar.data.store.EventKey
 import com.debanshu.xcalendar.data.store.SingleEventKey
 import com.debanshu.xcalendar.domain.model.Event
@@ -16,31 +14,19 @@ import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 import org.mobilenativefoundation.store.core5.ExperimentalStoreApi
 import org.mobilenativefoundation.store.store5.MutableStore
+import org.mobilenativefoundation.store.store5.Store
 import org.mobilenativefoundation.store.store5.StoreReadRequest
 import org.mobilenativefoundation.store.store5.StoreReadResponse
 import org.mobilenativefoundation.store.store5.StoreWriteRequest
 import org.mobilenativefoundation.store.store5.StoreWriteResponse
 
 /**
- * Repository for event data using Store5 MutableStore.
- *
- * MutableStore provides full CRUD support with:
- * - Automatic caching and sync via SourceOfTruth (Room DAO)
- * - Offline-first architecture
- * - Bookkeeper for tracking failed sync operations
- * - Request deduplication
- *
- * Write Operations Strategy:
- * - Add/Update: Use Store5's write() which persists via SourceOfTruth
- * - Delete: Direct DAO call required since Store5's clear() only clears cache
- *
- * This prevents duplicate writes while ensuring proper delete handling.
+ * Reads Room-backed demo event ranges and persists individual edits through Store5.
  */
 @Single(binds = [IEventRepository::class])
 class EventRepository(
-    @Named("eventStore") private val eventStore: MutableStore<EventKey, List<Event>>,
+    @Named("eventStore") private val eventStore: Store<EventKey, List<Event>>,
     @Named("singleEventStore") private val singleEventStore: MutableStore<SingleEventKey, Event>,
-    private val eventDao: EventDao,
 ) : BaseRepository(),
     IEventRepository {
     /**
@@ -59,21 +45,14 @@ class EventRepository(
             val key = EventKey(userId = "", startTime = startTime, endTime = endTime)
             // Force a fresh fetch from the network
             eventStore
-                .stream<Unit>(StoreReadRequest.fresh(key))
+                .stream(StoreReadRequest.fresh(key))
                 .onEach { it.throwIfError() }
                 .filterIsInstance<StoreReadResponse.Data<List<Event>>>()
                 .first()
             Unit
         }
 
-    /**
-     * Gets events for a user in a date range.
-     *
-     * Store5 automatically:
-     * - Returns cached data immediately
-     * - Refreshes from network in background
-     * - Updates cache and emits new data
-     */
+    /** Observes cached events in a date range. Seed refresh is requested separately. */
     @OptIn(ExperimentalStoreApi::class)
     override fun getEventsForCalendarsInRange(
         userId: String,
@@ -87,20 +66,12 @@ class EventRepository(
             defaultValue = emptyList(),
             flow =
                 eventStore
-                    .stream<Unit>(StoreReadRequest.cached(key, refresh = false))
+                    .stream(StoreReadRequest.cached(key, refresh = false))
                     .filterIsInstance<StoreReadResponse.Data<List<Event>>>()
                     .map { it.value },
         )
     }
 
-    /**
-     * Adds a new event.
-     *
-     * Uses Store5's write mechanism which:
-     * 1. Writes to SourceOfTruth (Room DAO) for local persistence
-     * 2. Queues for network sync via Updater
-     * 3. Tracks failures via Bookkeeper for retry
-     */
     @OptIn(ExperimentalStoreApi::class)
     override suspend fun addEvent(event: Event): Unit =
         safeCallOrThrow("addEvent(${event.id})") {
@@ -108,14 +79,6 @@ class EventRepository(
             singleEventStore.write(StoreWriteRequest.of(key, event)).requireWriteSuccess()
         }
 
-    /**
-     * Updates an existing event.
-     *
-     * Uses Store5's write mechanism which handles:
-     * 1. Local persistence via SourceOfTruth
-     * 2. Network sync via Updater
-     * 3. Failure tracking via Bookkeeper
-     */
     @OptIn(ExperimentalStoreApi::class)
     override suspend fun updateEvent(event: Event): Unit =
         safeCallOrThrow("updateEvent(${event.id})") {
@@ -123,27 +86,13 @@ class EventRepository(
             singleEventStore.write(StoreWriteRequest.of(key, event)).requireWriteSuccess()
         }
 
-    /**
-     * Deletes an event.
-     *
-     * Note: Store5's clear() only clears the cache, not the SourceOfTruth.
-     * We must delete from DAO directly, then clear the Store cache to
-     * ensure consistency between cache and persistent storage.
-     */
     @OptIn(ExperimentalStoreApi::class)
     override suspend fun deleteEvent(event: Event): Unit =
         safeCallOrThrow(
             "deleteEvent(${event.id})",
         ) {
-            // Delete reminders first (foreign key constraint)
-            eventDao.deleteEventReminders(event.id)
-
-            // Delete from local database
-            eventDao.deleteEvent(event.asEntity())
-
-            // Clear from Store cache to prevent stale data
-            val key = SingleEventKey(event.id)
-            singleEventStore.clear(key)
+            // Store5 invalidates the cached value and calls the Room source of truth.
+            singleEventStore.clear(SingleEventKey(event.id))
         }
 }
 

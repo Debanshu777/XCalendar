@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.unit.Dp
 import com.debanshu.xcalendar.common.model.YearMonth
 import com.debanshu.xcalendar.common.toLocalDateTime
 import com.debanshu.xcalendar.domain.model.Event
@@ -23,12 +25,15 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 
 @Composable
-fun MonthView(
+internal fun MonthView(
     modifier: Modifier,
     month: YearMonth,
+    today: LocalDate,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
-    isVisible: Boolean = true,
+    previewCapacity: MonthCellPreviewCapacity,
+    dateBadgeSize: Dp,
+    dateTextMeasurer: TextMeasurer,
     onDayClick: (LocalDate) -> Unit,
 ) {
     val dates = remember(month) { monthGridDates(month) }
@@ -41,10 +46,9 @@ fun MonthView(
             .mapValues { it.value.toImmutableList() }
     }
 
-    // Every cell is visible. A fixed layout avoids lazy subcomposition during
-    // measurement and disposal/prefetch work on each horizontal page transition.
+    // All cells are visible in a fixed grid. Shared viewport/font metrics are
+    // calculated once above the pager in MonthScreen.
     Column(modifier.fillMaxSize().background(XCalendarTheme.colorScheme.surfaceContainerLow)) {
-        WeekdayHeader()
         repeat(6) { week ->
             Row(Modifier.weight(1f)) {
                 repeat(7) { day ->
@@ -54,10 +58,13 @@ fun MonthView(
                         DayCell(
                             modifier = Modifier.weight(1f).fillMaxHeight(),
                             date = date,
+                            today = today,
                             events = eventsByDate[date] ?: persistentListOf(),
                             holidays = holidaysByDate[date] ?: persistentListOf(),
                             isCurrentMonth = date.month == month.month && date.year == month.year,
-                            isVisible = isVisible,
+                            previewCapacity = previewCapacity,
+                            dateBadgeSize = dateBadgeSize,
+                            dateTextMeasurer = dateTextMeasurer,
                             onDayClick = onDayClick,
                             isTopLeft = index == 0,
                             isTopRight = index == 6,

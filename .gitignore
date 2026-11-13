@@ -19,3 +19,6 @@ captures
 
 # Legacy local Gradle daemon selection; the Kotlin Toolchain provisions its own JDK.
 /gradle/gradle-daemon-jvm.properties
+
+# Local iOS Google OAuth configuration
+app/iosApp/Configuration/Google.local.xcconfig

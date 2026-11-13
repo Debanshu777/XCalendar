@@ -19,4 +19,5 @@ data class Event(
     val recurringRule: String? = null,
     val reminderMinutes: List<Int> = emptyList(),
     val color: Int,
+    val remoteEtag: String? = null,
 )

@@ -13,6 +13,8 @@ class AppConfigTest {
         val root = createTempDirectory("xcalendar-config-test")
         try {
             generateAppConfig(root / "local.properties", root / "generated")
+            assertContains((root / "generated/com/debanshu/xcalendar/BuildKonfig.kt").readText(), "const val GOOGLE_IOS_CLIENT_ID: String = \"\"")
+            assertContains((root / "generated/com/debanshu/xcalendar/BuildKonfig.kt").readText(), "const val GOOGLE_DESKTOP_CLIENT_ID: String = \"\"")
             assertContains(
                 (root / "generated/com/debanshu/xcalendar/BuildKonfig.kt").readText(),
                 "const val API_KEY: String = \"\"",

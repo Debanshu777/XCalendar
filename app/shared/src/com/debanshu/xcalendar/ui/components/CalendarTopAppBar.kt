@@ -64,7 +64,6 @@ import com.debanshu.xcalendar.ui.state.DateState
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.debanshu.xcalendar.ui.utils.indexEventsByDate
 import kotlinx.collections.immutable.persistentListOf
-import com.skydoves.landscapist.coil3.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
@@ -86,13 +85,15 @@ internal fun CalendarTopAppBar(
     onDayClick: (LocalDate) -> Unit,
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
+    accountLabel: String = "Account",
+    onAccountClick: () -> Unit = {},
 ) {
     val showYear = dateState.selectedInViewMonth.year != dateState.currentDate.year
     val rotationAngle = remember { Animatable(0f) }
-    var monthDropdownState by remember { mutableStateOf<TopBarCalendarView>(TopBarCalendarView.NoView) }
+    var monthDropdownExpanded by remember { mutableStateOf(false) }
     val rotationDegree by animateFloatAsState(
         targetValue =
-            if (monthDropdownState != TopBarCalendarView.NoView) {
+            if (monthDropdownExpanded) {
                 180f
             } else {
                 0f
@@ -141,12 +142,7 @@ internal fun CalendarTopAppBar(
                 Row(
                     modifier =
                         Modifier.noRippleClickable {
-                            monthDropdownState =
-                                if (monthDropdownState != TopBarCalendarView.NoView) {
-                                    TopBarCalendarView.NoView
-                                } else {
-                                    TopBarCalendarView.Month
-                                }
+                            monthDropdownExpanded = !monthDropdownExpanded
                         },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -204,35 +200,20 @@ internal fun CalendarTopAppBar(
                         )
                     }
                 }
-                CoilImage(
-                    modifier =
-                        Modifier
-                            .padding(8.dp)
-                            .size(32.dp)
-                            .clip(CircleShape),
-                    imageModel = {
-                        "https://t4.ftcdn.net/jpg/00/04/09/63/360_F_4096398_nMeewldssGd7guDmvmEDXqPJUmkDWyqA.jpg"
-                    },
-                )
+                androidx.compose.material3.TextButton(onClick = onAccountClick) {
+                    Text(accountLabel, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.width(72.dp))
+                }
             },
         )
 
-        when (monthDropdownState) {
-            TopBarCalendarView.Month -> {
-                TopBarMonthView(
-                    month =
-                        YearMonth(
-                            dateState.selectedInViewMonth.year,
-                            dateState
-                                .selectedInViewMonth.month,
-                        ),
-                    events = events,
-                    holidays = holidays,
-                    onDayClick = onDayClick,
-                )
-            }
-
-            else -> {}
+        if (monthDropdownExpanded) {
+            TopBarMonthView(
+                month = dateState.selectedInViewMonth,
+                events = events,
+                holidays = holidays,
+                onDayClick = onDayClick,
+            )
         }
     }
 }
@@ -395,12 +376,4 @@ private fun TopAppBarEmptyPagingDayCell() {
     Box(
         modifier = Modifier.padding(4.dp),
     )
-}
-
-sealed class TopBarCalendarView {
-    data object NoView : TopBarCalendarView()
-
-    data object Week : TopBarCalendarView()
-
-    data object Month : TopBarCalendarView()
 }

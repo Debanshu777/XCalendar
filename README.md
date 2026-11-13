@@ -2,6 +2,13 @@
 
 A modern, cross-platform calendar application built with **Kotlin Multiplatform** and **Compose Multiplatform**, supporting **Android**, **iOS**, and **Desktop** (Windows, macOS, Linux). Features Material 3 Expressive design, multiple calendar views, event management, and holiday integration.
 
+**Connect your own Google Calendar:** follow the
+[complete Google Cloud and OAuth setup guide](docs/google-calendar-setup.md).
+It covers your own Cloud project, Android/iOS/desktop clients, local configuration,
+physical iPhone setup, sync verification, and troubleshooting. No maintainer
+credentials are required. Google integration is in development; review its
+[current behavior and limits](docs/google-calendar-setup.md#current-behavior-and-limits).
+
 ## 🎯 What is XCalendar?
 
 XCalendar is a feature-rich calendar application that provides multiple viewing modes (day, week, month, 3-day, and schedule views) with seamless event management capabilities. Built using modern Kotlin Multiplatform development practices, it offers a native experience across Android, iOS, and Desktop platforms.
@@ -66,6 +73,13 @@ XCalendar is a feature-rich calendar application that provides multiple viewing 
   - 🎯 Primary and secondary calendar management
   - 👁️ Calendar visibility controls
   - 🎨 Color-coded calendar categories
+
+- **Google Calendar (development)**
+  - Connect several Google accounts on Android, iOS, or desktop
+  - View their calendars together and toggle individual calendar visibility
+  - View real calendars and create/edit events on writable calendars
+  - Refresh Google changes while the app is open
+  - [Configure your own OAuth project](docs/google-calendar-setup.md)
 
 - **Holiday Support**
   - 🏛️ Built-in holiday data (currently supports India)
@@ -133,13 +147,14 @@ XCalendar/
 │       ├── src@iosSimulatorArm64/  # Simulator Koin bridge
 │       ├── src@jvm/                # Desktop database adapter and Koin bridge
 │       ├── test/                   # Common regression tests
-│       ├── composeResources/       # Shared images and resource accessors
-│       └── schemas/                # Room database schema history
+│       └── composeResources/       # Shared images and resource accessors
 ├── build-logic/
-│   ├── app-config/                 # Optional API key generation plugin
+│   ├── app-config/                 # Local API key and OAuth client ID generation
 │   └── desktop-distribution/       # Desktop packaging with complete classpath
 ├── assets/                         # Demo data and screenshots
-└── local.properties               # Optional API_KEY (ignored)
+├── docs/google-calendar-setup.md   # Contributor Google Cloud/OAuth walkthrough
+├── local.properties.example       # Copyable configuration template
+└── local.properties               # Local OAuth client IDs / optional API_KEY (ignored)
 ```
 
 CI runs JVM tests and desktop packaging on Linux, macOS, and Windows, plus
@@ -216,6 +231,8 @@ data class Holiday(
 ### **Data Sources**
 
 - **Static Data**: Events and calendars served from `assets/` directory
+- **Google Calendar**: OAuth-authorized calendar/event reads and online event writes,
+  with account-specific Room snapshots; see the [integration guide](docs/google-calendar-setup.md)
 - **Dynamic Data**: Holiday information fetched from Calendarific API (when API key is configured)
 - **Local Storage**: Room database for offline data persistence
 - **API Integration**: Ktor client for remote data fetching
@@ -288,6 +305,13 @@ The local app-config plugin generates the same `BuildKonfig.API_KEY` contract
 for every platform. Missing configuration produces an empty key. Keep this file
 and generated outputs out of version control. API keys compiled into client apps
 are extractable; use a backend proxy for credentials that must remain secret.
+
+For real Google Calendar data, follow the
+[Google Calendar setup guide](docs/google-calendar-setup.md). Start with
+[`local.properties.example`](local.properties.example) and, for iOS,
+[`Google.local.xcconfig.example`](app/iosApp/Configuration/Google.local.xcconfig.example).
+Merge settings into existing local files instead of overwriting them. Google
+OAuth is separate from the optional Calendarific API key above.
 
 ### **Build, Run, and Test**
 
@@ -370,7 +394,7 @@ CalendarApp (Main Container)
 │   ├── Month/Year Title (expandable)
 │   ├── Search Button
 │   ├── Today Button
-│   └── User Avatar
+│   └── Connect / Google Account
 ├── NavigationHost (Content Area)
 │   ├── MonthScreen (default)
 │   ├── WeekScreen
@@ -464,7 +488,8 @@ Run the commands in **Build, Run, and Test** above.
 
 ## 🔮 Future Enhancements
 
-- [ ] Calendar sync with Google Calendar, Outlook
+- [x] Google Calendar connection and foreground sync (development; [limits](docs/google-calendar-setup.md#current-behavior-and-limits))
+- [ ] Outlook Calendar integration
 - [ ] Push notifications for reminders
 - [x] Dark/Light theme switching
 - [x] Desktop application support
@@ -489,10 +514,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### **API Integration Notes**
 
-- **Static Data**: Events and calendars are currently served from `assets/` directory
-- **API Layer**: Remote data sources can be modified to integrate with actual calendar APIs
+- **Demo Data**: Events and calendars from `assets/` remain separate from Google data
+- **Google Calendar**: Bring your own Cloud project and platform OAuth clients;
+  follow the [setup guide](docs/google-calendar-setup.md)
 - **Holiday API**: Requires API key in `local.properties` for live holiday data
-- **Fallback Strategy**: App gracefully falls back to static data when API is unavailable
+- **Google Refresh Failures**: Preserve the last complete account snapshot and show
+  an error; demo events are not uploaded or substituted for a successful sync
 
 ## 📄 License
 
@@ -514,3 +541,30 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **XCalendar** - Modern calendar experience across platforms 📱🖥️💻
+
+## Google Calendar connection
+
+Use **Connect → Connect Google Calendar** to authorize your account, then open
+its dialog for **Add Google account**, **Sync all**, or **Remove account**. The current integration supports
+viewing real calendars and creating/editing standard events on writable calendars
+across Android, iOS, and JVM desktop. Demo events are never uploaded automatically.
+
+The [detailed setup guide](docs/google-calendar-setup.md) walks through:
+
+1. Creating your own Google Cloud project and enabling Google Calendar API.
+2. Configuring consent, test users, and the required scopes.
+3. Registering Android signing fingerprints, iOS bundle IDs, and desktop clients.
+4. Filling the ignored local configuration using the checked-in templates.
+5. Building and installing, including on a physical iPhone.
+6. Verifying real event synchronization and resolving common setup errors.
+
+Connect multiple accounts and show their calendars together, with account-specific
+event saves and removal. Connected accounts are restored after restart using
+OS-protected credentials, and access tokens refresh automatically. Google handles
+passwords and 2FA; revoked or expired authorization prompts a reconnect for only
+that account. The app refreshes the displayed and adjacent months while open and
+requires connectivity to save. Google event deletion, recurring-series creation/editing,
+calendar moves, and background synchronization are not implemented. See
+[current behavior and limits](docs/google-calendar-setup.md#current-behavior-and-limits)
+and [public distribution](docs/google-calendar-setup.md#public-distribution)
+before sharing a configured build.

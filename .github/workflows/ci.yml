@@ -2,6 +2,7 @@ name: Kotlin Toolchain
 
 on:
   pull_request:
+  merge_group:
   push:
     branches: [main]
 
@@ -47,3 +48,65 @@ jobs:
       - name: Build iOS simulator application
         if: runner.os == 'macOS'
         run: ./kotlin build -m iosApp -p iosSimulatorArm64
+      - name: Test shared application on iOS simulator
+        if: runner.os == 'macOS'
+        run: ./kotlin test -m shared -p iosSimulatorArm64
+
+  performance:
+    name: Performance standards
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test performance tooling and rejection paths
+        run: python3 -m unittest discover -s scripts/performance -p 'test_*.py'
+      - name: Validate measured performance evidence
+        if: github.event_name != 'push'
+        env:
+          BASE_REV: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD_REV: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
+          TESTED_REV: ${{ github.sha }}
+        run: |
+          if ! git cat-file -e "$HEAD_REV:performance-evidence/merge.json" 2>/dev/null; then
+            echo '::error title=Performance evidence missing::Tests may pass, but this PR has no performance-evidence/merge.json. Supply measured Android, iOS, and macOS evidence matching this source, or deliberately use the administrator PR-only bypass. See docs/merge-requirements.md.'
+            cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ### Performance evidence required
+
+          The performance-tool tests passed. The measured-performance gate is blocked because `performance-evidence/merge.json` is absent from the candidate commit.
+
+          This is an unmet merge requirement, not a unit-test failure. Hosted CI does not generate the physical-device measurements.
+
+          - Normal merge: collect the required Android, iOS, and macOS measurements and commit a valid source-bound report. See `docs/merge-requirements.md`.
+          - Explicit exception: a repository administrator may use the configured PR-only bypass after reviewing the outstanding checks. The check remains failed.
+
+          Placeholder reports, historical callback timings, and rerunning the same commit will not satisfy this requirement.
+          EOF
+            exit 1
+          fi
+          BASE_DIGEST=$(python3 scripts/performance/source_digest.py "$BASE_REV")
+          HEAD_DIGEST=$(python3 scripts/performance/source_digest.py "$HEAD_REV")
+          TESTED_DIGEST=$(python3 scripts/performance/source_digest.py "$TESTED_REV")
+          if [ "$HEAD_DIGEST" != "$TESTED_DIGEST" ]; then
+            echo 'Update the PR branch with its base and measure the resulting source before merging.'
+            exit 1
+          fi
+          git show "$HEAD_REV:performance-evidence/merge.json" > "$RUNNER_TEMP/performance-evidence.json"
+          python3 scripts/performance/check_merge_evidence.py --report "$RUNNER_TEMP/performance-evidence.json" --base-source-sha256 "$BASE_DIGEST" --head-source-sha256 "$HEAD_DIGEST"
+
+  merge-gate:
+    name: Merge gate
+    if: always()
+    needs: [validate, performance]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every prerequisite to succeed
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+          PERFORMANCE_RESULT: ${{ needs.performance.result }}
+        run: |
+          test "$VALIDATION_RESULT" = success
+          test "$PERFORMANCE_RESULT" = success

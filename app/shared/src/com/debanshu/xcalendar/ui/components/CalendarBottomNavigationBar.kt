@@ -315,7 +315,7 @@ internal fun CalendarBottomNavigationBar(
     modifier: Modifier = Modifier,
     selectedView: NavigableScreen,
     onViewSelect: (NavigableScreen) -> Unit,
-    onAddClick: () -> Unit,
+    onAddClick: (() -> Unit)?,
 ) {
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val coroutineScope = rememberCoroutineScope()
@@ -431,18 +431,19 @@ internal fun CalendarBottomNavigationBar(
                 }
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            FloatingActionButton(
-                onClick = onAddClick,
-                shape = CircleShape,
-                containerColor = XCalendarTheme.colorScheme.primary,
-                contentColor = XCalendarTheme.colorScheme.onPrimary,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_add),
-                    contentDescription = "Add Event",
-                )
+            if (onAddClick != null) {
+                Spacer(modifier = Modifier.width(12.dp))
+                FloatingActionButton(
+                    onClick = onAddClick,
+                    shape = CircleShape,
+                    containerColor = XCalendarTheme.colorScheme.primary,
+                    contentColor = XCalendarTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_add),
+                        contentDescription = "Add Event",
+                    )
+                }
             }
         }
     }

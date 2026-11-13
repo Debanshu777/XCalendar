@@ -1,0 +1,9 @@
+# Copy to local.properties for a new checkout, or merge these keys into an
+# existing local.properties. Fill only the platforms you want to connect.
+# Use full OAuth client IDs, without quotes or URL prefixes.
+# See docs/google-calendar-setup.md for Google Cloud setup.
+GOOGLE_IOS_CLIENT_ID=
+GOOGLE_DESKTOP_CLIENT_ID=
+
+# Optional Calendarific holiday API key; unrelated to Google Calendar OAuth.
+API_KEY=

@@ -29,14 +29,10 @@ fun <T : NavKey> NavBackStack<T>.replaceLast(destination: T) {
 }
 
 /**
- * Pops the back stack if possible.
- * 
- * Useful for handling back navigation consistently.
- * 
- * @return true if a destination was popped, false if back stack was empty
+ * Pops the top destination while preserving the root.
  */
 fun <T : NavKey> NavBackStack<T>.popIfPossible(): Boolean {
-    return if (isNotEmpty()) {
+    return if (size > 1) {
         removeLastOrNull()
         true
     } else {

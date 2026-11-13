@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from collect_android_comparison import compare, health_result, read_run
+from analyze_android import compare, health_result, read_run, recorded_capture_order
 
 
 class ComparisonTests(unittest.TestCase):
@@ -62,6 +62,16 @@ class ComparisonTests(unittest.TestCase):
         self.assertFalse(result["ready"])
         self.assertIn("trace_config", result["mismatched_recorded_conditions"])
         self.assertNotIn("pairs", result)
+
+    def test_capture_order_uses_timestamps_instead_of_input_grouping(self):
+        runs = [
+            {"side": "before", "index": 1, "conditions": {"device_utc": "2026-11-09T22:00:00Z"}},
+            {"side": "before", "index": 2, "conditions": {"device_utc": "2026-11-09T22:02:00Z"}},
+            {"side": "after", "index": 1, "conditions": {"device_utc": "2026-11-09T22:01:00Z"}},
+        ]
+        self.assertIn("before-1, after-1, before-2", recorded_capture_order(runs))
+        runs[0]["conditions"]["device_utc"] = None
+        self.assertTrue(recorded_capture_order(runs).startswith("Unknown:"))
 
 
 if __name__ == "__main__":

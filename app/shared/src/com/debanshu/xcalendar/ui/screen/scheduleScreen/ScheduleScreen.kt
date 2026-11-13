@@ -26,7 +26,6 @@ import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.MonthHeader
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.components.WeekHeader
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -37,6 +36,8 @@ fun ScheduleScreen(
     events: ImmutableList<Event>,
     holidays: ImmutableList<Holiday>,
     isVisible: Boolean = true,
+    scrollToToday: Boolean = false,
+    onTodayScrollRequested: () -> Unit = {},
     onEventClick: (Event) -> Unit,
 ) {
     val dateState by dateStateHolder.currentDateState.collectAsState()
@@ -48,21 +49,13 @@ fun ScheduleScreen(
     val currentHolidays by rememberUpdatedState(holidays)
 
     val scheduleStateHolder =
-        remember(
-            currentYearMonth.year,
-            currentYearMonth.month,
-        ) {
+        remember {
             ScheduleStateHolder(
                 initialMonth = currentYearMonth,
                 getEvents = { currentEvents },
                 getHolidays = { currentHolidays },
             )
         }
-
-    // Initialize month in the TopAppBar immediately
-    LaunchedEffect(currentYearMonth) {
-        dateStateHolder.updateSelectedInViewMonthState(currentYearMonth)
-    }
 
     // Refresh items when events or holidays change, without recreating the state holder
     LaunchedEffect(events, holidays) {
@@ -72,90 +65,44 @@ fun ScheduleScreen(
     // Create list state with initial position
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = scheduleStateHolder.initialScrollIndex)
 
-    // Track pagination state to prevent multiple simultaneous requests
-    val isPaginatingBackward = remember { androidx.compose.runtime.mutableStateOf(false) }
-    val isPaginatingForward = remember { androidx.compose.runtime.mutableStateOf(false) }
-
-    // Optimized: Single LaunchedEffect with combined logic to reduce overhead
-    LaunchedEffect(listState, scheduleStateHolder) {
-        // Monitor visible month headers for TopAppBar updates
-        launch {
-            snapshotFlow {
-                val firstVisible = listState.firstVisibleItemIndex
-                val visibleCount = listState.layoutInfo.visibleItemsInfo.size
-
-                // Find the first visible month header with optimized search
-                (firstVisible until firstVisible + visibleCount)
-                    .firstOrNull { idx ->
-                        idx < scheduleStateHolder.items.size &&
-                            scheduleStateHolder.items[idx] is ScheduleItem.MonthHeader
-                    }?.let { idx -> scheduleStateHolder.items[idx] as? ScheduleItem.MonthHeader }
-            }.filterNotNull()
-                .distinctUntilChanged()
-                .collect { header ->
-                    dateStateHolder.updateSelectedInViewMonthState(header.yearMonth)
-                }
+    LaunchedEffect(isVisible, scrollToToday) {
+        if (isVisible && scrollToToday) {
+            listState.requestScrollToItem(scheduleStateHolder.scrollIndexFor(currentDate))
+            onTodayScrollRequested()
         }
+    }
 
-        // Handle backward pagination with optimized threshold checking
+    LaunchedEffect(listState, scheduleStateHolder, isVisible) {
+        if (!isVisible) return@LaunchedEffect
         launch {
             snapshotFlow {
-                !isPaginatingBackward.value &&
-                    listState.firstVisibleItemIndex < ScheduleStateHolder.THRESHOLD
-            }.distinctUntilChanged()
-                .collect { needsMore ->
-                    if (needsMore && !isPaginatingBackward.value) {
-                        isPaginatingBackward.value = true
-
-                        // Store current visible item info before adding new items
-                        val firstVisibleIndex = listState.firstVisibleItemIndex
-                        val firstVisibleItemOffset = listState.firstVisibleItemScrollOffset
-
-                        val newItemsCount = scheduleStateHolder.loadMoreBackward()
-
-                        if (newItemsCount > 0) {
-                            // Wait for the list to update with new items
-                            kotlinx.coroutines.delay(100)
-
-                            try {
-                                // Directly scroll to maintain position without animation
-                                listState.scrollToItem(
-                                    index = firstVisibleIndex + newItemsCount,
-                                    scrollOffset = firstVisibleItemOffset,
-                                )
-                            } catch (_: Exception) {
-                                // Silently handle scroll position adjustment failures
-                            }
-                        }
-
-                        // Reset pagination flag after a delay
-                        kotlinx.coroutines.delay(500)
-                        isPaginatingBackward.value = false
-                    }
+                listState.layoutInfo.visibleItemsInfo.firstOrNull()?.let { item ->
+                    scheduleStateHolder.items.getOrNull(item.index)
+                        ?.takeIf { it.uniqueId == item.key }
+                        ?.month
                 }
+            }.filterNotNull().collect(dateStateHolder::updateSelectedInViewMonthState)
         }
-
-        // Handle forward pagination with optimized threshold checking
+        launch {
+            // Stable item keys retain the visible row when months are prepended.
+            snapshotFlow {
+                val layout = listState.layoutInfo
+                layout.visibleItemsInfo.firstOrNull()?.index?.let { first ->
+                    first < ScheduleStateHolder.THRESHOLD
+                } ?: false
+            }.collect { nearStart ->
+                if (nearStart) scheduleStateHolder.loadMoreBackward()
+            }
+        }
         launch {
             snapshotFlow {
-                val visibleInfo = listState.layoutInfo.visibleItemsInfo
-                val lastVisibleIndex = visibleInfo.lastOrNull()?.index ?: 0
-                val totalItems = scheduleStateHolder.items.size
-                // Trigger when we're within THRESHOLD items of the end
-                !isPaginatingForward.value &&
-                    lastVisibleIndex >= totalItems - ScheduleStateHolder.THRESHOLD &&
-                    totalItems > 0
-            }.distinctUntilChanged()
-                .collect { needsMore ->
-                    if (needsMore && !isPaginatingForward.value) {
-                        isPaginatingForward.value = true
-                        scheduleStateHolder.loadMoreForward()
-
-                        // Reset pagination flag after a delay
-                        kotlinx.coroutines.delay(500)
-                        isPaginatingForward.value = false
-                    }
-                }
+                val layout = listState.layoutInfo
+                layout.visibleItemsInfo.lastOrNull()?.index?.let { last ->
+                    last >= layout.totalItemsCount - ScheduleStateHolder.THRESHOLD
+                } ?: false
+            }.collect { nearEnd ->
+                if (nearEnd) scheduleStateHolder.loadMoreForward()
+            }
         }
     }
 

@@ -16,41 +16,22 @@ import org.mobilenativefoundation.store.store5.Fetcher
 import org.mobilenativefoundation.store.store5.MutableStore
 import org.mobilenativefoundation.store.store5.MutableStoreBuilder
 import org.mobilenativefoundation.store.store5.SourceOfTruth
+import org.mobilenativefoundation.store.store5.Store
+import org.mobilenativefoundation.store.store5.StoreBuilder
 import org.mobilenativefoundation.store.store5.Updater
 import org.mobilenativefoundation.store.store5.UpdaterResult
 
-/**
- * Creates a MutableStore for events that handles:
- * - Fetching from the remote API
- * - Caching to Room database
- * - Read-only demo imports that preserve local event edits
- * - Local writes; a real backend and conflict policy are not implemented
- * Individual user edits go through SingleEventStoreFactory, not this range store.
- */
+/** Fetches demo seeds and observes Room-backed event ranges. */
 object EventStoreFactory {
 
     fun create(
         apiService: RemoteCalendarApiService,
         eventDao: EventDao,
-        bookkeeper: Bookkeeper<EventKey>
-    ): MutableStore<EventKey, List<Event>> {
-        return MutableStoreBuilder.from(
+    ): Store<EventKey, List<Event>> =
+        StoreBuilder.from(
             fetcher = createFetcher(apiService),
             sourceOfTruth = createSourceOfTruth(eventDao),
-            converter = createEventListConverter()
-        )
-            .validator(EventValidator.create())
-            .build(
-                updater = createUpdater(apiService),
-                bookkeeper = bookkeeper
-            )
-    }
-
-    private fun createEventListConverter(): Converter<List<Event>, List<Event>, List<Event>> =
-        Converter.Builder<List<Event>, List<Event>, List<Event>>()
-            .fromNetworkToLocal { it }
-            .fromOutputToLocal { it }
-            .build()
+        ).build()
 
     private fun createFetcher(
         apiService: RemoteCalendarApiService
@@ -67,7 +48,6 @@ object EventStoreFactory {
             }
             is Result.Success -> {
                 AppLogger.d { "Fetched ${response.data.size} events" }
-                EventValidator.recordFetch(key)
                 response.data.map { it.asEvent() }
             }
         }
@@ -84,10 +64,7 @@ object EventStoreFactory {
         },
         writer = { _, events ->
             // The endpoint is a static demo asset, not a write-capable backend.
-            // Seed new IDs without replacing locally edited events/reminders.
-            // There are no deletion tombstones: a repository-level deletion of
-            // a seeded ID can be imported again. No Delete control is exposed.
-            // A real sync backend needs a durable conflict/tombstone policy.
+            // Seed new IDs while respecting local edits and deletions.
             eventDao.importDemoSeedEvents(events.map { event ->
                 EventWithReminders(event.asEntity(), event.reminderMinutes.map { minutes ->
                     EventReminderEntity(event.id, minutes)
@@ -99,31 +76,6 @@ object EventStoreFactory {
         },
         deleteAll = {
             AppLogger.d { "DeleteAll called (no-op - preserving local data)" }
-        }
-    )
-
-    /**
-     * Creates an Updater for syncing event lists to the remote server.
-     * 
-     * Current implementation: Local-only mode.
-     * The app currently uses static JSON files as a demo API, so writes are
-     * persisted locally via SourceOfTruth and marked as successful.
-     * 
-     * Future implementation: When a real backend is available, this should:
-     * 1. Call apiService.syncEvents(events) or similar
-     * 2. Handle conflict resolution (server vs local changes)
-     * 3. Return appropriate UpdaterResult based on API response
-     */
-    @Suppress("UNUSED_PARAMETER")
-    private fun createUpdater(
-        apiService: RemoteCalendarApiService
-    ): Updater<EventKey, List<Event>, Unit> = Updater.by(
-        post = { key, events ->
-            AppLogger.d { "Updater: ${events.size} events saved locally (offline-first mode)" }
-            // Data is already persisted via SourceOfTruth.writer
-            // In offline-first architecture, local write is the source of truth
-            // Network sync would happen here when backend supports it
-            UpdaterResult.Success.Typed(Unit)
         }
     )
 }
@@ -177,9 +129,7 @@ object SingleEventStoreFactory {
             eventDao.insertEventWithReminders(eventEntity, reminderEntities)
         },
         delete = { key ->
-            eventDao.getEventById(key.eventId)?.let { entity ->
-                eventDao.deleteEvent(entity)
-            }
+            eventDao.deleteEvent(key.eventId)
         },
         deleteAll = {
             AppLogger.d { "DeleteAll called on SingleEventStore (no-op)" }

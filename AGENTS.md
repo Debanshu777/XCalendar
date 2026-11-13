@@ -53,8 +53,10 @@ Kotlin Multiplatform IDE plugins for YAML project support.
   platform-specific integration tests.
 - `app/shared/composeResources`: Compose resource inputs. Generated accessors
   use `com.debanshu.xcalendar.resources`.
-- `app/shared/schemas`: versioned Room schema history. Preserve schema version 1;
-  database changes require migrations and updated schema exports.
+- Room schema export is disabled while the app is pre-release. Schema changes
+  recreate the local database; do not add migrations or exported schema snapshots.
+  Keep the database version increasing so installed development builds can be
+  recreated. Revisit this policy before production.
 - `app/app.module-template.yaml`: shared platform/compiler configuration.
 - `libs.versions.toml`: application dependency versions, referenced as `$libs.*`.
 - `build-logic/app-config`: toolchain plugin generating the optional API key.
