@@ -30,18 +30,16 @@ import kotlinx.coroutines.test.runTest
 import org.mobilenativefoundation.store.core5.ExperimentalStoreApi
 import org.mobilenativefoundation.store.store5.StoreReadRequest
 import org.mobilenativefoundation.store.store5.StoreReadResponse
-import org.mobilenativefoundation.store.store5.Converter
 import org.mobilenativefoundation.store.store5.Fetcher
-import org.mobilenativefoundation.store.store5.MutableStoreBuilder
+import org.mobilenativefoundation.store.store5.StoreBuilder
 import org.mobilenativefoundation.store.store5.SourceOfTruth
-import org.mobilenativefoundation.store.store5.Updater
-import org.mobilenativefoundation.store.store5.UpdaterResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import java.nio.file.Files
 
 @OptIn(ExperimentalStoreApi::class)
 class EventPersistenceTest {
@@ -96,18 +94,14 @@ class EventPersistenceTest {
             val singleStore = SingleEventStoreFactory.create(dao, SingleEventBookkeeperFactory.create(db.getSyncFailureDao()))
             // This repository dependency is unused by mutations. Fail immediately
             // if a write unexpectedly tries to fetch or write a calendar range.
-            val rangeStore = MutableStoreBuilder.from(
+            val rangeStore = StoreBuilder.from(
                 fetcher = Fetcher.of<EventKey, List<Event>> { error("Unexpected range fetch") },
                 sourceOfTruth = SourceOfTruth.of<EventKey, List<Event>, List<Event>>(
                     reader = { flowOf(emptyList()) },
                     writer = { _, _ -> error("Unexpected range write") },
                 ),
-                converter = Converter.Builder<List<Event>, List<Event>, List<Event>>()
-                    .fromNetworkToLocal { it }.fromOutputToLocal { it }.build(),
-            ).scope(backgroundScope).build(
-                updater = Updater.by<EventKey, List<Event>, Unit>(post = { _, _ -> UpdaterResult.Success.Typed(Unit) }),
-            )
-            val repository = EventRepository(rangeStore, singleStore, dao)
+            ).scope(backgroundScope).build()
+            val repository = EventRepository(rangeStore, singleStore)
             val invalid = TestDataFactory.createEvent(id = "failed-create", calendarId = "missing-calendar")
             assertIs<DomainResult.Error>(CreateEventUseCase(repository)(invalid))
             assertNull(dao.getEventById(invalid.id))
@@ -145,6 +139,48 @@ class EventPersistenceTest {
             val persistedNew = assertNotNull(dao.getEventWithRemindersById(newEvent.id))
             assertEquals(newEvent.asEntity(), persistedNew.event)
             assertEquals(newEvent.reminderMinutes, persistedNew.reminders.map { it.minutes })
+        }
+    }
+
+    @Test
+    fun deletedSeedsStayDeletedAfterRestart() = runTest {
+        val directory = Files.createTempDirectory("xcalendar-demo-events").toFile()
+        val path = directory.resolve("events.db").absolutePath
+        val driver = BundledSQLiteDriver()
+        suspend fun withFileDatabase(block: suspend (AppDatabase) -> Unit) {
+            val db = Room.databaseBuilder<AppDatabase>(path)
+                .setDriver(driver)
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .build()
+            try {
+                block(db)
+            } finally {
+                db.close()
+            }
+        }
+
+        val event = TestDataFactory.createEvent(id = "demo-event", calendarId = "calendar").asEntity()
+        val seed = EventWithReminders(event, listOf(EventReminderEntity(event.id, 10)))
+        try {
+            withFileDatabase { db ->
+                db.getUserEntityDao().insertUser(UserEntity("user", "User", "", ""))
+                db.getCalendarEntityDao().upsertCalendar(listOf(CalendarEntity("calendar", "Calendar", 0, "user", true, true)))
+                db.getEventEntityDao().importDemoSeedEvents(listOf(seed))
+            }
+            withFileDatabase { db ->
+                val dao = db.getEventEntityDao()
+                val restored = assertNotNull(dao.getEventWithRemindersById(event.id))
+                assertEquals(seed, restored)
+                val store = SingleEventStoreFactory.create(dao, SingleEventBookkeeperFactory.create(db.getSyncFailureDao()))
+                store.clear(SingleEventKey(event.id))
+            }
+            withFileDatabase { db ->
+                val dao = db.getEventEntityDao()
+                dao.importDemoSeedEvents(listOf(seed))
+                assertNull(dao.getEventWithRemindersById(event.id))
+            }
+        } finally {
+            directory.deleteRecursively()
         }
     }
 

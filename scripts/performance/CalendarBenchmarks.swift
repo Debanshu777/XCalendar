@@ -61,13 +61,30 @@ final class CalendarBenchmarks: XCTestCase {
         print("FINAL_UI_HIERARCHY\n\(app.debugDescription)")
     }
 
+    /// Focused month/day paging workload. Clock time includes fixed settling
+    /// pauses and XCTest waits; CPU time is not a frame-hitch measurement.
+    func testPagingJourney() {
+        app.launch()
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        measure(metrics: [XCTClockMetric(), XCTCPUMetric(application: app)], options: options) {
+            tap("Month")
+            for _ in 0..<2 { monthRoundTrip() }
+            tap("Day")
+            monthRoundTrip()
+        }
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
     /// Opt-in dense UI fixture journey. One iteration visits all five views.
     /// Fixed gestures and assertions are part of both compared measurements.
     func testPopulatedJourney() {
         // Fixture slots 01–06 are timed daytime events. All-day rows (09–10)
         // and offscreen semantics nodes cannot satisfy this visibility check.
         let timedEventPredicate = NSPredicate(
-            format: "label MATCHES %@", ".*November [0-9]{2} / 0[1-6] — .*planning:.*"
+            format: "label MATCHES %@", ".*(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{2} / 0[1-6] — .*planning:.*"
         )
         func hasVisibleTimedEvent() -> Bool {
             let viewport = app.frame
@@ -129,6 +146,33 @@ final class CalendarBenchmarks: XCTestCase {
             for label in ["Week", "3 Day", "Day", "Schedule", "Month"] { tap(label) }
             monthRoundTrip()
         }
+    }
+
+    /// Instruments launches the installed app first. Activating it preserves
+    /// that process so the recording and all verified swipes target one PID.
+    func testProfileMonthPaging() {
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        tap("Month")
+        let pattern = "(January|February|March|April|May|June|July|August|September|October|November|December)( [0-9]{4})?"
+        let title = app.descendants(matching: .any).matching(NSPredicate(format: "label MATCHES %@", pattern)).firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        let initial = title.label
+        print("MONTH_PROFILE_READY")
+        for index in 0..<6 {
+            let forward = index % 2 == 0
+            swipeMonth(forward: forward)
+            let predicate = forward
+                ? NSPredicate(format: "label MATCHES %@ AND label != %@", pattern, initial)
+                : NSPredicate(format: "label == %@", initial)
+            XCTAssertTrue(app.descendants(matching: .any).matching(predicate).firstMatch.waitForExistence(timeout: 10),
+                          "Month header did not follow swipe \(index + 1)")
+            Thread.sleep(forTimeInterval: 0.5)
+            print("MONTH_SWIPE_VERIFIED \(index + 1)")
+        }
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
     }
 
     func testEventDialog() {

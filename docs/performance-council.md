@@ -305,8 +305,8 @@ report. Build the same fixture in each source checkout, retaining each manifest:
 ```sh
 python3 scripts/performance/build_android.py --fixture --tracing --output captures/performance/dense/app.apk
 python3 scripts/performance/android_benchmark.py --serial "$ANDROID_SERIAL" --scenario populated --iterations 1 --compose-tracing --apk captures/performance/dense/app.apk --fixture-manifest captures/performance/dense/app-fixture/fixture-manifest.json --recorder "$PERFETTO_RECORDER" --output captures/performance/dense/after-populated-1
-python3 scripts/performance/analyze_android.py --processor "$TRACE_PROCESSOR" --trace captures/performance/dense/after-populated-1/trace.perfetto-trace --output captures/performance/dense/after-populated-1/analysis
-python3 scripts/performance/collect_android_comparison.py --root captures/performance/dense --scenario populated --runs 3
+python3 scripts/performance/analyze_android.py trace --processor "$TRACE_PROCESSOR" --trace captures/performance/dense/after-populated-1/trace.perfetto-trace --output captures/performance/dense/after-populated-1/analysis
+python3 scripts/performance/analyze_android.py compare --root captures/performance/dense --scenario populated --runs 3
 ```
 
 Sign/install the generated APK before collecting a run. Repeat for indices 1–3

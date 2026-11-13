@@ -37,6 +37,8 @@ dependencies:
   - $libs.shaderx
 
 dependencies@android:
+  - $libs.google.play.auth
+  - $libs.androidx.activity.compose
   - $libs.ktor.client.okhttp
   - $libs.koin.android
 
@@ -46,8 +48,10 @@ dependencies@ios:
 dependencies@jvm:
   - $libs.ktor.client.okhttp
   - $libs.kotlinx.coroutines.swing
+  - $libs.java.keyring
 
 test-dependencies:
+  - $libs.ktor.client.mock
   - $libs.kotlinx.coroutines.test
 
 settings:
@@ -63,7 +67,6 @@ settings:
         - $libs.room.compiler
         - $libs.koin.ksp.compiler
       processorOptions:
-        room.schemaLocation: ./schemas
         KOIN_USE_COMPOSE_VIEWMODEL: "true"
         KOIN_CONFIG_CHECK: "false"
         KOIN_DEFAULT_MODULE: "false"

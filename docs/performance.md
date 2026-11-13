@@ -249,7 +249,7 @@ returning, so the next workload cannot overlap the trace's idle tail.
 python3 scripts/performance/build_android.py --tracing --output captures/performance/run/tracing-unsigned.apk
 # Sign/install as above, then repeat for month, schedule, dropdown, and dialog.
 python3 scripts/performance/android_benchmark.py --serial "$ANDROID_SERIAL" --scenario navigation --iterations 10 --compose-tracing --recorder "$PERFETTO_RECORDER" --output captures/performance/run/navigation
-python3 scripts/performance/analyze_android.py --processor "$TRACE_PROCESSOR" --trace captures/performance/run/navigation/trace.perfetto-trace --output captures/performance/run/navigation/analysis
+python3 scripts/performance/analyze_android.py trace --processor "$TRACE_PROCESSOR" --trace captures/performance/run/navigation/trace.perfetto-trace --output captures/performance/run/navigation/analysis
 ```
 
 `build_android.py` temporarily changes only the application ID/profileable

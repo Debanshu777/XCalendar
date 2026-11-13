@@ -20,8 +20,19 @@ def main():
     parser.add_argument("--output", type=pathlib.Path, required=True)
     parser.add_argument("--tracing", action="store_true")
     parser.add_argument("--fixture", action="store_true", help="Build with the deterministic 300-event UI fixture; never writes repository data")
+    parser.add_argument("--paging", action="store_true", help="Use the 900-event adjacent-month fixture (requires --fixture)")
+    parser.add_argument("--year", action="store_true", help="Use 3,650 events across 2026 (requires --fixture)")
+    parser.add_argument("--load-delay-ms", type=int, default=0)
+    parser.add_argument("--batch-delay-ms", type=int, default=0)
+    parser.add_argument("--refresh-delay-ms", type=int, default=0)
     parser.add_argument("--fixture-output", type=pathlib.Path, help="Fixture artifacts/manifest directory (default: <APK stem>-fixture beside the APK)")
     args = parser.parse_args()
+    if ((args.year or args.load_delay_ms or args.batch_delay_ms or args.refresh_delay_ms) and not args.fixture) or (args.year and args.paging):
+        parser.error("Mock data/loading options require --fixture; choose --year or --paging")
+    if min(args.load_delay_ms, args.batch_delay_ms, args.refresh_delay_ms) < 0:
+        parser.error("Mock delays must be nonnegative")
+    if args.paging and not args.fixture:
+        parser.error("--paging requires --fixture")
     if args.fixture_output and not args.fixture:
         parser.error("--fixture-output requires --fixture")
     module = ROOT / "app/androidApp/module.yaml"
@@ -49,7 +60,9 @@ def main():
         manifest.write_text(originals[manifest].decode().replace(
             "        <activity", '        <profileable android:shell="true" />\n        <activity', 1))
         fixture_context = temporary_fixture(
-            ROOT, args.fixture_output or args.output.parent / (args.output.stem + "-fixture")
+            ROOT, args.fixture_output or args.output.parent / (args.output.stem + "-fixture"), paging=args.paging,
+            year=args.year, load_delay_ms=args.load_delay_ms, batch_delay_ms=args.batch_delay_ms,
+            refresh_delay_ms=args.refresh_delay_ms
         ) if args.fixture else nullcontext()
         with fixture_context:
             run_command([str(ROOT / "kotlin"), "build", "-m", "androidApp", "-p", "android", "-v", "release"], cwd=ROOT)

@@ -6,6 +6,7 @@ import com.debanshu.xcalendar.ui.utils.indexEventsByDate
 import com.debanshu.xcalendar.ui.utils.layoutDayEvents
 import com.debanshu.xcalendar.ui.utils.monthGridDates
 import com.debanshu.xcalendar.ui.state.ScheduleStateHolder
+import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.screen.scheduleScreen.ScheduleItem
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -22,6 +23,14 @@ class CalendarLayoutTest {
     private fun event(id: String, startMinute: Int, endMinute: Int) = TestDataFactory.createEvent(
         id = id, startTime = midnight + startMinute * 60_000L, endTime = midnight + endMinute * 60_000L,
     )
+
+    @Test
+    fun equalStartEventsKeepTheirOrderWhenServerOrderChanges() {
+        val events = listOf(event("b", 60, 120), event("a", 60, 120))
+        val first = indexEventsByDate(events, day, day, TimeZone.UTC)
+        assertEquals(listOf("a", "b"), first[day]!!.map { it.id })
+        assertEquals(first, indexEventsByDate(events.reversed(), day, day, TimeZone.UTC))
+    }
 
     @Test
     fun sundayStartDoesNotInsertAnEmptyWeek() {
@@ -54,6 +63,34 @@ class CalendarLayoutTest {
         val longEvent = TestDataFactory.createEvent(startTime = 0, endTime = Long.MAX_VALUE / 1000)
         val index = indexEventsByDate(listOf(longEvent), day, day, TimeZone.UTC)
         assertEquals(setOf(day), index.keys)
+    }
+
+    @Test
+    fun dateIndexClipsUsingLocalMidnightsAcrossDaylightSavingChanges() {
+        val zone = TimeZone.of("America/New_York")
+        for ((date, nextDate) in listOf(
+            LocalDate(2026, 3, 8) to LocalDate(2026, 3, 9),
+            LocalDate(2026, 11, 1) to LocalDate(2026, 11, 2),
+        )) {
+            val start = date.atStartOfDayIn(zone).toEpochMilliseconds()
+            val end = nextDate.atStartOfDayIn(zone).toEpochMilliseconds()
+            val events = listOf(
+                TestDataFactory.createEvent(id = "before", startTime = start - 60_000, endTime = start),
+                TestDataFactory.createEvent(id = "last-minute", startTime = end - 60_000, endTime = end),
+                TestDataFactory.createEvent(id = "after", startTime = end, endTime = end + 60_000),
+                TestDataFactory.createEvent(id = "spanning", startTime = start - 60_000, endTime = end + 60_000),
+            )
+            val index = indexEventsByDate(events, date, date, zone)
+            assertEquals(setOf(date), index.keys)
+            assertEquals(listOf("spanning", "last-minute"), index.getValue(date).map { it.id })
+        }
+    }
+
+    @Test
+    fun dateIndexPreservesPointEventsAndSkipsEmptyWindows() {
+        val events = listOf(event("point", 60, 60), event("reversed", 90, 30), event("tomorrow", 1440, 1440))
+        assertEquals(listOf("point", "reversed"), indexEventsByDate(events, day, day, TimeZone.UTC).getValue(day).map { it.id })
+        assertTrue(indexEventsByDate(events, LocalDate(2026, 11, 9), day, TimeZone.UTC).isEmpty())
     }
 
     @Test
@@ -166,5 +203,36 @@ class CalendarLayoutTest {
         val schedule = ScheduleStateHolder(YearMonth(2026, 11), { listOf(overnight) }, { emptyList() })
         val dates = schedule.items.filterIsInstance<ScheduleItem.DayEvents>().map { it.date }
         assertEquals(listOf(LocalDate(2026, 11, 7), day), dates)
+    }
+
+    @Test
+    fun todayRolloverPreservesSelectionAndViewport() {
+        val dates = DateStateHolder()
+        dates.updateSelectedDateState(day)
+        val viewedMonth = YearMonth(2026, 12)
+        dates.updateSelectedInViewMonthState(viewedMonth)
+
+        val tomorrow = LocalDate(2027, 1, 1)
+        dates.updateToday(tomorrow)
+
+        assertEquals(tomorrow, dates.today)
+        assertEquals(day, dates.currentDateState.value.selectedDate)
+        assertEquals(viewedMonth, dates.currentDateState.value.selectedInViewMonth)
+    }
+
+    @Test
+    fun scheduleCanJumpToAnEventDayOrItsWeek() {
+        val zone = TimeZone.currentSystemDefault()
+        val start = day.atStartOfDayIn(zone).toEpochMilliseconds()
+        val event = TestDataFactory.createEvent(startTime = start, endTime = start + 3_600_000)
+        val schedule = ScheduleStateHolder(YearMonth(2026, 11), { listOf(event) }, { emptyList() })
+        val eventRow = schedule.items[schedule.scrollIndexFor(day)] as ScheduleItem.DayEvents
+        assertEquals(day, eventRow.date)
+        assertEquals(YearMonth(2026, 11), eventRow.month)
+
+        val outsideRange = LocalDate(2027, 5, 8)
+        val weekRow = schedule.items[schedule.scrollIndexFor(outsideRange)] as ScheduleItem.WeekHeader
+        assertTrue(outsideRange in weekRow.startDate..weekRow.endDate)
+        assertEquals(YearMonth(2027, 5), weekRow.month)
     }
 }

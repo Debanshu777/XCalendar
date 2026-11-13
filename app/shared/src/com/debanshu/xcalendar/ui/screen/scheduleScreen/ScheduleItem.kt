@@ -9,6 +9,11 @@ import kotlinx.datetime.number
 
 sealed class ScheduleItem {
     abstract val uniqueId: String
+    val month: YearMonth get() = when (this) {
+        is MonthHeader -> yearMonth
+        is WeekHeader -> YearMonth.from(startDate)
+        is DayEvents -> YearMonth.from(date)
+    }
 
     data class MonthHeader(
         val yearMonth: YearMonth,

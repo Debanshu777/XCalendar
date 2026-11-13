@@ -1,0 +1,12 @@
+// Copy to Google.local.xcconfig, which is ignored by Git.
+// Example: 123456789012-exampleios.apps.googleusercontent.com becomes
+// com.googleusercontent.apps.123456789012-exampleios
+GOOGLE_REVERSED_CLIENT_ID =
+
+// Optional: use your own bundle ID for a fork or personal signing identity.
+// Register this exact bundle ID in your Google Cloud iOS OAuth client.
+// BUNDLE_ID = org.example.xcalendar
+
+// Keep TEAM_ID empty in Config.xcconfig: the Xcode project appends it to
+// BUNDLE_ID. Select your signing team in Xcode or pass DEVELOPMENT_TEAM
+// to xcodebuild instead. See docs/google-calendar-setup.md.

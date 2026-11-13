@@ -17,8 +17,7 @@ actual fun getDatabase(): AppDatabase {
     )
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Default)
-        // Apply all migrations - ensure migrations exist for all schema changes
-        .addMigrations(*AppDatabase.MIGRATIONS)
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
 }
 

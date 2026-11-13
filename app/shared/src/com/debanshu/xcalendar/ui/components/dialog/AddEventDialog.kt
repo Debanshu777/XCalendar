@@ -34,6 +34,7 @@ import com.debanshu.xcalendar.domain.model.Calendar
 import com.debanshu.xcalendar.domain.model.Event
 import com.debanshu.xcalendar.domain.model.User
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
+import com.debanshu.xcalendar.ui.utils.DateTimeFormatter
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.DatePeriod
@@ -61,6 +62,13 @@ fun AddEventDialog(
     initialEvent: Event? = null,
     isSaving: Boolean = false,
     errorMessage: String? = null,
+    onReconnect: ((String) -> Unit)? = null,
+    reconnectAccountIds: Set<String> = emptySet(),
+    calendarAccounts: ImmutableList<User> = kotlinx.collections.immutable.persistentListOf(user),
+    busyLabel: String = "Saving…",
+    actionsAvailable: Boolean = true,
+    latestEvent: Event? = null,
+    onLoadLatest: (() -> Unit)? = null,
 ) {
     val timeZone = remember { TimeZone.currentSystemDefault() }
     val initialStart = remember(initialEvent?.id, selectedDate, timeZone) {
@@ -98,8 +106,9 @@ fun AddEventDialog(
     )
 
     // A hidden calendar may still own the edited event. Preserve that association.
-    val selectableCalendars = remember(calendars, initialEvent, user.id) {
-        val ownedCalendars = calendars.filter { it.userId == user.id }
+    val selectableCalendars = remember(calendars, initialEvent, user.id, calendarAccounts) {
+        val accountIds = calendarAccounts.map { it.id }.toSet()
+        val ownedCalendars = calendars.filter { it.userId in accountIds }
         if (initialEvent != null && ownedCalendars.none { it.id == initialEvent.calendarId }) {
             (ownedCalendars + Calendar(initialEvent.calendarId, initialEvent.calendarName, initialEvent.color, user.id)).toImmutableList()
         } else ownedCalendars.toImmutableList()
@@ -119,7 +128,8 @@ fun AddEventDialog(
         interval == null -> "Use dates as YYYY-MM-DD and times as HH:mm; the end must follow the start."
         else -> null
     }
-    val canSave = title.isNotBlank() && validationError == null && !isSaving
+    val canSave = title.isNotBlank() && validationError == null && !isSaving &&
+        actionsAvailable && onLoadLatest == null
 
     ModalBottomSheet(
         onDismissRequest = { if (!isSaving) onDismiss() },
@@ -156,10 +166,17 @@ fun AddEventDialog(
                             recurringRule = initialEvent?.recurringRule,
                             reminderMinutes = reminders,
                             color = calendar.color,
+                            remoteEtag = initialEvent?.remoteEtag,
                         )
                         onSave(event)
                     },
-                ) { Text(if (isSaving) "Saving…" else "Save") }
+                ) {
+                    Text(when {
+                        isSaving -> busyLabel
+                        latestEvent != null -> "Save draft"
+                        else -> "Save"
+                    })
+                }
             }
             HorizontalDivider()
             Column(
@@ -169,6 +186,31 @@ fun AddEventDialog(
                 val visibleError = errorMessage ?: validationError
                 if (visibleError != null) {
                     Text(visibleError, color = XCalendarTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 16.dp))
+                }
+                if (onReconnect != null && selectedCalendar?.userId in reconnectAccountIds) {
+                    TextButton(
+                        onClick = { selectedCalendar?.let { onReconnect(it.userId) } },
+                        enabled = actionsAvailable && !isSaving,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    ) { Text("Reconnect Google account") }
+                }
+                if (onLoadLatest != null) {
+                    TextButton(
+                        onClick = onLoadLatest,
+                        enabled = actionsAvailable && !isSaving,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    ) { Text("Load latest version") }
+                }
+                if (latestEvent != null) {
+                    Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Current version on Google Calendar", style = XCalendarTheme.typography.titleSmall)
+                        Text(latestEvent.title)
+                        Text(DateTimeFormatter.formatEventSubheading(latestEvent))
+                        latestEvent.location?.takeIf { it.isNotBlank() }?.let { Text(it) }
+                        latestEvent.description?.takeIf { it.isNotBlank() }?.let { Text(it) }
+                        Text(if (latestEvent.reminderMinutes.isEmpty()) "No reminder" else
+                            latestEvent.reminderMinutes.joinToString { "$it min before" })
+                    }
                 }
                 OutlinedTextField(
                     value = title,
@@ -195,13 +237,18 @@ fun AddEventDialog(
                     enabled = !isSaving,
                 )
                 HorizontalDivider()
-                CalendarSelectionSection(
-                    user = user,
-                    calendars = selectableCalendars,
-                    selectedCalendarId = selectedCalendarId,
-                    onCalendarSelected = { selectedCalendarId = it },
-                    enabled = !isSaving,
-                )
+                calendarAccounts.forEach { account ->
+                    val accountCalendars = selectableCalendars.filter { it.userId == account.id }.toImmutableList()
+                    if (accountCalendars.isNotEmpty()) {
+                        CalendarSelectionSection(
+                            user = account,
+                            calendars = accountCalendars,
+                            selectedCalendarId = selectedCalendarId,
+                            onCalendarSelected = { selectedCalendarId = it },
+                            enabled = !isSaving,
+                        )
+                    }
+                }
                 OutlinedTextField(
                     value = location,
                     onValueChange = { location = it },

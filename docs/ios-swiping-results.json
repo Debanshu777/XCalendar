@@ -1,0 +1,272 @@
+{
+  "workload": "900 synthetic local events; two month round trips and one day round trip per iteration",
+  "platform": "iPhone 18 Pro simulator, iOS 27; release apps",
+  "iterations": 3,
+  "app_builds": {
+    "baseline_sha256": "cd97728e1773232fc92e0682996b641dceba8677f23a7980fa995a8cb01089f4",
+    "after_sha256": "d90c898211de8c6ed051bf4b6b2f437f6b3f7a73b2780434e44b265430731fcc",
+    "installed_binary_verified": true
+  },
+  "limitations": [
+    "App CPU time is not a frame-hitch metric.",
+    "One baseline run followed by one updated run, three measured iterations each.",
+    "The release pair predates concurrent multi-account changes; final compatibility checks are separate.",
+    "No physical-iPhone or live Google-sync performance measurement."
+  ],
+  "baseline": {
+    "cpu_seconds": {
+      "samples": [
+        3.949252,
+        3.864383,
+        3.992169
+      ],
+      "mean": 3.935268
+    },
+    "clock_seconds": {
+      "samples": [
+        11.587109,
+        11.541463,
+        11.49953
+      ],
+      "mean": 11.542700666666667
+    }
+  },
+  "after": {
+    "cpu_seconds": {
+      "samples": [
+        2.991873,
+        2.936679,
+        2.866155
+      ],
+      "mean": 2.931569
+    },
+    "clock_seconds": {
+      "samples": [
+        11.595447,
+        11.545712,
+        11.574187
+      ],
+      "mean": 11.571782
+    }
+  },
+  "cpu_reduction_percent": 25.505226073548236,
+  "index_microbenchmark": {
+    "variant": "native Debug test executable, same process; simulator, not physical iPhone",
+    "samples_per_case": 5,
+    "timing_scope": "total indexing time over 20 page ranges",
+    "cases_by_days": {
+      "1": {
+        "events": 1800,
+        "pages": 20,
+        "before_ms": [
+          84.355,
+          83.869,
+          83.973,
+          83.712,
+          84.238
+        ],
+        "after_ms": [
+          3.623,
+          3.646,
+          3.621,
+          3.638,
+          3.634
+        ],
+        "before_median_ms": 83.973,
+        "after_median_ms": 3.634
+      },
+      "7": {
+        "events": 1800,
+        "pages": 20,
+        "before_ms": [
+          87.21,
+          89.019,
+          87.996,
+          88.041,
+          86.52
+        ],
+        "after_ms": [
+          11.39,
+          11.476,
+          11.475,
+          11.774,
+          11.293
+        ],
+        "before_median_ms": 87.996,
+        "after_median_ms": 11.475
+      },
+      "42": {
+        "events": 1800,
+        "pages": 20,
+        "before_ms": [
+          98.847,
+          98.729,
+          98.895,
+          98.91,
+          98.913
+        ],
+        "after_ms": [
+          56.042,
+          56.077,
+          57.281,
+          56.113,
+          55.82
+        ],
+        "before_median_ms": 98.895,
+        "after_median_ms": 56.077
+      }
+    },
+    "excluded": "Initial exploratory run overlapped compilation and is not used; retained in captures/performance/swipe-review/initial-ios-tests-during-build.log."
+  },
+  "tests": {
+    "jvm": 102,
+    "android": 90,
+    "ios_simulator": 91,
+    "ios_count_includes_opt_in_benchmark": true,
+    "ui": [
+      "testMonthRoundTrip",
+      "testPagingJourney",
+      "testPopulatedJourney"
+    ]
+  },
+  "final_builds": {
+    "android_debug": "passed",
+    "desktop_jvm": "passed",
+    "ios_simulator_debug": "passed",
+    "benchmark_pair_ios_simulator_release": "passed",
+    "physical_ios_device": "not built or installed in this investigation"
+  },
+  "iphone_followup": {
+    "device": {
+      "model": "iPhone 13",
+      "ios": "27.0.1"
+    },
+    "installed_initial_variant_evidence": {
+      "variant": "Debug",
+      "executable_uuid": "7579B511-FA6C-366F-AD07-5A43C55B6957",
+      "matched_local_debug_executable": true,
+      "debug_dylib_present": true
+    },
+    "profile_scope": "Launch/sync diagnostics; no verified gesture count, not a swipe speed comparison.",
+    "event_page_decode_sampled_ms": {
+      "initial_debug": {
+        "main": 57.0,
+        "background": 0.0
+      },
+      "release_with_background_decoding": {
+        "main": 0.0,
+        "background": 10.0
+      }
+    },
+    "release_builds": {
+      "release-baseline": {
+        "variant": "Release",
+        "bundle_id": "com.debanshu.xcalendar.XCalendar",
+        "executable_sha256": "a091fe5d3319e2a3588bbb293930ba7a80e41136665a23c3e9abfd88bda6399d",
+        "uuid": "676E6F38-5BEF-3F19-8382-4DA62AB27CCD"
+      },
+      "release-fixed": {
+        "variant": "Release",
+        "bundle_id": "com.debanshu.xcalendar.XCalendar",
+        "executable_sha256": "d191444a0c57f77f579d1f994ff8115460e3e6290081f35b1c7e0bb431124bae",
+        "uuid": "AEAB49DE-1BD7-32E4-95D7-A5BACCAAEF6C"
+      },
+      "release-month-rendering": {
+        "variant": "Release",
+        "bundle_id": "com.debanshu.xcalendar.XCalendar",
+        "executable_sha256": "836e2229dc22ef85587b4fd5af7738ed13d1b36db448ceb80daca4507df7489b",
+        "uuid": "B1A490D3-7CE3-387C-8E4A-72B72B141BFA"
+      }
+    },
+    "release_fixed_profile_matched_executable_uuid": true,
+    "user_feedback_before_month_rendering_change": "Still unusable",
+    "final_month_rendering_feedback": "Improved, but still stutters (user confirmation, 2026-11-12)",
+    "installation": "Updated the existing bundle and launched it; no uninstall, data reset or sign-out performed.",
+    "final_change": "Remove sharedDateElement/sharedEventElement from month cells and their unused visibility arguments; retain scene fade.",
+    "validation": {
+      "jvm_tests_passed": 119,
+      "android_tests_passed": 99,
+      "ios_simulator_runner_passing_entries": 100,
+      "ios_keychain_round_trip": "Skipped by existing test because runner lacks Keychain entitlement",
+      "ios_decoding_context_test": "Executed and passed",
+      "builds": [
+        "android",
+        "desktop",
+        "iosArm64 Release",
+        "iosSimulatorArm64 Debug"
+      ],
+      "simulator_month_round_trip": "Passed"
+    },
+    "device_ui_automation": {
+      "runner_build": "passed",
+      "execution": "blocked installing runner by free developer profile three-app limit",
+      "verified_swipes": 0,
+      "excluded_from_performance_results": true
+    },
+    "android_comparison": "android-swiping-results.json:month_animation_followup"
+  },
+  "loading_followup": {
+    "date": "2026-11-12",
+    "changes": [
+      "Use full month-grid cache coverage before navigation fetches",
+      "Prefetch complete neighboring month grids",
+      "Reject obsolete sync publication before and after cache persistence",
+      "Stabilize equal-time event ordering"
+    ],
+    "validation": {
+      "jvm_tests_passed": 125,
+      "android_tests_passed": 103,
+      "ios_simulator_passing_entries": 104,
+      "ios_simulator_note": "Keychain test returns early without runner entitlement",
+      "android_build": "passed",
+      "desktop_build": "passed",
+      "ios_release_build": "passed"
+    },
+    "performance_claim": "No post-change frame-time measurement; physical device feedback pending",
+    "iphone_update": {
+      "installed": true,
+      "launched": true,
+      "executable_sha256": "a1135a5f33902f610931941f2058b3ac69c6f94b50cb2f535fb92f99750d561b"
+    }
+  },
+  "year_cache_followup": {
+    "date": "2026-11-12",
+    "window": "Selected month minus one year through selected month plus one year, including complete boundary grids",
+    "loader": "2 dp indeterminate strip below app bar; space remains reserved while idle",
+    "validation": {
+      "jvm_tests_passed": 125,
+      "android_tests_passed": 103,
+      "ios_simulator_passing_entries": 104,
+      "ios_simulator_note": "Existing Keychain check returns early without entitlement",
+      "android_build": "passed",
+      "desktop_build": "passed",
+      "ios_release_build": "passed"
+    },
+    "limitations": [
+      "Periodic/startup/manual refreshes still fetch; larger windows may need more pages",
+      "Navigation outside coverage replaces the bounded cache window"
+    ],
+    "iphone_update": {
+      "installed": true,
+      "launched": true,
+      "executable_sha256": "4b04d48587ca00f0636cca728a22502894236db5808d6c79112c36760a0425fb",
+      "user_feedback": "looks better in ios"
+    },
+    "android_visual_check": "Isolated preview package with loader forced visible; shipping condition restored; month layout inspected"
+  },
+  "restart_cache_followup": {
+    "date": "2026-11-12",
+    "finding": "Startup forced a sync after restoring persisted snapshots; timer forced refresh every minute",
+    "automatic_refresh_freshness_minutes": 15,
+    "manual_refresh": "Always fetches",
+    "validation": {
+      "jvm_tests_passed": 126,
+      "disk_reopen_test": "Passed: restored snapshots equal persisted snapshots with no extra API fetch",
+      "android_build": "passed",
+      "desktop_build": "passed",
+      "ios_release_build": "passed"
+    },
+    "device_validation": "Release installed; manual restart feedback pending",
+    "executable_sha256": "0652ad7d8d66c2891972357e60c869ef358a2d4efd65d7dd096dcef9c4197e49"
+  }
+}

@@ -15,6 +15,7 @@ import org.mobilenativefoundation.store.store5.Fetcher
 import org.mobilenativefoundation.store.store5.SourceOfTruth
 import org.mobilenativefoundation.store.store5.Store
 import org.mobilenativefoundation.store.store5.StoreBuilder
+import org.mobilenativefoundation.store.store5.Validator
 
 /**
  * Creates a Store for holidays that handles:
@@ -32,7 +33,7 @@ object HolidayStoreFactory {
             fetcher = createFetcher(holidayApiService),
             sourceOfTruth = createSourceOfTruth(holidayDao)
         )
-            .validator(HolidayValidator.create())
+            .validator(Validator.by { holidays -> holidays.isNotEmpty() })
             .build()
     }
 
@@ -47,8 +48,6 @@ object HolidayStoreFactory {
             }
             is Result.Success -> {
                 AppLogger.d { "Fetched ${response.data.response.holidays.size} holidays" }
-                // Record the fetch time for cache freshness tracking
-                HolidayValidator.recordFetch(key)
                 // Convert network model to domain model
                 response.data.response.holidays.map { it.asHoliday() }
             }

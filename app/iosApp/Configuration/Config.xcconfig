@@ -1,3 +1,6 @@
 TEAM_ID=
 BUNDLE_ID=com.debanshu.xcalendar.XCalendar
 APP_NAME=XCalendar
+
+// Optional local Google OAuth URL scheme, matching GOOGLE_IOS_CLIENT_ID.
+#include? "Google.local.xcconfig"

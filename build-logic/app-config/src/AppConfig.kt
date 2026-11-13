@@ -20,6 +20,8 @@ fun generateAppConfig(@Input propertiesFile: Path, @Output outputDir: Path) {
 
         // Generated from local.properties; do not edit or commit.
         internal object BuildKonfig {
+            const val GOOGLE_IOS_CLIENT_ID: String = ${kotlinStringLiteral(properties.getProperty("GOOGLE_IOS_CLIENT_ID", ""))}
+            const val GOOGLE_DESKTOP_CLIENT_ID: String = ${kotlinStringLiteral(properties.getProperty("GOOGLE_DESKTOP_CLIENT_ID", ""))}
             const val API_KEY: String = ${kotlinStringLiteral(apiKey)}
         }
     """.trimIndent() + "\n")

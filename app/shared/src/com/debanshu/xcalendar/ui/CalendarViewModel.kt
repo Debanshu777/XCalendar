@@ -3,7 +3,7 @@ package com.debanshu.xcalendar.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.debanshu.xcalendar.common.AppLogger
-import com.debanshu.xcalendar.common.DateUtils
+import com.debanshu.xcalendar.common.DateRangeHelper
 import com.debanshu.xcalendar.domain.repository.ICalendarRepository
 import com.debanshu.xcalendar.domain.repository.IEventRepository
 import com.debanshu.xcalendar.domain.repository.IUserRepository
@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -43,10 +42,10 @@ class CalendarViewModel(
     getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ViewModel() {
     private val userId = getCurrentUserUseCase()
-    private val dateRange = DateUtils.getDateRange()
+    private val dateRange = DateRangeHelper.getDateRange()
     private val startTime = dateRange.startTime
     private val endTime = dateRange.endTime
-    private val _uiState = MutableStateFlow(CalendarUiState(isLoading = true))
+    private val error = MutableStateFlow<DomainError?>(null)
 
     private val users =
         userRepository
@@ -110,24 +109,24 @@ class CalendarViewModel(
 
     val uiState =
         combine(
-            _uiState,
+            error,
             users.distinctUntilChanged(),
             holidays.distinctUntilChanged(),
             calendars.distinctUntilChanged(),
             events.distinctUntilChanged(),
-        ) { currentState, usersList, holidaysList, calendarsList, eventsList ->
-            currentState.copy(
+        ) { currentError, usersList, holidaysList, calendarsList, eventsList ->
+            CalendarUiState(
                 accounts = usersList.toImmutableList(),
                 holidays = holidaysList.toImmutableList(),
                 calendars = calendarsList.toImmutableList(),
                 events = eventsList.toImmutableList(),
-                isLoading = false,
+                error = currentError,
             )
         }.distinctUntilChanged()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = CalendarUiState(isLoading = true),
+                initialValue = CalendarUiState(),
             )
 
     init {
@@ -146,8 +145,6 @@ class CalendarViewModel(
                 throw exception
             } catch (exception: Exception) {
                 handleError("Initialization failed", exception)
-            } finally {
-                updateLoadingState(false)
             }
         }
     }
@@ -179,30 +176,17 @@ class CalendarViewModel(
         }
     }
 
-    private fun updateState(update: (CalendarUiState) -> CalendarUiState) {
-        _uiState.update(update)
-    }
-
-    private fun updateLoadingState(isLoading: Boolean) {
-        updateState { it.copy(isLoading = isLoading) }
-    }
-
     private fun handleError(
         message: String,
         exception: Throwable,
     ) {
         AppLogger.e(exception) { "CalendarViewModel: $message" }
         val errorMessage = "$message: ${exception.message ?: "Unknown error"}"
-        updateState { currentState ->
-            currentState.copy(
-                isLoading = false,
-                error = DomainError.Unknown(errorMessage),
-            )
-        }
+        error.value = DomainError.Unknown(errorMessage)
     }
 
     fun clearError() {
-        updateState { it.copy(error = null) }
+        error.value = null
     }
 
 }

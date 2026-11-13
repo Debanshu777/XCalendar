@@ -46,6 +46,7 @@ fun EventDetailsDialog(
     event: Event,
     onEdit: (Event) -> Unit,
     onDismiss: () -> Unit = {},
+    canEdit: Boolean = true,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -61,6 +62,7 @@ fun EventDetailsDialog(
             DetailsHeader(
                 onClose = onDismiss,
                 onEdit = { onEdit(event) },
+                canEdit = canEdit,
             )
 
             Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(bottom = 16.dp)) {
@@ -115,6 +117,7 @@ fun EventDetailsDialog(
 private fun DetailsHeader(
     onClose: () -> Unit,
     onEdit: () -> Unit,
+    canEdit: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -130,7 +133,7 @@ private fun DetailsHeader(
                 tint = XCalendarTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
         }
-        IconButton(onClick = onEdit) {
+        IconButton(onClick = onEdit, enabled = canEdit) {
             Icon(
                 painter = painterResource(Res.drawable.ic_edit),
                 contentDescription = "Edit",

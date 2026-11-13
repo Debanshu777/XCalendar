@@ -1,12 +1,12 @@
 package com.debanshu.xcalendar.data.localDataSource
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
+import com.debanshu.xcalendar.data.localDataSource.model.DeletedDemoEventEntity
 import com.debanshu.xcalendar.data.localDataSource.model.EventEntity
 import com.debanshu.xcalendar.data.localDataSource.model.EventReminderEntity
 import com.debanshu.xcalendar.data.localDataSource.model.EventWithReminders
@@ -46,11 +46,13 @@ interface EventDao {
         events.forEach { insertEventWithReminders(it.event, it.reminders) }
     }
 
-    /** Static demo data seeds missing IDs; refresh must not overwrite local edits. */
+    /** Static demo data seeds IDs that have no local event or deletion record. */
     @Transaction
     suspend fun importDemoSeedEvents(events: List<EventWithReminders>) {
-        val insertedIds = insertEventsIfMissing(events.map { it.event })
-        events.forEachIndexed { index, event ->
+        val deletedIds = getDeletedDemoEventIds().toSet()
+        val seeds = events.filterNot { it.event.id in deletedIds }
+        val insertedIds = insertEventsIfMissing(seeds.map { it.event })
+        seeds.forEachIndexed { index, event ->
             if (insertedIds[index] != -1L) {
                 event.reminders.forEach { insertEventReminder(it) }
             }
@@ -63,8 +65,21 @@ interface EventDao {
     @Upsert
     suspend fun upsertEvent(event: EventEntity): Long
 
-    @Delete
-    suspend fun deleteEvent(event: EventEntity)
+    @Query("DELETE FROM events WHERE id = :eventId")
+    suspend fun deleteEventRow(eventId: String): Int
+
+    @Query("SELECT eventId FROM deleted_demo_events")
+    suspend fun getDeletedDemoEventIds(): List<String>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun recordDeletedDemoEvent(event: DeletedDemoEventEntity)
+
+    @Transaction
+    suspend fun deleteEvent(eventId: String) {
+        if (deleteEventRow(eventId) > 0) {
+            recordDeletedDemoEvent(DeletedDemoEventEntity(eventId))
+        }
+    }
 
     @Transaction
     suspend fun insertEventWithReminders(event: EventEntity, reminders: List<EventReminderEntity>) {

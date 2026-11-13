@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "title": "Android V4 combined geometry and semantics diagnostic",
+  "status": "complete_diagnostic_rejected",
+  "capture_count": 6,
+  "pairs_per_profile": 1,
+  "confirmation_captures_completed": 0,
+  "decision": "Reject unchanged V4 promotion and do not start its planned forty-capture confirmation",
+  "scope": "Exploratory Android UI-fixture comparison; one pair per workload; not FPS or a stable effect estimate",
+  "comparison": {
+    "baseline": "Accepted bounded-preview V1 APKs from month-cells/after.",
+    "candidate": "V4 combined V2 geometry + V3 aggregate DayCell semantics.",
+    "patch_base": "V3 source snapshot; not the comparison baseline."
+  },
+  "scenarios": {
+    "steady/month": {
+      "before": {
+        "fulltrace": {
+          "p95_ms": 12.836,
+          "p99_ms": 26.874,
+          "max_ms": 33.615,
+          "self_jank_pct": 3.0131826741996233,
+          "late_frame_pct": 4.3314500941619585,
+          "memory_total_pss_kb": 196088.0,
+          "main_cpu_ms": 2526.44,
+          "render_cpu_ms": 1786.306
+        },
+        "interaction_window": {
+          "p95_ms": 12.836,
+          "p99_ms": 26.874,
+          "max_ms": 33.615,
+          "frames_ge_40ms": 0.0,
+          "frames_ge_50ms": 0.0,
+          "main_thread_cpu_ms": 1689.542,
+          "render_thread_cpu_ms": 1776.57
+        }
+      },
+      "after": {
+        "fulltrace": {
+          "p95_ms": 12.701,
+          "p99_ms": 20.585,
+          "max_ms": 30.163,
+          "self_jank_pct": 1.0889292196007259,
+          "late_frame_pct": 2.1778584392014517,
+          "memory_total_pss_kb": 142221.0,
+          "main_cpu_ms": 1690.271,
+          "render_cpu_ms": 1838.844
+        },
+        "interaction_window": {
+          "p95_ms": 12.701,
+          "p99_ms": 20.585,
+          "max_ms": 30.163,
+          "frames_ge_40ms": 0.0,
+          "frames_ge_50ms": 0.0,
+          "main_thread_cpu_ms": 1369.653,
+          "render_thread_cpu_ms": 1830.228
+        }
+      }
+    },
+    "steady/forward": {
+      "before": {
+        "fulltrace": {
+          "p95_ms": 12.922,
+          "p99_ms": 20.802,
+          "max_ms": 28.464,
+          "self_jank_pct": 2.835538752362949,
+          "late_frame_pct": 3.780718336483932,
+          "memory_total_pss_kb": 198109.0,
+          "main_cpu_ms": 2429.355,
+          "render_cpu_ms": 1788.548
+        },
+        "interaction_window": {
+          "p95_ms": 12.922,
+          "p99_ms": 20.802,
+          "max_ms": 28.464,
+          "frames_ge_40ms": 0.0,
+          "frames_ge_50ms": 0.0,
+          "main_thread_cpu_ms": 1700.827,
+          "render_thread_cpu_ms": 1781.574
+        }
+      },
+      "after": {
+        "fulltrace": {
+          "p95_ms": 13.701,
+          "p99_ms": 22.372,
+          "max_ms": 36.848,
+          "self_jank_pct": 1.4519056261343013,
+          "late_frame_pct": 4.537205081669692,
+          "memory_total_pss_kb": 150436.0,
+          "main_cpu_ms": 1613.891,
+          "render_cpu_ms": 1745.748
+        },
+        "interaction_window": {
+          "p95_ms": 13.701,
+          "p99_ms": 22.372,
+          "max_ms": 36.848,
+          "frames_ge_40ms": 0.0,
+          "frames_ge_50ms": 0.0,
+          "main_thread_cpu_ms": 1310.036,
+          "render_thread_cpu_ms": 1740.77
+        }
+      }
+    },
+    "loading/month": {
+      "before": {
+        "fulltrace": {
+          "p95_ms": 13.69,
+          "p99_ms": 22.843,
+          "max_ms": 31.901,
+          "self_jank_pct": 2.765486725663717,
+          "late_frame_pct": 5.3097345132743365,
+          "memory_total_pss_kb": 205278.0,
+          "main_cpu_ms": 4254.512,
+          "render_cpu_ms": 2808.649
+        },
+        "interaction_window": {
+          "p95_ms": 13.283,
+          "p99_ms": 22.082,
+          "max_ms": 31.901,
+          "frames_ge_40ms": 0.0,
+          "frames_ge_50ms": 0.0,
+          "main_thread_cpu_ms": 2766.274,
+          "render_thread_cpu_ms": 2773.134
+        }
+      },
+      "after": {
+        "fulltrace": {
+          "p95_ms": 13.912,
+          "p99_ms": 23.258,
+          "max_ms": 62.06,
+          "self_jank_pct": 1.2944983818770226,
+          "late_frame_pct": 3.883495145631068,
+          "memory_total_pss_kb": 172845.0,
+          "main_cpu_ms": 3128.285,
+          "render_cpu_ms": 3010.528
+        },
+        "interaction_window": {
+          "p95_ms": 13.827,
+          "p99_ms": 21.97,
+          "max_ms": 62.06,
+          "frames_ge_40ms": 1.0,
+          "frames_ge_50ms": 1.0,
+          "main_thread_cpu_ms": 2309.756,
+          "render_thread_cpu_ms": 2959.45
+        }
+      }
+    }
+  },
+  "implementation_reviewer": {
+    "implementation": 8.5,
+    "demonstrated_gains": 5,
+    "correctness": 8,
+    "scope": "Diagnostic-stage assessment only"
+  },
+  "limitations": [
+    "One pair per workload; no stable distributions",
+    "The 62.060 ms loading frame is within the interaction window",
+    "Inherited dot/date crowding and compressed Today badge at 1080x1100",
+    "V3 TalkBack evidence reused because DayCell is unchanged; no fresh V4 TalkBack session",
+    "No new Apple presentation evidence or FPS certification"
+  ],
+  "candidate_source_sha256": {
+    "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/MonthScreen.kt": "a59fef9e63037629e7f9355e0a6afba049f1193e104e3e8bbfa04448e96f83bf",
+    "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/MonthView.kt": "ce65da22d622be9bec805c575203e4a7ce5d843f9129ff4096f4d24099198704",
+    "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/WeekdayHeader.kt": "a7e65c7360c7b54caae36deb8c438ceca69c22daecb86bbe748c33562e887ab4",
+    "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/DayCell.kt": "81a95303e063a6620b8b3713481551ccec71762c44176b9becbe567daf6e4970",
+    "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/MonthCellPreview.kt": "e1d6234e0db83ceee9c3274ebc0ca086eb461e7be75bbb8c4b544709cf1574c9"
+  }
+}

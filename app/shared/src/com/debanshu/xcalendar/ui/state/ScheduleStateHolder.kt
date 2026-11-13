@@ -36,7 +36,7 @@ class ScheduleStateHolder(
     private val _items = mutableStateListOf<ScheduleItem>()
     val items: List<ScheduleItem> = _items
 
-    private val monthRange = ScheduleState(initialMonth, initialRange = 3)
+    private var monthRange = ScheduleState(initialMonth)
     val initialScrollIndex: Int
 
     // Cache for optimized event and holiday filtering
@@ -62,34 +62,20 @@ class ScheduleStateHolder(
 
     /**
      * Loads more items at the beginning of the list.
-     * @return Number of new items added
      */
-    fun loadMoreBackward(): Int {
-        monthRange.expandBackward()
-        val newMonths = monthRange.getLastAddedMonthsBackward()
+    fun loadMoreBackward() {
+        val newMonths = monthRange.expandBackward()
         val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
-
-        if (newItems.isNotEmpty()) {
-            _items.addAll(0, newItems)
-            return newItems.size
-        }
-        return 0
+        _items.addAll(0, newItems)
     }
 
     /**
      * Loads more items at the end of the list.
-     * @return Number of new items added
      */
-    fun loadMoreForward(): Int {
-        monthRange.expandForward()
-        val newMonths = monthRange.getLastAddedMonthsForward()
+    fun loadMoreForward() {
+        val newMonths = monthRange.expandForward()
         val newItems = createScheduleItemsForMonthRange(newMonths, getEvents(), getHolidays())
-
-        if (newItems.isNotEmpty()) {
-            _items.addAll(newItems)
-            return newItems.size
-        }
-        return 0
+        _items.addAll(newItems)
     }
 
     /**
@@ -108,6 +94,18 @@ class ScheduleStateHolder(
 
         _items.clear()
         _items.addAll(refreshedItems)
+    }
+
+    fun scrollIndexFor(date: LocalDate): Int {
+        val month = YearMonth.from(date)
+        if (_items.none { it is MonthHeader && it.yearMonth == month }) {
+            monthRange = ScheduleState(month)
+            refreshItems()
+        }
+        val dayIndex = _items.indexOfFirst { it is DayEvents && it.date == date }
+        return if (dayIndex >= 0) dayIndex else _items.indexOfFirst {
+            it is WeekHeader && date in it.startDate..it.endDate
+        }.coerceAtLeast(0)
     }
 
     private fun createScheduleItemsForMonthRange(

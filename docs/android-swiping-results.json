@@ -1,0 +1,4783 @@
+{
+  "schema_version": 1,
+  "date_local": "2026-11-10",
+  "device": {
+    "model": "Pixel 9",
+    "android": "17",
+    "timezone": "Asia/Kolkata"
+  },
+  "scope": {
+    "baseline": "Current source snapshot with only three rendering/indexing files restored to HEAD",
+    "after": "Current source snapshot",
+    "changed_files": [
+      "app/shared/src/com/debanshu/xcalendar/ui/utils/CalendarDates.kt",
+      "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/MonthView.kt",
+      "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/DayCell.kt"
+    ],
+    "fixture_events": 900,
+    "note": "Background Google conversion/cache changes are present in both builds and are not measured by the synthetic UI fixture."
+  },
+  "fixture": {
+    "fixture": "three-month-swipe-900",
+    "schema_version": 1,
+    "scope": "UI-only; not database/network/write throughput",
+    "selected_date": "2026-11-08",
+    "time_zone_policy": "Convert local date-times using TimeZone.currentSystemDefault() once at fixture initialization; keep the device zone fixed within a comparison.",
+    "current_date_policy": "The selected date/month are fixed; the application's live today/clock behavior is unchanged. Do not use Today during this workload.",
+    "repository_policy": "ViewModels/repositories still initialize; their calendar UI data is replaced by a fixed CalendarUiState.",
+    "event_count": 900,
+    "calendar_count": 5,
+    "account_count": 1,
+    "holiday_count": 9,
+    "events_by_kind": {
+      "daytime_overlap": 540,
+      "overnight": 180,
+      "all_day": 180
+    },
+    "event_start_date_range": [
+      "2026-10-01",
+      "2026-12-30"
+    ],
+    "latest_exclusive_end_local": "2027-01-01T00:00:00",
+    "data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a",
+    "source_sha256": "cd35ac49d777ef1e044d32a30541f9535409374ef26707da2d981a5d6407f329"
+  },
+  "build": {
+    "variant": "release",
+    "compose_tracing": true,
+    "package": "com.debanshu.xcalendar.benchmark",
+    "compilation": "cmd package compile -m speed -f after each install",
+    "apk_sha256": {
+      "before": "95466b0908031e856729614a0db63dee568f968f5f77fdcff1dc36c2400436b2",
+      "after": "a2ae94654e6d89fae96de862aea0bcdbea2b49652b10325ae7aeff22a6142c64"
+    }
+  },
+  "workload": {
+    "runs_per_build_per_view": 3,
+    "swipes_per_run": 6,
+    "drag_ms": 400,
+    "pause_after_drag_s": 1,
+    "trace_duration_s": 30,
+    "month_pages": [
+      "November 2026",
+      "December 2026"
+    ],
+    "day_pages": [
+      "2026-11-08",
+      "2026-11-09"
+    ],
+    "scope": "Synthetic local rendering only; no live Google sync; first and last page changes verified from accessibility hierarchy."
+  },
+  "scenarios": {
+    "month": {
+      "expected_runs_per_group": 3,
+      "capture_order": "Recorded device UTC start order: before-1, after-1, after-2, before-2, before-3, after-3. Randomization is not recorded.",
+      "ready": true,
+      "accepted_runs": {
+        "before": 3,
+        "after": 3
+      },
+      "mismatched_recorded_conditions": [],
+      "runs_without_recorded_timezone": 0,
+      "metrics": {
+        "app_deadline_miss_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              4.845814977973569,
+              4.212860310421286,
+              4.148471615720524
+            ],
+            "median": 4.212860310421286,
+            "min": 4.148471615720524,
+            "max": 4.845814977973569
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1.5384615384615385,
+              1.7408123791102514,
+              1.5355086372360844
+            ],
+            "median": 1.5384615384615385,
+            "min": 1.5355086372360844,
+            "max": 1.7408123791102514
+          },
+          "median_delta": -2.6743987719597477,
+          "median_delta_pct": -63.48178137651822
+        },
+        "bottom_navigation_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "calendar_app_content_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "calendar_app_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "compose_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              143,
+              143,
+              143
+            ],
+            "median": 143,
+            "min": 143,
+            "max": 143
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              90,
+              87,
+              95
+            ],
+            "median": 90,
+            "min": 87,
+            "max": 95
+          },
+          "median_delta": -53,
+          "median_delta_pct": -37.06293706293706
+        },
+        "frames": {
+          "before": {
+            "n": 3,
+            "values": [
+              454,
+              451,
+              458
+            ],
+            "median": 454,
+            "min": 451,
+            "max": 458
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              520,
+              517,
+              521
+            ],
+            "median": 520,
+            "min": 517,
+            "max": 521
+          },
+          "median_delta": 66,
+          "median_delta_pct": 14.537444933920705
+        },
+        "main_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              3643.956,
+              3774.542,
+              3822.307
+            ],
+            "median": 3774.542,
+            "min": 3643.956,
+            "max": 3822.307
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              2346.183,
+              2354.999,
+              2355.929
+            ],
+            "median": 2354.999,
+            "min": 2346.183,
+            "max": 2355.929
+          },
+          "median_delta": -1419.5430000000001,
+          "median_delta_pct": -37.60835089396277
+        },
+        "max_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              100.617,
+              105.453,
+              108.306
+            ],
+            "median": 105.453,
+            "min": 100.617,
+            "max": 108.306
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              64.254,
+              75.664,
+              68.583
+            ],
+            "median": 68.583,
+            "min": 64.254,
+            "max": 75.664
+          },
+          "median_delta": -36.870000000000005,
+          "median_delta_pct": -34.96344342977441
+        },
+        "month_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              3276,
+              3276,
+              3276
+            ],
+            "median": 3276,
+            "min": 3276,
+            "max": 3276
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              873,
+              873,
+              873
+            ],
+            "median": 873,
+            "min": 873,
+            "max": 873
+          },
+          "median_delta": -2403,
+          "median_delta_pct": -73.35164835164835
+        },
+        "nav_bar_surface_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "navigation_host_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "p50_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              12.539,
+              12.45,
+              12.158
+            ],
+            "median": 12.45,
+            "min": 12.158,
+            "max": 12.539
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              8.753,
+              9.129,
+              8.828
+            ],
+            "median": 8.828,
+            "min": 8.753,
+            "max": 9.129
+          },
+          "median_delta": -3.622,
+          "median_delta_pct": -29.092369477911646
+        },
+        "p95_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              17.568,
+              20.356,
+              20.371
+            ],
+            "median": 20.356,
+            "min": 17.568,
+            "max": 20.371
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              13.307,
+              13.672,
+              12.803
+            ],
+            "median": 13.307,
+            "min": 12.803,
+            "max": 13.672
+          },
+          "median_delta": -7.049000000000001,
+          "median_delta_pct": -34.628610729023386
+        },
+        "p99_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              89.49,
+              85.478,
+              86.1
+            ],
+            "median": 86.1,
+            "min": 85.478,
+            "max": 89.49
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              50.113,
+              46.304,
+              46.037
+            ],
+            "median": 46.304,
+            "min": 46.037,
+            "max": 50.113
+          },
+          "median_delta": -39.79599999999999,
+          "median_delta_pct": -46.220673635307776
+        },
+        "recomposer_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              431,
+              429,
+              437
+            ],
+            "median": 431,
+            "min": 429,
+            "max": 437
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              316,
+              315,
+              322
+            ],
+            "median": 316,
+            "min": 315,
+            "max": 322
+          },
+          "median_delta": -115,
+          "median_delta_pct": -26.682134570765662
+        },
+        "render_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              1830.1,
+              1728.247,
+              1797.954
+            ],
+            "median": 1797.954,
+            "min": 1728.247,
+            "max": 1830.1
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1716.452,
+              1704.569,
+              1681.542
+            ],
+            "median": 1704.569,
+            "min": 1681.542,
+            "max": 1716.452
+          },
+          "median_delta": -93.38499999999999,
+          "median_delta_pct": -5.193959356023569
+        },
+        "self_jank_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              8.370044052863436,
+              9.534368070953438,
+              8.51528384279476
+            ],
+            "median": 8.51528384279476,
+            "min": 8.370044052863436,
+            "max": 9.534368070953438
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              4.038461538461538,
+              5.029013539651838,
+              4.222648752399232
+            ],
+            "median": 4.222648752399232,
+            "min": 4.038461538461538,
+            "max": 5.029013539651838
+          },
+          "median_delta": -4.292635090395528,
+          "median_delta_pct": -50.41094542054235
+        },
+        "topbar_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        }
+      }
+    },
+    "day": {
+      "expected_runs_per_group": 3,
+      "capture_order": "Recorded device UTC start order: before-1, after-1, after-2, before-2, before-3, after-3. Randomization is not recorded.",
+      "ready": true,
+      "accepted_runs": {
+        "before": 3,
+        "after": 3
+      },
+      "mismatched_recorded_conditions": [],
+      "runs_without_recorded_timezone": 0,
+      "metrics": {
+        "app_deadline_miss_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              0.18315018315018314,
+              0.0,
+              0.0
+            ],
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.18315018315018314
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "median_delta": 0.0,
+          "median_delta_pct": null
+        },
+        "bottom_navigation_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "calendar_app_content_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "calendar_app_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "compose_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              127,
+              126,
+              126
+            ],
+            "median": 126,
+            "min": 126,
+            "max": 127
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              128,
+              127,
+              126
+            ],
+            "median": 127,
+            "min": 126,
+            "max": 128
+          },
+          "median_delta": 1,
+          "median_delta_pct": 0.7936507936507936
+        },
+        "frames": {
+          "before": {
+            "n": 3,
+            "values": [
+              546,
+              550,
+              549
+            ],
+            "median": 549,
+            "min": 546,
+            "max": 550
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              549,
+              554,
+              550
+            ],
+            "median": 550,
+            "min": 549,
+            "max": 554
+          },
+          "median_delta": 1,
+          "median_delta_pct": 0.18214936247723132
+        },
+        "main_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              1219.764,
+              1152.335,
+              1236.349
+            ],
+            "median": 1219.764,
+            "min": 1152.335,
+            "max": 1236.349
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1234.244,
+              1228.735,
+              1173.929
+            ],
+            "median": 1228.735,
+            "min": 1173.929,
+            "max": 1234.244
+          },
+          "median_delta": 8.971000000000004,
+          "median_delta_pct": 0.7354701401254673
+        },
+        "max_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              21.193,
+              18.206,
+              19.334
+            ],
+            "median": 19.334,
+            "min": 18.206,
+            "max": 21.193
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              20.306,
+              18.044,
+              17.214
+            ],
+            "median": 18.044,
+            "min": 17.214,
+            "max": 20.306
+          },
+          "median_delta": -1.2899999999999991,
+          "median_delta_pct": -6.67218371780283
+        },
+        "month_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "nav_bar_surface_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "navigation_host_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "p50_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              4.681,
+              4.619,
+              4.8
+            ],
+            "median": 4.681,
+            "min": 4.619,
+            "max": 4.8
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              4.728,
+              4.835,
+              4.59
+            ],
+            "median": 4.728,
+            "min": 4.59,
+            "max": 4.835
+          },
+          "median_delta": 0.04699999999999971,
+          "median_delta_pct": 1.0040589617603013
+        },
+        "p95_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              7.138,
+              6.37,
+              6.854
+            ],
+            "median": 6.854,
+            "min": 6.37,
+            "max": 7.138
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              6.635,
+              6.652,
+              6.589
+            ],
+            "median": 6.635,
+            "min": 6.589,
+            "max": 6.652
+          },
+          "median_delta": -0.2190000000000003,
+          "median_delta_pct": -3.195214473300267
+        },
+        "p99_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              14.593,
+              14.32,
+              14.469
+            ],
+            "median": 14.469,
+            "min": 14.32,
+            "max": 14.593
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              13.888,
+              12.361,
+              15.016
+            ],
+            "median": 13.888,
+            "min": 12.361,
+            "max": 15.016
+          },
+          "median_delta": -0.5809999999999995,
+          "median_delta_pct": -4.015481373971937
+        },
+        "recomposer_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              289,
+              289,
+              291
+            ],
+            "median": 289,
+            "min": 289,
+            "max": 291
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              292,
+              292,
+              290
+            ],
+            "median": 292,
+            "min": 290,
+            "max": 292
+          },
+          "median_delta": 3,
+          "median_delta_pct": 1.0380622837370241
+        },
+        "render_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              1381.198,
+              1337.481,
+              1388.127
+            ],
+            "median": 1381.198,
+            "min": 1337.481,
+            "max": 1388.127
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1342.955,
+              1401.918,
+              1294.351
+            ],
+            "median": 1342.955,
+            "min": 1294.351,
+            "max": 1401.918
+          },
+          "median_delta": -38.243000000000166,
+          "median_delta_pct": -2.76882822013934
+        },
+        "self_jank_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              0.3663003663003663,
+              0.18181818181818182,
+              0.18214936247723132
+            ],
+            "median": 0.18214936247723132,
+            "min": 0.18181818181818182,
+            "max": 0.3663003663003663
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0.18214936247723132,
+              0.36101083032490977,
+              0.7272727272727273
+            ],
+            "median": 0.36101083032490977,
+            "min": 0.18214936247723132,
+            "max": 0.7272727272727273
+          },
+          "median_delta": 0.17886146784767845,
+          "median_delta_pct": 98.19494584837548
+        },
+        "topbar_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "name": "before-month-1",
+      "scenario": "month",
+      "side": "before",
+      "index": 1,
+      "accepted": true,
+      "frames": {
+        "frames": 454,
+        "self_jank": 38,
+        "app_deadline_misses": 22,
+        "p50_ms": 12.539,
+        "p95_ms": 17.568,
+        "p99_ms": 89.49,
+        "max_ms": 100.617,
+        "self_jank_pct": 8.370044052863436,
+        "app_deadline_miss_pct": 4.845814977973569
+      },
+      "cpu_ms": {
+        "main": 3643.956,
+        "render": 1830.1
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 1.529,
+          "max_ms": 0.367
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 4.471,
+          "max_ms": 0.971
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 3276,
+          "inclusive_ms": 277.86,
+          "max_ms": 1.526
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 143,
+          "inclusive_ms": 319.675,
+          "max_ms": 17.863
+        },
+        "recomposer_recompose": {
+          "executions": 431,
+          "inclusive_ms": 232.144,
+          "max_ms": 11.622
+        }
+      },
+      "device_utc": "2026-11-09T22:03:06Z",
+      "device_utc_end": "2026-11-09T22:03:25Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "a3663a00a730fde1a6ebcc03c2833e836ec02a966524945291443e86d3da5ff0",
+      "trace_bytes": 81775150,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 3
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 3
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 31.7,
+        "battery_temperature_end_c": 31.7,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "622",
+          "total_ms": "1495.542000",
+          "worst_ms": "60.296000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "6",
+          "total_ms": "229.944000",
+          "worst_ms": "58.889000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "317.456000",
+          "worst_ms": "50.266000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "56",
+          "total_ms": "309.858000",
+          "worst_ms": "48.753000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "138.791000",
+          "worst_ms": "37.867000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "143",
+          "total_ms": "319.675000",
+          "worst_ms": "17.863000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "6",
+          "total_ms": "55.423000",
+          "worst_ms": "11.826000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "34.307000",
+          "worst_ms": "9.373000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "113",
+          "total_ms": "44.359000",
+          "worst_ms": "3.598000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.763000",
+          "worst_ms": "0.225000"
+        }
+      ]
+    },
+    {
+      "name": "before-day-1",
+      "scenario": "day",
+      "side": "before",
+      "index": 1,
+      "accepted": true,
+      "frames": {
+        "frames": 546,
+        "self_jank": 2,
+        "app_deadline_misses": 1,
+        "p50_ms": 4.681,
+        "p95_ms": 7.138,
+        "p99_ms": 14.593,
+        "max_ms": 21.193,
+        "self_jank_pct": 0.3663003663003663,
+        "app_deadline_miss_pct": 0.18315018315018314
+      },
+      "cpu_ms": {
+        "main": 1219.764,
+        "render": 1381.198
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 3.851,
+          "max_ms": 0.853
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 8.427999999999999,
+          "max_ms": 1.286
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 127,
+          "inclusive_ms": 73.284,
+          "max_ms": 5.816
+        },
+        "recomposer_recompose": {
+          "executions": 289,
+          "inclusive_ms": 50.522,
+          "max_ms": 6.78
+        }
+      },
+      "device_utc": "2026-11-09T22:04:35Z",
+      "device_utc_end": "2026-11-09T22:04:53Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "0f523fc191d39e65d82c107796ac717c9e5790faba7ec6794b961de4ce69083d",
+      "trace_bytes": 40352269,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.3,
+        "battery_temperature_end_c": 32.3,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    },
+    {
+      "name": "after-month-1",
+      "scenario": "month",
+      "side": "after",
+      "index": 1,
+      "accepted": true,
+      "frames": {
+        "frames": 520,
+        "self_jank": 21,
+        "app_deadline_misses": 8,
+        "p50_ms": 8.753,
+        "p95_ms": 13.307,
+        "p99_ms": 50.113,
+        "max_ms": 64.254,
+        "self_jank_pct": 4.038461538461538,
+        "app_deadline_miss_pct": 1.5384615384615385
+      },
+      "cpu_ms": {
+        "main": 2346.183,
+        "render": 1716.452
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 2.307,
+          "max_ms": 0.563
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 5.396,
+          "max_ms": 1.238
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 873,
+          "inclusive_ms": 135.77,
+          "max_ms": 1.972
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 90,
+          "inclusive_ms": 176.34,
+          "max_ms": 17.876
+        },
+        "recomposer_recompose": {
+          "executions": 316,
+          "inclusive_ms": 49.094,
+          "max_ms": 3.279
+        }
+      },
+      "device_utc": "2026-11-09T22:05:31Z",
+      "device_utc_end": "2026-11-09T22:05:50Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "b7963aa6954cd76705d500b3f8124cf134adaca8bf93a3b963fed35304ad2453",
+      "trace_bytes": 54459023,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.2,
+        "battery_temperature_end_c": 32.2,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "492",
+          "total_ms": "461.530000",
+          "worst_ms": "47.209000"
+        },
+        {
+          "name": "compose:lazy:prefetch:execute:urgent",
+          "calls": "8",
+          "total_ms": "84.856000",
+          "worst_ms": "30.726000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "118.258000",
+          "worst_ms": "30.694000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "194.761000",
+          "worst_ms": "30.596000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "34",
+          "total_ms": "187.187000",
+          "worst_ms": "29.771000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "90",
+          "total_ms": "176.340000",
+          "worst_ms": "17.876000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "5",
+          "total_ms": "18.308000",
+          "worst_ms": "17.287000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "23",
+          "total_ms": "70.610000",
+          "worst_ms": "8.853000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "3.305000",
+          "worst_ms": "3.031000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "49",
+          "total_ms": "24.167000",
+          "worst_ms": "3.016000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.757000",
+          "worst_ms": "0.170000"
+        }
+      ]
+    },
+    {
+      "name": "after-day-1",
+      "scenario": "day",
+      "side": "after",
+      "index": 1,
+      "accepted": true,
+      "frames": {
+        "frames": 549,
+        "self_jank": 1,
+        "app_deadline_misses": 0,
+        "p50_ms": 4.728,
+        "p95_ms": 6.635,
+        "p99_ms": 13.888,
+        "max_ms": 20.306,
+        "self_jank_pct": 0.18214936247723132,
+        "app_deadline_miss_pct": 0.0
+      },
+      "cpu_ms": {
+        "main": 1234.244,
+        "render": 1342.955
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 3.584,
+          "max_ms": 0.883
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 8.911,
+          "max_ms": 1.19
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 128,
+          "inclusive_ms": 65.121,
+          "max_ms": 3.417
+        },
+        "recomposer_recompose": {
+          "executions": 292,
+          "inclusive_ms": 47.485,
+          "max_ms": 6.227
+        }
+      },
+      "device_utc": "2026-11-09T22:06:19Z",
+      "device_utc_end": "2026-11-09T22:06:36Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "80ae42ab6e5c6628382249035f99b4e80d7a8a73276b31e122d4c78cd1f07f59",
+      "trace_bytes": 40207628,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.7,
+        "battery_temperature_end_c": 32.7,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    },
+    {
+      "name": "after-month-2",
+      "scenario": "month",
+      "side": "after",
+      "index": 2,
+      "accepted": true,
+      "frames": {
+        "frames": 517,
+        "self_jank": 26,
+        "app_deadline_misses": 9,
+        "p50_ms": 9.129,
+        "p95_ms": 13.672,
+        "p99_ms": 46.304,
+        "max_ms": 75.664,
+        "self_jank_pct": 5.029013539651838,
+        "app_deadline_miss_pct": 1.7408123791102514
+      },
+      "cpu_ms": {
+        "main": 2354.999,
+        "render": 1704.569
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 2.867,
+          "max_ms": 1.011
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 6.135,
+          "max_ms": 1.439
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 873,
+          "inclusive_ms": 137.629,
+          "max_ms": 2.084
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 87,
+          "inclusive_ms": 174.177,
+          "max_ms": 17.278
+        },
+        "recomposer_recompose": {
+          "executions": 315,
+          "inclusive_ms": 66.834,
+          "max_ms": 7.695
+        }
+      },
+      "device_utc": "2026-11-09T22:07:00Z",
+      "device_utc_end": "2026-11-09T22:07:17Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "d413449c5ce9696497badc06654f14141bc0d5525a7ce161c693d2d24c16238e",
+      "trace_bytes": 53193487,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 8
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 8
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.7,
+        "battery_temperature_end_c": 32.7,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "490",
+          "total_ms": "472.794000",
+          "worst_ms": "46.186000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "5",
+          "total_ms": "75.416000",
+          "worst_ms": "39.819000"
+        },
+        {
+          "name": "compose:lazy:prefetch:execute:urgent",
+          "calls": "6",
+          "total_ms": "75.856000",
+          "worst_ms": "32.461000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "110.373000",
+          "worst_ms": "32.426000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "187.352000",
+          "worst_ms": "26.180000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "34",
+          "total_ms": "178.577000",
+          "worst_ms": "25.000000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "87",
+          "total_ms": "174.177000",
+          "worst_ms": "17.278000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "16",
+          "total_ms": "55.377000",
+          "worst_ms": "9.947000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "17.213000",
+          "worst_ms": "7.995000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "51",
+          "total_ms": "25.304000",
+          "worst_ms": "2.683000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.779000",
+          "worst_ms": "0.217000"
+        }
+      ]
+    },
+    {
+      "name": "after-day-2",
+      "scenario": "day",
+      "side": "after",
+      "index": 2,
+      "accepted": true,
+      "frames": {
+        "frames": 554,
+        "self_jank": 2,
+        "app_deadline_misses": 0,
+        "p50_ms": 4.835,
+        "p95_ms": 6.652,
+        "p99_ms": 12.361,
+        "max_ms": 18.044,
+        "self_jank_pct": 0.36101083032490977,
+        "app_deadline_miss_pct": 0.0
+      },
+      "cpu_ms": {
+        "main": 1228.735,
+        "render": 1401.918
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 2.649,
+          "max_ms": 0.558
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 7.468,
+          "max_ms": 1.144
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 127,
+          "inclusive_ms": 59.859,
+          "max_ms": 3.626
+        },
+        "recomposer_recompose": {
+          "executions": 292,
+          "inclusive_ms": 44.251,
+          "max_ms": 5.255
+        }
+      },
+      "device_utc": "2026-11-09T22:07:49Z",
+      "device_utc_end": "2026-11-09T22:08:06Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "488b4cb2526fefbab087432b4ba36848129ed3cb0982d01369bac7f56b3881a1",
+      "trace_bytes": 39457623,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 8
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 8
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.7,
+        "battery_temperature_end_c": 32.9,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    },
+    {
+      "name": "before-month-2",
+      "scenario": "month",
+      "side": "before",
+      "index": 2,
+      "accepted": true,
+      "frames": {
+        "frames": 451,
+        "self_jank": 43,
+        "app_deadline_misses": 19,
+        "p50_ms": 12.45,
+        "p95_ms": 20.356,
+        "p99_ms": 85.478,
+        "max_ms": 105.453,
+        "self_jank_pct": 9.534368070953438,
+        "app_deadline_miss_pct": 4.212860310421286
+      },
+      "cpu_ms": {
+        "main": 3774.542,
+        "render": 1728.247
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 1.317,
+          "max_ms": 0.239
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 3.866,
+          "max_ms": 0.715
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 3276,
+          "inclusive_ms": 292.397,
+          "max_ms": 4.617
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 143,
+          "inclusive_ms": 331.504,
+          "max_ms": 25.613
+        },
+        "recomposer_recompose": {
+          "executions": 429,
+          "inclusive_ms": 230.766,
+          "max_ms": 11.588
+        }
+      },
+      "device_utc": "2026-11-09T22:08:34Z",
+      "device_utc_end": "2026-11-09T22:08:52Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "2d006f961ead9788f46a84c6abc0bbb919f5eb6d69f128ae15fecbedb38acb76",
+      "trace_bytes": 79804665,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 32.9,
+        "battery_temperature_end_c": 32.9,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "617",
+          "total_ms": "1473.212000",
+          "worst_ms": "73.150000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "6",
+          "total_ms": "226.355000",
+          "worst_ms": "57.006000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "303.743000",
+          "worst_ms": "40.279000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "56",
+          "total_ms": "296.097000",
+          "worst_ms": "39.242000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "137.142000",
+          "worst_ms": "36.887000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "143",
+          "total_ms": "331.504000",
+          "worst_ms": "25.613000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "6",
+          "total_ms": "55.089000",
+          "worst_ms": "11.507000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "33.113000",
+          "worst_ms": "8.605000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "113",
+          "total_ms": "51.396000",
+          "worst_ms": "8.113000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.589000",
+          "worst_ms": "0.215000"
+        }
+      ]
+    },
+    {
+      "name": "before-day-2",
+      "scenario": "day",
+      "side": "before",
+      "index": 2,
+      "accepted": true,
+      "frames": {
+        "frames": 550,
+        "self_jank": 1,
+        "app_deadline_misses": 0,
+        "p50_ms": 4.619,
+        "p95_ms": 6.37,
+        "p99_ms": 14.32,
+        "max_ms": 18.206,
+        "self_jank_pct": 0.18181818181818182,
+        "app_deadline_miss_pct": 0.0
+      },
+      "cpu_ms": {
+        "main": 1152.335,
+        "render": 1337.481
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 3.37,
+          "max_ms": 0.777
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 7.918,
+          "max_ms": 1.131
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 126,
+          "inclusive_ms": 61.562,
+          "max_ms": 3.275
+        },
+        "recomposer_recompose": {
+          "executions": 289,
+          "inclusive_ms": 44.543,
+          "max_ms": 6.963
+        }
+      },
+      "device_utc": "2026-11-09T22:09:22Z",
+      "device_utc_end": "2026-11-09T22:09:39Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "d22514685274d2967023715705ed42a2ad3398f3ad2ccad07d2e6924da58c9fe",
+      "trace_bytes": 39383265,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 12
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 12
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 33.3,
+        "battery_temperature_end_c": 33.3,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    },
+    {
+      "name": "before-month-3",
+      "scenario": "month",
+      "side": "before",
+      "index": 3,
+      "accepted": true,
+      "frames": {
+        "frames": 458,
+        "self_jank": 39,
+        "app_deadline_misses": 19,
+        "p50_ms": 12.158,
+        "p95_ms": 20.371,
+        "p99_ms": 86.1,
+        "max_ms": 108.306,
+        "self_jank_pct": 8.51528384279476,
+        "app_deadline_miss_pct": 4.148471615720524
+      },
+      "cpu_ms": {
+        "main": 3822.307,
+        "render": 1797.954
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 1.469,
+          "max_ms": 0.378
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 4.369,
+          "max_ms": 0.991
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 3276,
+          "inclusive_ms": 285.398,
+          "max_ms": 1.706
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 143,
+          "inclusive_ms": 326.289,
+          "max_ms": 25.786
+        },
+        "recomposer_recompose": {
+          "executions": 437,
+          "inclusive_ms": 230.691,
+          "max_ms": 11.169
+        }
+      },
+      "device_utc": "2026-11-09T22:10:02Z",
+      "device_utc_end": "2026-11-09T22:10:20Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "4b90cee79bf43c19ddc0247017ec7aaf8b2d3deb755231cb6dafc00eea238116",
+      "trace_bytes": 78505767,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 33.3,
+        "battery_temperature_end_c": 33.3,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "634",
+          "total_ms": "1487.314000",
+          "worst_ms": "67.536000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "6",
+          "total_ms": "219.224000",
+          "worst_ms": "55.993000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "322.232000",
+          "worst_ms": "42.959000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "56",
+          "total_ms": "314.844000",
+          "worst_ms": "41.190000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "136.673000",
+          "worst_ms": "36.343000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "143",
+          "total_ms": "326.289000",
+          "worst_ms": "25.786000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "6",
+          "total_ms": "49.613000",
+          "worst_ms": "11.562000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "31.925000",
+          "worst_ms": "8.108000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "113",
+          "total_ms": "46.890000",
+          "worst_ms": "4.775000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.596000",
+          "worst_ms": "0.175000"
+        }
+      ]
+    },
+    {
+      "name": "before-day-3",
+      "scenario": "day",
+      "side": "before",
+      "index": 3,
+      "accepted": true,
+      "frames": {
+        "frames": 549,
+        "self_jank": 1,
+        "app_deadline_misses": 0,
+        "p50_ms": 4.8,
+        "p95_ms": 6.854,
+        "p99_ms": 14.469,
+        "max_ms": 19.334,
+        "self_jank_pct": 0.18214936247723132,
+        "app_deadline_miss_pct": 0.0
+      },
+      "cpu_ms": {
+        "main": 1236.349,
+        "render": 1388.127
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 3.472,
+          "max_ms": 0.764
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 8.565,
+          "max_ms": 1.383
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 126,
+          "inclusive_ms": 69.203,
+          "max_ms": 3.961
+        },
+        "recomposer_recompose": {
+          "executions": 291,
+          "inclusive_ms": 48.74,
+          "max_ms": 6.195
+        }
+      },
+      "device_utc": "2026-11-09T22:10:50Z",
+      "device_utc_end": "2026-11-09T22:11:07Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "14d107aa4af61d367094283d7251d986dc39381561ce5a46bd77638139314012",
+      "trace_bytes": 39639422,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 4
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 33.3,
+        "battery_temperature_end_c": 33.5,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    },
+    {
+      "name": "after-month-3",
+      "scenario": "month",
+      "side": "after",
+      "index": 3,
+      "accepted": true,
+      "frames": {
+        "frames": 521,
+        "self_jank": 22,
+        "app_deadline_misses": 8,
+        "p50_ms": 8.828,
+        "p95_ms": 12.803,
+        "p99_ms": 46.037,
+        "max_ms": 68.583,
+        "self_jank_pct": 4.222648752399232,
+        "app_deadline_miss_pct": 1.5355086372360844
+      },
+      "cpu_ms": {
+        "main": 2355.929,
+        "render": 1681.542
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 2.247,
+          "max_ms": 0.702
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 5.713,
+          "max_ms": 1.383
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 873,
+          "inclusive_ms": 142.542,
+          "max_ms": 1.233
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 95,
+          "inclusive_ms": 189.982,
+          "max_ms": 17.429
+        },
+        "recomposer_recompose": {
+          "executions": 322,
+          "inclusive_ms": 54.276,
+          "max_ms": 3.65
+        }
+      },
+      "device_utc": "2026-11-09T22:11:35Z",
+      "device_utc_end": "2026-11-09T22:11:52Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "bcc1aaae32746e174263fd115928c2674b9cb3332472d44a02dc5c20f129e37a",
+      "trace_bytes": 54461503,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "November",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 33.5,
+        "battery_temperature_end_c": 33.5,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      },
+      "main_thread_page_work": [
+        {
+          "name": "AndroidOwner:measureAndLayout",
+          "calls": "494",
+          "total_ms": "473.872000",
+          "worst_ms": "55.044000"
+        },
+        {
+          "name": "compose:lazy:prefetch:idle_frame",
+          "calls": "6",
+          "total_ms": "66.973000",
+          "worst_ms": "35.017000"
+        },
+        {
+          "name": "compose:lazy:prefetch:execute:urgent",
+          "calls": "6",
+          "total_ms": "73.258000",
+          "worst_ms": "30.500000"
+        },
+        {
+          "name": "compose:lazy:prefetch:apply",
+          "calls": "6",
+          "total_ms": "115.472000",
+          "worst_ms": "30.446000"
+        },
+        {
+          "name": "Compose:deactivate",
+          "calls": "11",
+          "total_ms": "198.311000",
+          "worst_ms": "28.611000"
+        },
+        {
+          "name": "Compose:onForgotten",
+          "calls": "34",
+          "total_ms": "190.013000",
+          "worst_ms": "27.194000"
+        },
+        {
+          "name": "Compose:recompose",
+          "calls": "95",
+          "total_ms": "189.982000",
+          "worst_ms": "17.429000"
+        },
+        {
+          "name": "compose:lazy:prefetch:compose",
+          "calls": "27",
+          "total_ms": "94.985000",
+          "worst_ms": "11.310000"
+        },
+        {
+          "name": "compose:lazy:prefetch:measure",
+          "calls": "6",
+          "total_ms": "14.132000",
+          "worst_ms": "8.429000"
+        },
+        {
+          "name": "Compose:applyChanges",
+          "calls": "49",
+          "total_ms": "25.102000",
+          "worst_ms": "2.819000"
+        },
+        {
+          "name": "compose:lazy:prefetch:resolve-nested",
+          "calls": "6",
+          "total_ms": "0.900000",
+          "worst_ms": "0.226000"
+        }
+      ]
+    },
+    {
+      "name": "after-day-3",
+      "scenario": "day",
+      "side": "after",
+      "index": 3,
+      "accepted": true,
+      "frames": {
+        "frames": 550,
+        "self_jank": 4,
+        "app_deadline_misses": 0,
+        "p50_ms": 4.59,
+        "p95_ms": 6.589,
+        "p99_ms": 15.016,
+        "max_ms": 17.214,
+        "self_jank_pct": 0.7272727272727273,
+        "app_deadline_miss_pct": 0.0
+      },
+      "cpu_ms": {
+        "main": 1173.929,
+        "render": 1294.351
+      },
+      "composition": {
+        "calendar_app": {
+          "executions": 6,
+          "inclusive_ms": 2.911,
+          "max_ms": 0.823
+        },
+        "calendar_app_content": {
+          "executions": 18,
+          "inclusive_ms": 7.1850000000000005,
+          "max_ms": 1.055
+        },
+        "navigation_host": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "month_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "topbar_day_cell": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "bottom_navigation": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "nav_bar_surface": {
+          "executions": 0,
+          "inclusive_ms": 0,
+          "max_ms": 0
+        },
+        "compose_recompose": {
+          "executions": 126,
+          "inclusive_ms": 63.536,
+          "max_ms": 3.185
+        },
+        "recomposer_recompose": {
+          "executions": 290,
+          "inclusive_ms": 45.292,
+          "max_ms": 6.46
+        }
+      },
+      "device_utc": "2026-11-09T22:12:21Z",
+      "device_utc_end": "2026-11-09T22:12:38Z",
+      "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+      "trace_sha256": "d0e8078dafe666c480addb56f62b6e4d96dc157e19ff146fec7076115e10956a",
+      "trace_bytes": 39545118,
+      "health": {
+        "accepted": true,
+        "rejected_counters": [],
+        "informational_scheduler_skips": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ],
+        "all_reported_counters": [
+          {
+            "name": "compact_sched_switch_skipped",
+            "severity": "info",
+            "value": 8
+          },
+          {
+            "name": "compact_sched_waking_skipped",
+            "severity": "info",
+            "value": 7
+          }
+        ]
+      },
+      "page_verification": {
+        "initial": "08",
+        "observed": [
+          {
+            "swipe": 1,
+            "reference": "09"
+          },
+          {
+            "swipe": 6,
+            "reference": "08"
+          }
+        ]
+      },
+      "conditions": {
+        "battery_temperature_start_c": 33.7,
+        "battery_temperature_end_c": 33.7,
+        "thermal_status_start": 0,
+        "thermal_status_end": 0,
+        "local_sensor_status_start": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "local_sensor_status_end": [
+          {
+            "name": "disp_therm",
+            "status": 1
+          },
+          {
+            "name": "rfpa_therm",
+            "status": 1
+          },
+          {
+            "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+            "status": 1
+          },
+          {
+            "name": "quiet_therm",
+            "status": 1
+          },
+          {
+            "name": "north_therm",
+            "status": 1
+          }
+        ],
+        "battery_level": 100,
+        "power": {
+          "AC": true,
+          "USB": false,
+          "Wireless": false
+        }
+      }
+    }
+  ],
+  "capture_order": [
+    "before-month-1",
+    "before-day-1",
+    "after-month-1",
+    "after-day-1",
+    "after-month-2",
+    "after-day-2",
+    "before-month-2",
+    "before-day-2",
+    "before-month-3",
+    "before-day-3",
+    "after-month-3",
+    "after-day-3"
+  ],
+  "limitations": [
+    "Three repetitions on one device; interleaved build groups, not randomized.",
+    "Frame percentiles are medians of per-run percentiles, not pooled distributions.",
+    "Actual FrameTimeline durations are not FPS; Self Jank and App Deadline Missed are Perfetto tags.",
+    "Tracing and accessibility inspection add overhead to both builds.",
+    "Global thermal status was zero at recorded boundaries, but several local sensors had status 1; this does not prove absence of all thermal effects.",
+    "No iPhone frame-pacing claim follows from Android measurements."
+  ],
+  "month_animation_followup": {
+    "description": "Removal of per-date/per-event shared transition modifiers from Month only, compared with the prior updated build. Caller visibility arguments removed; scene fade retained.",
+    "scope": {
+      "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/DayCell.kt": {
+        "before_sha256": "6b9f0a12cb07871b6a822876300a64f31dbf175d7c2c637d25941f2e36371783",
+        "after_sha256": "f69e7c03bedf66a8dc4f31135854d0a210665eb0ac68afb23ec7d1abb8e0b65c"
+      },
+      "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/components/MonthView.kt": {
+        "before_sha256": "97bfa2599510b96509b5ee55172e806a46ae51df3bf4c002bc1f45521b1917dc",
+        "after_sha256": "ada9311d402df4f108f3a0055c4c7ee59c1b401bc5be8a1001d48aa6a064f95b"
+      },
+      "app/shared/src/com/debanshu/xcalendar/ui/screen/monthScreen/MonthScreen.kt": {
+        "before_sha256": "7171080fbcef8368fab0778899c9a5010389e52fe0d5a9033ad23662df067856",
+        "after_sha256": "648efcd5bbe75dcff75239f178f199ffc5725c44986b0916f7dfccab8112e43f"
+      },
+      "app/shared/src/com/debanshu/xcalendar/ui/navigation/BaseNavigation.kt": {
+        "before_sha256": "07fc74648357e3422354c96e77fa96e0e23d7eab03edf9195c08a9ca8adfea6b",
+        "after_sha256": "550e571e64bd3625f10d308c98d6ef08894cb0b9ee04dda0646ab5c455a328a7"
+      }
+    },
+    "apk_sha256": {
+      "before": "a2ae94654e6d89fae96de862aea0bcdbea2b49652b10325ae7aeff22a6142c64",
+      "after": "9f9a9f174ac8cabc3dc2f864d359b31323a159d3cb9e898815ecb4af6f253533"
+    },
+    "comparison": {
+      "expected_runs_per_group": 3,
+      "capture_order": "Recorded device UTC start order: before-1, after-1, after-2, before-2, before-3, after-3. Randomization is not recorded.",
+      "ready": true,
+      "accepted_runs": {
+        "before": 3,
+        "after": 3
+      },
+      "mismatched_recorded_conditions": [],
+      "runs_without_recorded_timezone": 0,
+      "metrics": {
+        "app_deadline_miss_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              0.7722007722007722,
+              1.364522417153996,
+              1.7716535433070866
+            ],
+            "median": 1.364522417153996,
+            "min": 0.7722007722007722,
+            "max": 1.7716535433070866
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0.0,
+              0.0,
+              0.18281535648994515
+            ],
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.18281535648994515
+          },
+          "median_delta": -1.364522417153996,
+          "median_delta_pct": -100.0
+        },
+        "bottom_navigation_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "calendar_app_content_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              18,
+              18,
+              18
+            ],
+            "median": 18,
+            "min": 18,
+            "max": 18
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "calendar_app_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              6,
+              6,
+              6
+            ],
+            "median": 6,
+            "min": 6,
+            "max": 6
+          },
+          "median_delta": 0,
+          "median_delta_pct": 0.0
+        },
+        "compose_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              92,
+              91,
+              87
+            ],
+            "median": 91,
+            "min": 87,
+            "max": 92
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              73,
+              75,
+              78
+            ],
+            "median": 75,
+            "min": 73,
+            "max": 78
+          },
+          "median_delta": -16,
+          "median_delta_pct": -17.582417582417584
+        },
+        "frames": {
+          "before": {
+            "n": 3,
+            "values": [
+              518,
+              513,
+              508
+            ],
+            "median": 513,
+            "min": 508,
+            "max": 518
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              547,
+              540,
+              547
+            ],
+            "median": 547,
+            "min": 540,
+            "max": 547
+          },
+          "median_delta": 34,
+          "median_delta_pct": 6.627680311890838
+        },
+        "main_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              2265.335,
+              2378.339,
+              2317.672
+            ],
+            "median": 2317.672,
+            "min": 2265.335,
+            "max": 2378.339
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1815.41,
+              1886.984,
+              1966.855
+            ],
+            "median": 1886.984,
+            "min": 1815.41,
+            "max": 1966.855
+          },
+          "median_delta": -430.6880000000001,
+          "median_delta_pct": -18.582784794397142
+        },
+        "max_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              61.252,
+              66.058,
+              70.437
+            ],
+            "median": 66.058,
+            "min": 61.252,
+            "max": 70.437
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              34.12,
+              35.05,
+              32.167
+            ],
+            "median": 34.12,
+            "min": 32.167,
+            "max": 35.05
+          },
+          "median_delta": -31.93800000000001,
+          "median_delta_pct": -48.34842108450151
+        },
+        "month_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              873,
+              873,
+              873
+            ],
+            "median": 873,
+            "min": 873,
+            "max": 873
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              504,
+              504,
+              504
+            ],
+            "median": 504,
+            "min": 504,
+            "max": 504
+          },
+          "median_delta": -369,
+          "median_delta_pct": -42.2680412371134
+        },
+        "nav_bar_surface_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "navigation_host_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        },
+        "p50_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              9.074,
+              9.023,
+              9.065
+            ],
+            "median": 9.065,
+            "min": 9.023,
+            "max": 9.074
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              9.088,
+              9.025,
+              8.984
+            ],
+            "median": 9.025,
+            "min": 8.984,
+            "max": 9.088
+          },
+          "median_delta": -0.03999999999999915,
+          "median_delta_pct": -0.4412575841147176
+        },
+        "p95_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              13.458,
+              14.029,
+              13.996
+            ],
+            "median": 13.996,
+            "min": 13.458,
+            "max": 14.029
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              12.761,
+              13.621,
+              13.209
+            ],
+            "median": 13.209,
+            "min": 12.761,
+            "max": 13.621
+          },
+          "median_delta": -0.7870000000000008,
+          "median_delta_pct": -5.623035152900834
+        },
+        "p99_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              47.042,
+              49.395,
+              49.767
+            ],
+            "median": 49.395,
+            "min": 47.042,
+            "max": 49.767
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              21.094,
+              23.768,
+              25.524
+            ],
+            "median": 23.768,
+            "min": 21.094,
+            "max": 25.524
+          },
+          "median_delta": -25.627000000000002,
+          "median_delta_pct": -51.8817694098593
+        },
+        "recomposer_recompose_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              322,
+              311,
+              311
+            ],
+            "median": 311,
+            "min": 311,
+            "max": 322
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              299,
+              299,
+              304
+            ],
+            "median": 299,
+            "min": 299,
+            "max": 304
+          },
+          "median_delta": -12,
+          "median_delta_pct": -3.8585209003215435
+        },
+        "render_cpu_ms": {
+          "before": {
+            "n": 3,
+            "values": [
+              1750.111,
+              1734.866,
+              1745.81
+            ],
+            "median": 1745.81,
+            "min": 1734.866,
+            "max": 1750.111
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              1828.687,
+              1821.99,
+              1811.153
+            ],
+            "median": 1821.99,
+            "min": 1811.153,
+            "max": 1828.687
+          },
+          "median_delta": 76.18000000000006,
+          "median_delta_pct": 4.363590539634901
+        },
+        "self_jank_pct": {
+          "before": {
+            "n": 3,
+            "values": [
+              4.44015444015444,
+              5.0682261208577,
+              4.133858267716535
+            ],
+            "median": 4.44015444015444,
+            "min": 4.133858267716535,
+            "max": 5.0682261208577
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              2.376599634369287,
+              2.5925925925925926,
+              2.1937842778793417
+            ],
+            "median": 2.376599634369287,
+            "min": 2.1937842778793417,
+            "max": 2.5925925925925926
+          },
+          "median_delta": -2.0635548057851527,
+          "median_delta_pct": -46.474843017248226
+        },
+        "topbar_day_cell_executions": {
+          "before": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "after": {
+            "n": 3,
+            "values": [
+              0,
+              0,
+              0
+            ],
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "median_delta": 0,
+          "median_delta_pct": null
+        }
+      }
+    },
+    "runs": [
+      {
+        "name": "before-month-1",
+        "side": "before",
+        "index": 1,
+        "frames": {
+          "frames": 518,
+          "self_jank": 23,
+          "app_deadline_misses": 4,
+          "p50_ms": 9.074,
+          "p95_ms": 13.458,
+          "p99_ms": 47.042,
+          "max_ms": 61.252,
+          "self_jank_pct": 4.44015444015444,
+          "app_deadline_miss_pct": 0.7722007722007722
+        },
+        "cpu_ms": {
+          "main": 2265.335,
+          "render": 1750.111
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 2.585,
+            "max_ms": 0.684
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 5.9959999999999996,
+            "max_ms": 1.221
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 873,
+            "inclusive_ms": 133.754,
+            "max_ms": 1.411
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 92,
+            "inclusive_ms": 175.255,
+            "max_ms": 17.291
+          },
+          "recomposer_recompose": {
+            "executions": 322,
+            "inclusive_ms": 52.346,
+            "max_ms": 3.211
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 32.4,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:32:21Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-02",
+          "apk_sha256": "a2ae94654e6d89fae96de862aea0bcdbea2b49652b10325ae7aeff22a6142c64",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 32.4,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 3
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 3
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "64eb0a6ffd5ec9307ca9d8d3c01099e43d503da0762aba3393d8a8516f8a9901",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      {
+        "name": "before-month-2",
+        "side": "before",
+        "index": 2,
+        "frames": {
+          "frames": 513,
+          "self_jank": 26,
+          "app_deadline_misses": 7,
+          "p50_ms": 9.023,
+          "p95_ms": 14.029,
+          "p99_ms": 49.395,
+          "max_ms": 66.058,
+          "self_jank_pct": 5.0682261208577,
+          "app_deadline_miss_pct": 1.364522417153996
+        },
+        "cpu_ms": {
+          "main": 2378.339,
+          "render": 1734.866
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 2.633,
+            "max_ms": 0.64
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 7.607,
+            "max_ms": 1.473
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 873,
+            "inclusive_ms": 139.833,
+            "max_ms": 4.839
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 91,
+            "inclusive_ms": 183.825,
+            "max_ms": 21.639
+          },
+          "recomposer_recompose": {
+            "executions": 311,
+            "inclusive_ms": 57.172,
+            "max_ms": 4.353
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 33.4,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "quiet_therm",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:34:36Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-04",
+          "apk_sha256": "a2ae94654e6d89fae96de862aea0bcdbea2b49652b10325ae7aeff22a6142c64",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 33.4,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 6
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 6
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "d3a7434b8f965efde8635bb12176a42a660b36cbcdb8a24c6d4ad3b098a539a1",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      {
+        "name": "before-month-3",
+        "side": "before",
+        "index": 3,
+        "frames": {
+          "frames": 508,
+          "self_jank": 21,
+          "app_deadline_misses": 9,
+          "p50_ms": 9.065,
+          "p95_ms": 13.996,
+          "p99_ms": 49.767,
+          "max_ms": 70.437,
+          "self_jank_pct": 4.133858267716535,
+          "app_deadline_miss_pct": 1.7716535433070866
+        },
+        "cpu_ms": {
+          "main": 2317.672,
+          "render": 1745.81
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 2.427,
+            "max_ms": 0.492
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 6.072,
+            "max_ms": 1.143
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 873,
+            "inclusive_ms": 134.039,
+            "max_ms": 2.026
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 87,
+            "inclusive_ms": 171.271,
+            "max_ms": 20.507
+          },
+          "recomposer_recompose": {
+            "executions": 311,
+            "inclusive_ms": 59.074,
+            "max_ms": 3.851
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 33.6,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "quiet_therm",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:35:18Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-05",
+          "apk_sha256": "a2ae94654e6d89fae96de862aea0bcdbea2b49652b10325ae7aeff22a6142c64",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 33.6,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 10
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 10
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "76a3db5f3222288f4b4f5948c601e8014a96228bce8a4e3e8c9b01c9d157032e",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      {
+        "name": "after-month-1",
+        "side": "after",
+        "index": 1,
+        "frames": {
+          "frames": 547,
+          "self_jank": 13,
+          "app_deadline_misses": 0,
+          "p50_ms": 9.088,
+          "p95_ms": 12.761,
+          "p99_ms": 21.094,
+          "max_ms": 34.12,
+          "self_jank_pct": 2.376599634369287,
+          "app_deadline_miss_pct": 0.0
+        },
+        "cpu_ms": {
+          "main": 1815.41,
+          "render": 1828.687
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 2.761,
+            "max_ms": 0.595
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 7.335999999999999,
+            "max_ms": 1.43
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 504,
+            "inclusive_ms": 45.968,
+            "max_ms": 0.634
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 73,
+            "inclusive_ms": 82.592,
+            "max_ms": 8.041
+          },
+          "recomposer_recompose": {
+            "executions": 299,
+            "inclusive_ms": 36.791,
+            "max_ms": 3.762
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 33.0,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:33:08Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-03",
+          "apk_sha256": "9f9a9f174ac8cabc3dc2f864d359b31323a159d3cb9e898815ecb4af6f253533",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 33.0,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 2
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 2
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "d50b8a180dfa964992eeff301ef51e7d01b22860575b7bd3fa4361927185b963",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      {
+        "name": "after-month-2",
+        "side": "after",
+        "index": 2,
+        "frames": {
+          "frames": 540,
+          "self_jank": 14,
+          "app_deadline_misses": 0,
+          "p50_ms": 9.025,
+          "p95_ms": 13.621,
+          "p99_ms": 23.768,
+          "max_ms": 35.05,
+          "self_jank_pct": 2.5925925925925926,
+          "app_deadline_miss_pct": 0.0
+        },
+        "cpu_ms": {
+          "main": 1886.984,
+          "render": 1821.99
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 3.015,
+            "max_ms": 0.806
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 7.6049999999999995,
+            "max_ms": 1.367
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 504,
+            "inclusive_ms": 50.142,
+            "max_ms": 0.506
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 75,
+            "inclusive_ms": 89.41,
+            "max_ms": 8.083
+          },
+          "recomposer_recompose": {
+            "executions": 299,
+            "inclusive_ms": 39.881,
+            "max_ms": 3.76
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 33.0,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:33:50Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-03",
+          "apk_sha256": "9f9a9f174ac8cabc3dc2f864d359b31323a159d3cb9e898815ecb4af6f253533",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 33.4,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 7
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 7
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "10e2d313851884b2fef1eb28470a3dc2f0726eb398ea6c9de455e0fd4323ee13",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      },
+      {
+        "name": "after-month-3",
+        "side": "after",
+        "index": 3,
+        "frames": {
+          "frames": 547,
+          "self_jank": 12,
+          "app_deadline_misses": 1,
+          "p50_ms": 8.984,
+          "p95_ms": 13.209,
+          "p99_ms": 25.524,
+          "max_ms": 32.167,
+          "self_jank_pct": 2.1937842778793417,
+          "app_deadline_miss_pct": 0.18281535648994515
+        },
+        "cpu_ms": {
+          "main": 1966.855,
+          "render": 1811.153
+        },
+        "composition": {
+          "calendar_app": {
+            "executions": 6,
+            "inclusive_ms": 2.551,
+            "max_ms": 0.552
+          },
+          "calendar_app_content": {
+            "executions": 18,
+            "inclusive_ms": 7.438999999999999,
+            "max_ms": 1.475
+          },
+          "navigation_host": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "month_day_cell": {
+            "executions": 504,
+            "inclusive_ms": 53.078,
+            "max_ms": 0.519
+          },
+          "topbar_day_cell": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "bottom_navigation": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "nav_bar_surface": {
+            "executions": 0,
+            "inclusive_ms": 0,
+            "max_ms": 0
+          },
+          "compose_recompose": {
+            "executions": 78,
+            "inclusive_ms": 93.104,
+            "max_ms": 8.162
+          },
+          "recomposer_recompose": {
+            "executions": 304,
+            "inclusive_ms": 36.869,
+            "max_ms": 3.908
+          }
+        },
+        "conditions": {
+          "model": "Pixel 9",
+          "android": "17",
+          "scenario": "month",
+          "iterations": 6,
+          "compose_tracing": true,
+          "battery_temperature_c": 33.7,
+          "battery_level": 100,
+          "power": {
+            "AC": true,
+            "USB": false,
+            "Wireless": false
+          },
+          "thermal_status": 0,
+          "nonzero_current_hal_sensor_status": [
+            {
+              "name": "disp_therm",
+              "status": 1
+            },
+            {
+              "name": "rfpa_therm",
+              "status": 1
+            },
+            {
+              "name": "VIRTUAL-SKIN-CHARGE-WIRED",
+              "status": 1
+            },
+            {
+              "name": "quiet_therm",
+              "status": 1
+            },
+            {
+              "name": "north_therm",
+              "status": 1
+            }
+          ],
+          "device_utc": "2026-11-09T22:36:03Z",
+          "device_timezone": "Asia/Kolkata",
+          "recording_filename_time_unspecified_zone": "2026-11-10_04-06",
+          "apk_sha256": "9f9a9f174ac8cabc3dc2f864d359b31323a159d3cb9e898815ecb4af6f253533",
+          "fixture_data_sha256": "121bc43b32a76b39c622842a9d165049f3553af7f46d7b33ba41083dc29afd3a"
+        },
+        "end_battery_temperature_c": 33.7,
+        "end_thermal_status": 0,
+        "health": {
+          "accepted": true,
+          "rejected_counters": [],
+          "informational_scheduler_skips": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 6
+            }
+          ],
+          "all_reported_counters": [
+            {
+              "name": "compact_sched_switch_skipped",
+              "severity": "info",
+              "value": 8
+            },
+            {
+              "name": "compact_sched_waking_skipped",
+              "severity": "info",
+              "value": 6
+            }
+          ]
+        },
+        "config_sha256": "2367e0840aef1f53eb9b6477d0c71d0493127c3e39f8177ee147dd9bd1e220d1",
+        "trace_sha256": "a4c706b8b26b9068a06b0d642582604ab1330a67fd4aa340ba50117539eccdf9",
+        "verified_pages": [
+          {
+            "swipe": 1,
+            "reference": "December"
+          },
+          {
+            "swipe": 6,
+            "reference": "November"
+          }
+        ]
+      }
+    ]
+  }
+}

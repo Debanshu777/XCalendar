@@ -1,9 +1,23 @@
 package com.debanshu.xcalendar
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import com.debanshu.xcalendar.data.google.rememberGoogleAuthFactory
+import com.debanshu.xcalendar.ui.google.GoogleCalendarViewModel
+import com.debanshu.xcalendar.ui.google.GoogleAccountDialog
+import com.debanshu.xcalendar.ui.google.GoogleEditorAction
+import com.debanshu.xcalendar.ui.google.GoogleSessionStatus
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -31,10 +45,16 @@ import com.debanshu.xcalendar.ui.state.DateStateHolder
 import com.debanshu.xcalendar.ui.theme.XCalendarTheme
 import com.debanshu.xcalendar.ui.viewmodel.EventViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+
+private sealed interface EventEditor {
+    data object Create : EventEditor
+    data class Edit(val event: Event) : EventEditor
+}
 
 private val config =
     SavedStateConfiguration {
@@ -70,47 +90,107 @@ private fun CalendarApp(
     eventViewModel: EventViewModel,
     dateStateHolder: DateStateHolder,
 ) {
+    val googleViewModel = koinViewModel<GoogleCalendarViewModel>()
+    val googleAuth = rememberGoogleAuthFactory()
+    val googleSnapshots by googleViewModel.snapshots.collectAsStateWithLifecycle()
+    val hiddenGoogleCalendars by googleViewModel.hiddenCalendars.collectAsStateWithLifecycle()
+    val googleSyncErrors by googleViewModel.syncErrors.collectAsStateWithLifecycle()
+    val googleReauthRequired by googleViewModel.reauthRequiredAccounts.collectAsStateWithLifecycle()
+    val googleContent by googleViewModel.content.collectAsStateWithLifecycle()
+    val googleState by googleViewModel.state.collectAsStateWithLifecycle()
+    val googleEditor by googleViewModel.editorState.collectAsStateWithLifecycle()
+    var showAccount by remember { mutableStateOf(false) }
     val calendarUiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
     val eventUiState by eventViewModel.uiState.collectAsStateWithLifecycle()
     val dataState by dateStateHolder.currentDateState.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(config, NavigableScreen.Month)
-    var showAddBottomSheet by remember { mutableStateOf(false) }
-    var editingEvent by remember { mutableStateOf<Event?>(null) }
+    var scrollScheduleToToday by remember { mutableStateOf(false) }
+    var editor by remember { mutableStateOf<EventEditor?>(null) }
+    val editingEvent = (editor as? EventEditor.Edit)?.event
+    val editorOpen = editor != null
 
     // Use EventViewModel as single source of truth for selected event
     // The details sheet visibility is derived from whether an event is selected
     val selectedEvent = eventUiState.selectedEvent
 
-    val events = remember(calendarUiState.events) { calendarUiState.events }
+    val connected = googleSnapshots.isNotEmpty()
+    val googleAccounts = googleContent?.accounts.orEmpty()
+    val canEditEvents = googleState.sessionStatus == GoogleSessionStatus.Ready &&
+        googleAccounts.map { it.id } == googleSnapshots.map { it.profile.asUser().id }
+    val accounts = if (connected) googleAccounts else calendarUiState.accounts
+    val calendars = if (connected) googleContent?.calendars.orEmpty() else calendarUiState.calendars
+    val writableCalendars = if (connected) googleContent?.writableCalendars.orEmpty() else calendars
+    val events = if (connected) googleContent?.events ?: persistentListOf() else calendarUiState.events
+    LaunchedEffect(dataState.selectedInViewMonth) {
+        googleViewModel.selectMonth(dataState.selectedInViewMonth.year, dataState.selectedInViewMonth.month.ordinal + 1)
+    }
+    LaunchedEffect(googleAuth) { googleViewModel.restore(googleAuth) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, dateStateHolder) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            dateStateHolder.trackToday()
+        }
+    }
+    LaunchedEffect(connected, editorOpen, selectedEvent, lifecycleOwner) {
+        if (connected && !editorOpen && selectedEvent == null) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) { delay(60_000); googleViewModel.refreshIfNeeded() }
+            }
+        }
+    }
     val holidays = remember(calendarUiState.holidays) { calendarUiState.holidays }
 
     // Editor failures belong to the form until retry/cancel. A snackbar behind
     // the modal must not clear that error on its automatic dismissal timer.
-    val calendarError = calendarUiState.displayError
-    val eventSnackbarError = eventUiState.errorMessage.takeUnless { showAddBottomSheet }
-    val displayError = calendarError ?: eventSnackbarError
+    val calendarError = if (connected) null else calendarUiState.displayError
+    val eventSnackbarError = eventUiState.errorMessage.takeUnless { editorOpen }
+    val googleError = googleState.error.takeUnless { showAccount || editorOpen }
+    val displayError = googleError ?: calendarError ?: eventSnackbarError
 
     Scaffold(
         containerColor = XCalendarTheme.colorScheme.surfaceContainerLow,
         topBar = {
-            CalendarTopAppBar(
-                dateState = dataState,
-                onSelectToday = {
-                    dateStateHolder.resetToToday()
-                },
-                onDayClick = { date ->
-                    dateStateHolder.updateSelectedDateState(date)
-                    backStack.add(NavigableScreen.Day)
-                },
-                events = events,
-                holidays = holidays,
-            )
+            Column {
+                CalendarTopAppBar(
+                    dateState = dataState,
+                    onSelectToday = {
+                        dateStateHolder.resetToToday()
+                        if (backStack.lastOrNull() == NavigableScreen.Schedule) scrollScheduleToToday = true
+                    },
+                    onDayClick = { date ->
+                        dateStateHolder.updateSelectedDateState(date)
+                        backStack.add(NavigableScreen.Day)
+                    },
+                    events = events,
+                    holidays = holidays,
+                    accountLabel = when {
+                        googleState.sessionStatus == GoogleSessionStatus.Failed -> "Retry"
+                        googleState.sessionStatus == GoogleSessionStatus.Pending -> "Accounts"
+                        !connected -> "Connect"
+                        accounts.isEmpty() -> "Google"
+                        accounts.size > 1 -> "${accounts.size} accounts"
+                        else -> accounts.first().name.substringBefore(" ").ifBlank { "Google" }
+                    },
+                    onAccountClick = { showAccount = true },
+                )
+                // Reserve the strip even when idle so loading never moves the grid.
+                Box(Modifier.fillMaxWidth().height(2.dp)) {
+                    if (googleState.busy && !googleState.saving) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(2.dp),
+                            color = XCalendarTheme.colorScheme.primary,
+                            trackColor = XCalendarTheme.colorScheme.surfaceContainerLow,
+                        )
+                    }
+                }
+            }
         },
         snackbarHost = {
             ErrorSnackbar(
                 message = displayError,
                 onDismiss = {
-                    if (calendarError != null) calendarViewModel.clearError()
+                    if (googleError != null) googleViewModel.clearError()
+                    else if (calendarError != null) calendarViewModel.clearError()
                     else eventViewModel.clearError()
                 },
             )
@@ -136,6 +216,8 @@ private fun CalendarApp(
                 dateStateHolder = dateStateHolder,
                 events = events,
                 holidays = holidays,
+                scrollScheduleToToday = scrollScheduleToToday,
+                onScheduleTodayScrollRequested = { scrollScheduleToToday = false },
                 onEventClick = { event ->
                     eventViewModel.selectEvent(event)
                 },
@@ -149,54 +231,85 @@ private fun CalendarApp(
                 onViewSelect = { view ->
                     backStack.replaceLast(view)
                 },
-                onAddClick = {
-                    editingEvent = null
+                onAddClick = if (canEditEvents && accounts.isNotEmpty()) ({
                     eventViewModel.clearSelectedEvent()
                     eventViewModel.clearError()
-                    showAddBottomSheet = true
-                },
+                    googleViewModel.clearEditorState()
+                    editor = EventEditor.Create
+                }) else null,
             )
         }
-        if (showAddBottomSheet) {
-            val calendarOwner = calendarUiState.calendars.find { it.id == editingEvent?.calendarId }?.userId
-            (calendarUiState.accounts.find { it.id == calendarOwner }
-                ?: calendarUiState.accounts.firstOrNull())?.let {
+        if (showAccount) {
+            GoogleAccountDialog(googleSnapshots, googleState, hiddenGoogleCalendars, googleSyncErrors, googleReauthRequired,
+                onConnect = { googleViewModel.connect(googleAuth) },
+                onRefresh = googleViewModel::refresh,
+                onSignOut = { accountId -> googleViewModel.signOut(accountId) { eventViewModel.clearSelectedEvent() } },
+                onReconnect = { accountId -> googleViewModel.connect(googleAuth, accountId) },
+                onRestore = { googleViewModel.restore(googleAuth) },
+                onCalendarVisibilityChange = googleViewModel::setCalendarVisible,
+                onDismiss = { googleViewModel.cancel(); showAccount = false },
+            )
+        }
+        if (editorOpen && canEditEvents) {
+            val calendarOwner = calendars.find { it.id == editingEvent?.calendarId }?.userId
+            (accounts.find { it.id == calendarOwner }
+                ?: accounts.firstOrNull())?.let {
                 AddEventDialog(
                     user = it,
-                    calendars = calendarUiState.calendars.toImmutableList(),
+                    calendarAccounts = (if (connected) accounts else listOf(it)).toImmutableList(),
+                    calendars = writableCalendars.filter { !connected || editingEvent == null || it.id == editingEvent.calendarId }.toImmutableList(),
                     selectedDate = dataState.selectedDate,
                     initialEvent = editingEvent,
-                    isSaving = eventUiState.isLoading,
-                    errorMessage = eventUiState.errorMessage,
+                    isSaving = if (connected) googleEditor.action != null else eventUiState.isLoading,
+                    busyLabel = when (googleEditor.action) {
+                        GoogleEditorAction.Reconnect -> "Reconnecting…"
+                        GoogleEditorAction.LoadLatest -> "Loading…"
+                        else -> "Saving…"
+                    },
+                    actionsAvailable = !connected || !googleState.busy,
+                    errorMessage = if (connected) googleEditor.error else eventUiState.errorMessage,
+                    latestEvent = googleEditor.latestEvent,
+                    onLoadLatest = editingEvent?.takeIf { googleEditor.hasConflict && googleEditor.latestEvent == null }
+                        ?.let { event ->
+                            { googleViewModel.loadLatestEvent(event, eventViewModel::selectEvent) }
+                        },
+                    reconnectAccountIds = googleReauthRequired.map { "google:$it" }.toSet(),
+                    onReconnect = if (connected) {
+                        { userId -> googleSnapshots.firstOrNull { it.profile.asUser().id == userId }?.let {
+                            googleViewModel.reconnectEditor(googleAuth, it.profile.sub)
+                        } }
+                    } else null,
                     onSave = { event ->
                         val dismissOnSuccess = {
-                            showAddBottomSheet = false
-                            editingEvent = null
+                            editor = null
                         }
-                        if (editingEvent == null) {
+                        if (connected) {
+                            googleViewModel.save(event, editing = editingEvent != null) { eventViewModel.clearSelectedEvent(); dismissOnSuccess() }
+                        } else if (editingEvent == null) {
                             eventViewModel.addEvent(event, onSuccess = dismissOnSuccess)
                         } else {
                             eventViewModel.editEvent(event, onSuccess = dismissOnSuccess)
                         }
                     },
                     onDismiss = {
-                        if (!eventUiState.isLoading) {
-                            showAddBottomSheet = false
-                            editingEvent = null
+                        if (!eventUiState.isLoading && googleEditor.action == null) {
+                            editor = null
                             eventViewModel.clearError()
+                            googleViewModel.clearEditorState()
                         }
                     },
                 )
             }
         }
 
-        if (selectedEvent != null && !showAddBottomSheet) {
+        if (selectedEvent != null && !editorOpen) {
             EventDetailsDialog(
                 event = selectedEvent,
+                canEdit = canEditEvents && (!connected || googleViewModel.canEdit(selectedEvent)),
                 onEdit = { editedEvent ->
-                    editingEvent = editedEvent
                     eventViewModel.clearError()
-                    showAddBottomSheet = true
+                    googleViewModel.clearEditorState()
+                    editor = EventEditor.Edit(editedEvent)
                 },
                 onDismiss = {
                     eventViewModel.clearSelectedEvent()

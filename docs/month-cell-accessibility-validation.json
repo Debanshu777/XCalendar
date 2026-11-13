@@ -1,0 +1,119 @@
+{
+  "candidate": "V3 day semantic-text consolidation",
+  "date": "2026-11-13",
+  "input_method": "Temporary Android UHID USB keyboard; TalkBack handled enhanced-keymap navigation and activation",
+  "validation": {
+    "jvm_tests_passed": 144,
+    "ios_simulator_passed_records": 119,
+    "ios_keychain_native_operation": "skipped: runner lacks entitlement",
+    "python_tests_passed": 23,
+    "android_steady_and_loading_release": "passed",
+    "desktop_build": "passed",
+    "visual": [
+      "default",
+      "fontScale2",
+      "compactToday",
+      "Day navigation"
+    ],
+    "talkback": {
+      "actual_input": "Android UHID external keyboard, Meta+Right and Meta+Space; SpeechController speaking-fragment logs",
+      "verified": [
+        "one focus per day in sampled empty/populated sequence",
+        "full visible titles, date, totals, omissions",
+        "holiday-only before loading",
+        "automatic focused count update",
+        "visible refreshed title on reread using separate QA fixture",
+        "compact today counts and Today marker",
+        "TalkBack activation opens Jan8",
+        "normal Tab then Enter opens Jan8"
+      ],
+      "limitation": "Physical finger double-tap not tested; keyboard exercises actual TalkBack activation action",
+      "original_log_level": "ERROR",
+      "original_speech_output": false,
+      "restored": true
+    },
+    "temporary_keyboard_removed": true,
+    "font_scale_restored": 1,
+    "viewport_restored": true,
+    "current_process_crash_log": "empty"
+  },
+  "tree_nodes_before_after": [
+    278,
+    80
+  ],
+  "day_buttons_before_after": [
+    42,
+    42
+  ],
+  "spoken_cases": {
+    "populated": {
+      "evidence_sha256": "222df0b52e2efa7e5cb5cc98b87e66b5877aa10372a7e37464ba34d9c5773c4a",
+      "spoken_text_samples": [
+        "0 holidays, 0 events. 2025-12-31. Button",
+        "1 holiday, 10 events. 2026-01-01. Holiday: Fixture holiday 1. Event: January 01 / 09 — Travel planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 9 more. Button",
+        "0 holidays, 13 events. 2026-01-02. Event: January 01 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. Event: January 01 / 07 — Personal planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 11 more. Button",
+        "0 holidays, 13 events. 2026-01-03. Event: January 02 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. Event: January 02 / 07 — Personal planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 11 more. Button",
+        "0 holidays, 13 events. 2026-01-04. Event: January 03 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. Event: January 03 / 07 — Personal planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 11 more. Button",
+        "0 holidays, 13 events. 2026-01-05. Event: January 04 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. Event: January 04 / 07 — Personal planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 11 more. Button",
+        "0 holidays, 13 events. 2026-01-06. Event: January 05 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. Event: January 05 / 07 — Personal planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 11 more. Button",
+        "1 holiday, 13 events. 2026-01-07. Holiday: Fixture holiday 2. Event: January 06 / 10 — Community planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions. 12 more. Button",
+        "2 holidays, 13 events. 2026-01-08. Holiday: Fixture holiday 3. Holiday: Fixture holiday 4. 13 more. Button"
+      ]
+    },
+    "holiday_only": {
+      "evidence_sha256": "583b428c7d387343a8491060a799adc2a223aca00ec93ba40848e110c1bf83ac",
+      "spoken_text_samples": [
+        "0 holidays, 0 events. 2025-12-28. Button",
+        "0 holidays, 0 events. 2025-12-29. Button",
+        "0 holidays, 0 events. 2025-12-30. Button",
+        "0 holidays, 0 events. 2025-12-31. Button",
+        "1 holiday, 0 events. 2026-01-01. Holiday: Fixture holiday 1. Button",
+        "1 holiday, 10 events"
+      ]
+    },
+    "focused_loading": {
+      "evidence_sha256": "583b428c7d387343a8491060a799adc2a223aca00ec93ba40848e110c1bf83ac",
+      "spoken_text_samples": [
+        "0 holidays, 0 events. 2025-12-28. Button",
+        "0 holidays, 0 events. 2025-12-29. Button",
+        "0 holidays, 0 events. 2025-12-30. Button",
+        "0 holidays, 0 events. 2025-12-31. Button",
+        "1 holiday, 0 events. 2026-01-01. Holiday: Fixture holiday 1. Button",
+        "1 holiday, 10 events"
+      ]
+    },
+    "compact_today": {
+      "evidence_sha256": "30a8be534cc3dd44419ae85228209c75b1b767a677766d177a212389bb2a7c3e",
+      "spoken_text_samples": [
+        "0 holidays, 13 events. 2026-11-04. 13 more. Button",
+        "0 holidays, 13 events. 2026-11-05. 13 more. Button",
+        "0 holidays, 13 events. 2026-11-06. 13 more. Button",
+        "1 holiday, 13 events. 2026-11-07. 14 more. Button",
+        "2 holidays, 13 events. 2026-11-08. 15 more. Button",
+        "0 holidays, 13 events. 2026-11-09. 13 more. Button",
+        "0 holidays, 13 events. 2026-11-10. 13 more. Button",
+        "0 holidays, 13 events. 2026-11-11. 13 more. Button",
+        "1 holiday, 13 events. 2026-11-12. 14 more. Button",
+        "0 holidays, 13 events. 2026-11-13. Today. 13 more. Button"
+      ]
+    },
+    "visible_title_refresh": {
+      "evidence_sha256": "3b6e9b6b6797c81861143e2d27677640524fa17a9b600b63ff5ed760ff0f75b7",
+      "spoken_text_samples": [
+        "1 holiday, 10 events",
+        "1 holiday, 10 events. 2026-01-01. Holiday: Fixture holiday 1. Event: January 01 / 09 — Travel planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions [updated]. 9 more. Button. In horizontal pager. Window XCalendar",
+        "1 holiday, 10 events. 2026-01-01. Holiday: Fixture holiday 1. Event: January 01 / 09 — Travel planning: a deliberately long calendar title covering milestones, review notes, and follow-up actions [updated]. 9 more. Button"
+      ]
+    }
+  },
+  "limitations": [
+    "Physical finger double-tap not tested",
+    "iOS VoiceOver not runtime tested",
+    "Reread after help dialog generated two closely spaced focus utterances; do not claim all announcements occurred exactly once",
+    "Perfetto names show semantics processing, not the delivered ContentCapture payload"
+  ],
+  "references": {
+    "talkback_keyboard_shortcuts": "https://support.google.com/accessibility/android/answer/6110948",
+    "android_hid_test_interface": "https://android.googlesource.com/platform/frameworks/base/+/1789c71c123e/cmds/hid/README.md"
+  }
+}
