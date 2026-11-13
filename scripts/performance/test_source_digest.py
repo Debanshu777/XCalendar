@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,5 +44,8 @@ class SourceDigestTests(unittest.TestCase):
 
     def test_invalid_revision_fails(self):
         with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaises(subprocess.CalledProcessError):
-                source_digest("--help", cwd=directory)
+            script = Path(__file__).with_name("source_digest.py").resolve()
+            result = subprocess.run([sys.executable, str(script), "invalid-revision"],
+                                    cwd=directory, capture_output=True, text=True)
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("not a git repository", result.stderr)
